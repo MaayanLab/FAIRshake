@@ -43,13 +43,14 @@ def load_user(user_id):  # given user id, returns user object
 
 login_manager.login_view = "/login"
 
+ENTRY_POINT = '/lwfairness'
 
-@app.route("/")
+@app.route(ENTRY_POINT + "/")
 def index():
     return render_template('index.html')
 
 
-@app.route("/login", methods=['GET', 'POST'])
+@app.route(ENTRY_POINT + "/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -75,14 +76,14 @@ def login():
     return render_template('login.html')
 
 
-@app.route("/myaccount", methods=["GET", 'POST'])
+@app.route(ENTRY_POINT + "/myaccount", methods=["GET", 'POST'])
 @login_required
 def myaccount():
     current_userid = current_user.user_id
     return render_template('acchome.html', current_userid=current_userid)
 
 
-@app.route("/logout", methods=["GET"])
+@app.route(ENTRY_POINT + "/logout", methods=["GET"])
 @login_required
 def logout():
     # Logout the current user
@@ -90,7 +91,7 @@ def logout():
     return redirect('/login')
 
 
-@app.route("/register", methods=['GET', 'POST'])
+@app.route(ENTRY_POINT + "/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -152,9 +153,9 @@ def registered():
         return "Account with this username already exists"
 
 
-@app.route('/resources/', defaults={'page': 1}, methods=['GET', 'POST'])
-@app.route('/resources', defaults={'page': 1}, methods=['GET', 'POST'])
-@app.route('/resources/page/<int:page>', methods=['GET'])
+@app.route(ENTRY_POINT + '/resources/', defaults={'page': 1}, methods=['GET', 'POST'])
+@app.route(ENTRY_POINT + '/resources', defaults={'page': 1}, methods=['GET', 'POST'])
+@app.route(ENTRY_POINT + '/resources/page/<int:page>', methods=['GET'])
 def resourcelist(page):
     mylist = []
     userres = []
@@ -231,9 +232,9 @@ def resourcelist(page):
                            per_page=per_page, showlast=showlast, userres=userres, avginfo=avginfo, qdat=qdat)
 
 
-@app.route("/myevaluations", defaults={'page': 1}, methods=['GET'])
-@app.route("/myevaluations/", defaults={'page': 1}, methods=['GET'])
-@app.route("/myevaluations/page/<int:page>", methods=['GET'])
+@app.route(ENTRY_POINT + "/myevaluations", defaults={'page': 1}, methods=['GET'])
+@app.route(ENTRY_POINT + "/myevaluations/", defaults={'page': 1}, methods=['GET'])
+@app.route(ENTRY_POINT + "/myevaluations/page/<int:page>", methods=['GET'])
 @login_required
 def myevals(page):
     resources = []
@@ -316,7 +317,7 @@ def myevals(page):
                            totalres=totalres, listeval=listeval, avginfo=avginfo, ans=ans, qdat=qdat)
 
 
-@app.route("/evaluate", methods=['POST'])
+@app.route(ENTRY_POINT + "/evaluate", methods=['POST'])
 @login_required
 def evaluate():
     setanswers = []
@@ -362,7 +363,7 @@ def evaluate():
                            description=description, setanswers=setanswers, setcomments=setcomments, setq=setq)
 
 
-@app.route('/submitted', methods=['POST', 'GET'])
+@app.route(ENTRY_POINT + '/submitted', methods=['POST', 'GET'])
 @login_required
 def submitted():
     answerlist = []
@@ -426,7 +427,7 @@ def submitted():
     return "Submitted"
 
 
-@app.route('/refreshavg', methods=['GET'])
+@app.route(ENTRY_POINT + '/refreshavg', methods=['GET'])
 def refreshavg():
     conx = mysql.get_db()
     cursor = conx.cursor()
@@ -473,12 +474,12 @@ def refreshavg():
     return "ok"
 
 
-@app.route("/forgotpassword")
+@app.route(ENTRY_POINT + "/forgotpassword")
 def forgotpass():
     return render_template('forgotpass.html')
 
 
-@app.route('/sentpassword', methods=['POST'])
+@app.route(ENTRY_POINT + '/sentpassword', methods=['POST'])
 def sentpass():
     username = request.form['username']
 
@@ -494,13 +495,13 @@ def sentpass():
         return "Email placeholder"
 
 
-@app.route("/resetpassword", methods=["GET"])
+@app.route(ENTRY_POINT + "/resetpassword", methods=["GET"])
 @login_required
 def resetpass():
     return render_template('resetpass.html')
 
 
-@app.route('/passwordreset', methods=['POST', 'GET'])
+@app.route(ENTRY_POINT + '/passwordreset', methods=['POST', 'GET'])
 @login_required
 def passreset():
     username = current_user.username
@@ -526,17 +527,17 @@ def passreset():
             return "Password reset"
 
 
-@app.route('/doe', methods=['GET'])
+@app.route(ENTRY_POINT + '/doe', methods=['GET'])
 def doe():
     return render_template('doehome.html')
 
 
-@app.route('/projects', methods=['GET'])
+@app.route(ENTRY_POINT + '/projects', methods=['GET'])
 def projects():
     return render_template('projects.html')
 
 
-@app.route('/account', methods=['GET'])
+@app.route(ENTRY_POINT + '/account', methods=['GET'])
 def myprojects():
     return render_template('doeacchome.html')
 

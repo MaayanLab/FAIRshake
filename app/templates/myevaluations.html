@@ -37,7 +37,7 @@ h2{
 	var lastpage=1;
 	if({{totalres}}<{{per_page}}||({{totalres}}%{{per_page}}==0)){
 		lastpage=Math.trunc({{totalres}}/{{per_page}});
-		if (lastpage==0){
+		if (lastpage===0){
 			lastpage=1;
 		}
 	}
