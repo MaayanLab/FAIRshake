@@ -16,7 +16,7 @@
 }
 
 .form-actions{
-  padding-bottom:20px;
+  padding-bottom:30px;
 }
 
 h2{
@@ -26,17 +26,20 @@ h2{
 body{
   font-family: 'Lato', sans-serif;
 }
+.accmenu{
+  padding:30px;
+}
 
 
 </style>
 
 
 </head>
-{% with messages = get_flashed_messages() %}
+{% with messages = get_flashed_messages(with_categories=true) %}
   <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
   {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-danger alert-dismissible" role="alert">
+    {% for category,message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       <!-- <strong>Title</strong> --> {{ message }}
       </div>
@@ -56,7 +59,7 @@ body{
     <h2>Login</h2>
 
 
-    <form action="/login" method="post" class="form-horizontal">
+    <form action="/fairshake/login" method="post" class="form-horizontal">
       <div class="form-group">
         <div class="col-sm-4 col-sm-offset-4">
           <input type="email" class="form-control inputdefault" name="username" id="username" required placeholder="Email"></input>
@@ -74,13 +77,25 @@ body{
 
 
       <div class="forgotp">
-        <a href="/forgotpassword" target="_self">Forgot Password?</a>
+        <a href="/fairshake/forgotpassword" target="_self">Forgot Password?</a>
       </div>
       <div class="register">
-      <a href="/register" target="_self">Sign up</a> 
+      <a href="/fairshake/register" target="_self">Sign up</a>
       </div>
 
 
+        {% if current_user.is_authenticated %} <!-- home/logout footer -->
+        <div class="accmenu">
+        <div class="accmenuop">
+        <a href="/fairshake/myaccount">Home</a>
+        </div>
+        <div class="accmenuop">
+        <a href="/fairshake/acctmanagement">Settings</a>
+        |
+        <a href="/fairshake/logout">Logout</a>
+        </div>
+        </div>
+    {% endif %}
   </div>
   </body>
 </html>

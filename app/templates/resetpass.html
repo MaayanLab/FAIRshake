@@ -13,6 +13,9 @@
   padding-bottom:20px;
 }
 
+.form-actions{
+  padding-bottom:30px;
+}
 
 
 h2{
@@ -27,7 +30,7 @@ h2{
 
 
 
-    <form action="/passwordreset" class="form-horizontal" method="post">
+    <form action="/fairshake/passwordreset" class="form-horizontal" method="post">
       <div class="form-group">
         <label class="control-label col-sm-3 col-sm-offset-1" for="passwordold">Enter old password:</label>
         <div class="col-sm-4">
@@ -50,6 +53,19 @@ h2{
         <button type="submit" class="btn btn-default" value="Submit">Submit</button>
       </div>
 	</form>
+
+      {% if current_user.is_authenticated %} <!-- home/logout footer -->
+      <div class="accmenu">
+      <div class="accmenuop">
+      <a href="/fairshake/myaccount">Home</a>
+      </div>
+      <div class="accmenuop">
+      <a href="/fairshake/acctmanagement">Settings</a>
+          |
+      <a href="/fairshake/logout">Logout</a>
+      </div>
+      </div>
+   {% endif %}
 
   </div>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />

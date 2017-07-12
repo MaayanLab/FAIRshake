@@ -44,11 +44,11 @@ h2{
 			for (i = 0; i < x.length; i++) {
 				x[i].style.display='none';
 			}
-			
-	
+
+
 		}
 		*/
-		
+
 
 		function clickyesbut(obj){
 			if(!(obj.checked==="checked")){
@@ -67,7 +67,7 @@ h2{
 
 		}
 
-		
+
 		function loadyesbut(obj,fill){
 			document.getElementById(obj+"yesbut").checked=true;
 			document.getElementById(obj+'text').style.display='inline';
@@ -75,7 +75,7 @@ h2{
 			document.getElementById(obj+'text').value=fill;
 		}
 
-		
+
 		</script>
 <div class="container-fluid">
 	<table class="table table-responsive">
@@ -86,7 +86,7 @@ h2{
 			<th>Yes, but:</th>
 			<th>Comments</th>
 		</thead>
-		<form action="/lwfairness/submitted" id="evform" method="post" onsubmit="return confirm('Are you sure you want to submit?');">
+		<form action="/fairshake/modifysubmitted" id="evform" method="post" onsubmit="return confirm('Are you sure you want to submit?');">
 			<input type="hidden" name="hiddenfield" value={{resource_id}}>
 			<tbody>
 			{% for w in range(16) %}
@@ -112,7 +112,7 @@ h2{
 		</form>
 	</table>
 
-			
+
 
 			<button class="btn btn-default" type="submit" form="evform" value="Submit">Submit</button>
 
@@ -122,8 +122,8 @@ h2{
 			for (i = 0; i < x.length; i++) {
 				x[i].style.display='none';
 			}
-		</script>			
-		
+		</script>
+
 		{% if setanswers %}
 			{% for e in range(16) %}
 				{% if setanswers[e][1]=="yes" %}
@@ -139,7 +139,7 @@ h2{
 			{% endfor %}
 		{% endif %}
 
-</div>		
+</div>
 
 	</body>
 	</html>

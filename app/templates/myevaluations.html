@@ -19,16 +19,36 @@ h2{
 .accmenu{
 	text-align:center;
 }
+.tdinsig{
+	width:12%;
+}
+.tdmyinsig{
+	width:12%;
+}
+.otext{
+	display:block;
+	font-size:12px;
+	line-height:.95;
+    padding-top:3px;
+}
 
 </style>
 </head>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+  {% if messages %}
+    {% for category,message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <!-- <strong>Title</strong> --> {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 <body>
-
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <h2 style = "text-align: center;">My Evaluations</h2>
 
@@ -75,18 +95,14 @@ h2{
 
   function opac(d){
   	d3.select(this).style("fill-opacity",.3);
-
-
-  	var text = d3.select(this.parentNode).append("text").text(d.qdata+": "+roundTwo(d.numdata)).attr("id","ttext").attr("text-anchor","middle")
-  		.attr("x",40).attr("y",100)
-  		.attr("fill","black").attr("font-size","14px");
-
-  	}
+  	d3.select(this.parentNode.parentNode).append("div").append("text").text(roundTwo(d.numdata)).attr("class","ttext");
+    d3.select(this.parentNode.parentNode).append("div").append("text").text(d.qdata+".").attr("class","otext");
+  }
   	
  
   function bopac(){
   	d3.select(this).style("fill-opacity",1);
-  	d3.selectAll("#ttext").remove();
+  	d3.selectAll("text").remove();
 
   }
 
@@ -104,7 +120,7 @@ h2{
 
   function insig(i){ //avginfo goes from 1-16 for averages, 0 index is id
 
-    var body = d3.selectAll(document.getElementsByClassName("insignia"+i)).append("svg").attr("width",105).attr("height",105).style("overflow","visible");
+    var body = d3.selectAll(document.getElementsByClassName("insignia"+i)).append("svg").attr("width",85).attr("height",85);
 
     
     body.selectAll("xyz1").data([{"numdata": {{avginfo|tojson}}[i][1],"qdata": {{qdat|tojson}}[i][1]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",0).style(rectStyle)
@@ -138,8 +154,7 @@ h2{
 
   function myinsig(i){ //avginfo goes from 1-16 for averages, 0 index is id
 
-    var body = d3.selectAll(document.getElementsByClassName("myinsignia"+i)).append("svg").attr("width",105).attr("height",105).style("overflow","visible");
-
+    var body = d3.selectAll(document.getElementsByClassName("myinsignia"+i)).append("svg").attr("width",85).attr("height",85);
 
     body.selectAll("xyz1").data([{"numdata": {{ans|tojson}}[i][1],"qdata": {{qdat|tojson}}[i][1]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",0).style(rectStyle)
     .on("mouseover",opac)
@@ -185,8 +200,8 @@ h2{
 		 </tr>
 	 </thead>
 	 <tbody>
-	 <form action="/evaluate" method="post" id="form1">
-	 {% for i in range(pagecount-per_page,showlast): %}
+	 <form action="/lwfairness/modifyevaluation" method="post" id="form1">
+	 {% for i in range(pagecount-per_page,showlast) %}
 		 <tr>
 			 <td>
 				 <div class="radio">
@@ -218,14 +233,14 @@ h2{
 				 <label for='res1'>{{listeval[i]}}</label>
 			 </div>
 			 </td>
-			 <td>
+			 <td class="tdinsig">
 			 <div class="insignia{{i}}">
 			 	<script>
 					insig({{i}});
 				</script>
 			 </div>
 			 </td>
-			 <td>
+			 <td class="tdmyinsig">
 			 <div class="myinsignia{{i}}">
 			 	<script>
 					myinsig({{i}});
@@ -245,13 +260,13 @@ h2{
 {% endif %}
 
 <div class="form-actions">
-<form action='/myevaluations/page/{{page-1}}' method='get'>
+<form action='/lwfairness/myevaluations/page/{{page-1}}' method='get'>
 	<button type="submit" class="btn btn-default" value="Back" id="back">Back</input>
 </form>
 </div>
 
 <div class="form-actions">
-<form action='/myevaluations/page/{{page+1}}' method='get'>
+<form action='/lwfairness/myevaluations/page/{{page+1}}' method='get'>
 	<button type="submit" class="btn btn-default" value="Next" id="next">Next</input>
 </form>
 </div>
@@ -260,13 +275,15 @@ h2{
 
 
 
-{% if current_user.is_authenticated %}
+{% if current_user.is_authenticated %} <!-- acc footer -->
     	<div class="accmenu">
     	<div class="accmenuop">
-    	<a href="/myaccount">Home</a>
+    	<a href="/lwfairness/myaccount">Home</a>
     	</div>
     	<div class="accmenuop">
-    	<a href="/logout">Logout</a>
+    	<a href="/lwfairness/acctmanagement">Settings</a>
+		|
+    	<a href="/lwfairness/logout">Logout</a>
     	</div>
    		</div>
 {% endif %}

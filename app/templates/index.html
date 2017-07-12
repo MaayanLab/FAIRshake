@@ -32,6 +32,7 @@ h2{
 }
 
 </style>
+</head>
   <body>
 
   <div class="container-fluid">
@@ -41,30 +42,30 @@ h2{
     
     <h3>System to evaluate FAIR-ness of resources</h3>
 
-    
-
     <div class="buttons" role="group">
-	    <form class="btn-group1" action="/resources" method="get">
+	    <form class="btn-group1" action="/fairshake/resources" method="get">
 	    	<button type="submit" class="btn btn-default" value="LINCS Resource List">LINCS Resource List</button>
 	    </form>
-	    <form class="btn-group" action="/login" method="get">
+	    <form class="btn-group" action="/fairshake/login" method="get">
 	    	<button type="submit" class="btn btn-default" value="Login">Login</button>
 	    </form>
-	    <form class="btn-group" action="/register" method="get">
+	    <form class="btn-group" action="/fairshake/register" method="get">
 	    	<button type="submit" class="btn btn-default" value="Sign up">Sign up</button>
 	    </form>
 	</div>
 
 
-	{% if current_user.is_authenticated %}
-    	<div class="accmenu">
-    	<div class="accmenuop">
-    	<a href="/myaccount">Home</a>
-    	</div>
-    	<div class="accmenuop">
-    	<a href="/logout">Logout</a>
-    	</div>
-   		</div>
+	{% if current_user.is_authenticated %} <!-- home/logout footer -->
+      <div class="accmenu">
+      <div class="accmenuop">
+      <a href="/fairshake/myaccount">Home</a>
+      </div>
+      <div class="accmenuop">
+      <a href="/fairshake/acctmanagement">Settings</a>
+          |
+      <a href="/fairshake/logout">Logout</a>
+      </div>
+      </div>
    {% endif %}
   </div>
 

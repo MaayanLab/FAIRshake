@@ -10,16 +10,17 @@ app = Flask(__name__)
 CORS(app)
 app.secret_key = 'thisstring'
 
+
 # app.config['MYSQL_DATABASE_USER'] = 'root'
 # app.config['MYSQL_DATABASE_PASSWORD'] = 'temp123'
 # app.config['MYSQL_DATABASE_DB'] = 'proj1'
 # app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
-app.config['MYSQL_DATABASE_USER'] = 'lwfairness'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'systemsbiology'
-app.config['MYSQL_DATABASE_DB'] = 'lwfairness'
-app.config['MYSQL_DATABASE_HOST'] = '146.203.54.78'
-
+# app.config['MYSQL_DATABASE_USER'] = 'fairshake'
+# app.config['MYSQL_DATABASE_PASSWORD'] = 'systemsbiology'
+# app.config['MYSQL_DATABASE_DB'] = 'fairshake'
+# app.config['MYSQL_DATABASE_HOST'] = '146.203.54.78'
+app.config.from_pyfile('config.py')
 mysql.init_app(app)
 
 login_manager = LoginManager()
@@ -41,9 +42,9 @@ def load_user(user_id):  # given user id, returns user object
     return User(username, user_id, password)
 
 
-login_manager.login_view = "/login"
+login_manager.login_view = "/fairshake/login"
 
-ENTRY_POINT = '/lwfairness'
+ENTRY_POINT = app.config['ENTRY_POINT']
 
 @app.route(ENTRY_POINT + "/")
 def index():
@@ -62,8 +63,8 @@ def login():
         data = cursor.fetchone()
 
         if data is None:
-            flash("Username or password is wrong.")
-            return redirect('/login')
+            flash("Username or password is wrong.","danger")
+            return redirect('/fairshake/login')
         else:
             conxlogin = mysql.get_db()
             cursorlogin = conxlogin.cursor()
@@ -71,7 +72,7 @@ def login():
             user_id = cursorlogin.fetchone()
             user = load_user(user_id[0])
             login_user(user)
-            return redirect('/myaccount')
+            return redirect('/fairshake/myaccount')
 
     return render_template('login.html')
 
@@ -88,7 +89,7 @@ def myaccount():
 def logout():
     # Logout the current user
     logout_user()
-    return redirect('/login')
+    return redirect('/fairshake/login')
 
 
 @app.route(ENTRY_POINT + "/register", methods=['GET', 'POST'])
@@ -97,9 +98,6 @@ def register():
         username = request.form['username']
         password1 = request.form['password1']
         password2 = request.form['password2']
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        affiliation = request.form['affiliation']
 
         conx_register = mysql.get_db()
         cursor = conx_register.cursor()
@@ -108,49 +106,20 @@ def register():
 
         if data is None:  # username is new
             if (not (password1 == password2)):  # passwords don't match
-                # flash("Passwords do not match.")
-                return jsonify(flash("Passwords do not match."))
+                flash("Passwords do not match.", "danger")
+                return redirect('/fairshake/register')
             else:
                 conx_add = mysql.get_db()
                 cursor = conx_add.cursor()
-                cursor.execute(
-                    "insert into user (username,password,first_name,last_name,affiliation) values ('" + username + "','" + password1 + "','" + first_name + "','" + last_name + "','" + affiliation + "')")
+                cursor.execute("insert into user (username,password) values ('" + username + "','" + password1 + "')")
                 conx_add.commit()
-                # otherdata2=cursor.fetchall()
-                return "Account created"
+                flash("Account successfully created.", "success")
+                return redirect('/fairshake/login')
         else:  # data returned something , this username already in database
-            flash("Account with this username already exists.")
+            flash("Account with this username already exists.","danger")
+            return redirect('/fairshake/register')
 
     return render_template('register.html')
-
-
-@app.route('/registered', methods=['POST'])
-def registered():
-    username = request.form['username']
-    password1 = request.form['password1']
-    password2 = request.form['password2']
-    first_name = request.form['first_name']
-    last_name = request.form['last_name']
-    affiliation = request.form['affiliation']
-
-    conx_register = mysql.get_db()
-    cursor = conx_register.cursor()
-    cursor.execute("select username from user where username='" + username + "'")
-    data = cursor.fetchone()
-
-    if data is None:  # username is new
-        if (not (password1 == password2)):  # passwords don't match
-            return "Passwords do not match"
-        else:
-            conx_add = mysql.get_db()
-            cursor = conx_add.cursor()
-            cursor.execute(
-                "insert into user (username,password,first_name,last_name,affiliation) values ('" + username + "','" + password1 + "','" + first_name + "','" + last_name + "','" + affiliation + "')")
-            conx_add.commit()
-            # otherdata2=cursor.fetchall()
-            return "Account created"
-    else:  # data returned something , this username already in database
-        return "Account with this username already exists"
 
 
 @app.route(ENTRY_POINT + '/resources/', defaults={'page': 1}, methods=['GET', 'POST'])
@@ -316,10 +285,9 @@ def myevals(page):
                            page=page, resources=resources, per_page=per_page, pagecount=pagecount, showlast=showlast,
                            totalres=totalres, listeval=listeval, avginfo=avginfo, ans=ans, qdat=qdat)
 
-
-@app.route(ENTRY_POINT + "/evaluate", methods=['POST'])
+@app.route(ENTRY_POINT + "/modifyevaluation", methods=['POST'])
 @login_required
-def evaluate():
+def modifyevaluation():
     setanswers = []
     setcomments = []
     setq = []
@@ -357,15 +325,123 @@ def evaluate():
         for row in qd:
             setq.append(row)
 
-            # return str(setanswers[0][2]) #returns this column without the 'u'
-    return render_template('evaluation.html', \
+
+    return render_template('modifyevaluation.html',
                            resource_name=resource_name, resource_id=resource_id, resource_type=resource_type, url=url,
                            description=description, setanswers=setanswers, setcomments=setcomments, setq=setq)
 
 
-@app.route(ENTRY_POINT + '/submitted', methods=['POST', 'GET'])
+@app.route(ENTRY_POINT + "/newevaluation", methods=['POST'])
 @login_required
-def submitted():
+def newevaluation():
+    setanswers = []
+    setcomments = []
+    setq = []
+
+    resourceid = request.form['resourceid']
+
+    conx_getres = mysql.get_db()
+    cursor = conx_getres.cursor()
+    cursor.execute(
+        "select q_id,answer from evaluation where resource_id =" + resourceid + " and user_id=" + current_user.user_id)
+    data = cursor.fetchall()
+    for row in data:
+        setanswers.append(row)
+
+    cursor.execute(
+        "select comment from evaluation where resource_id =" + resourceid + " and user_id=" + current_user.user_id)
+    data = cursor.fetchall()
+    for row in data:
+        setcomments.append(str(row[0]))
+
+    conx_getresource = mysql.get_db()
+    cursor1 = conx_getresource.cursor()
+    cursor1.execute("select * from resource where resource_id=" + resourceid)
+    row1 = cursor1.fetchone()
+    resource_name = row1[1]
+    resource_id = row1[0]
+    resource_type = row1[3]
+    url = row1[2]
+    description = row1[4]
+
+    for i in range(1, 17):
+        cursor.execute("select num,version,content from question where res_type='" + resource_type + "' and num=" + str(
+            i) + " and version=(select max(version) from question)")
+        qd = cursor.fetchall()
+        for row in qd:
+            setq.append(row)
+
+    return render_template('newevaluation.html',
+                           resource_name=resource_name, resource_id=resource_id, resource_type=resource_type, url=url,
+                           description=description, setanswers=setanswers, setcomments=setcomments, setq=setq)
+
+
+@app.route(ENTRY_POINT + '/modifysubmitted', methods=['POST'])
+@login_required
+def modifysubmitted():
+    answerlist = []
+    commentlist = []
+
+    resource_id = request.form['hiddenfield']
+
+    conx = mysql.get_db()
+    cursor = conx.cursor()
+
+    cursor.execute("select resource_type from resource where resource_id=" + resource_id)  # get resource type
+    tt = cursor.fetchall()
+    res_type = tt[0][0]
+
+    for i in range(16):  # for each question 1-16
+        thisanswer = request.form['q' + str((i + 1))]  # get answer for this question 1-16
+        thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question 1-16
+
+        cursor.execute("select q_id from question where num=" + str((
+                                                                    i + 1)) + " and res_type='" + res_type + "' and version=(select max(version) from question)")  # get q_id of most recent q 1-16
+        q_id = cursor.fetchall()[0][0]  # use most recent q_id for this question 1-16
+
+        cursor.execute("delete from evaluation where q_id=" + str(
+            q_id) + " and resource_id=" + resource_id + " and user_id=" + current_user.user_id)  # clear from evaluation my evaluation for this resource (of most updated q version)
+        conx.commit()
+
+        cursor.execute("insert into evaluation(q_id,answer,user_id,resource_id) values(" + str(
+            q_id) + ",'" + thisanswer + "'," + current_user.user_id + "," + resource_id + ")")
+        conx.commit()
+        if thisanswer == 'yesbut':
+            cursor.execute("update evaluation set comment='" + thiscomment +
+                           "' where q_id=" + str(
+                q_id) + " and user_id=" + current_user.user_id + " and resource_id=" + resource_id)
+            conx.commit()
+
+        templist = []
+        total = 0;
+        num = 0;
+
+        cursor.execute("select answer from evaluation where resource_id=" + resource_id + " and q_id=" + str(
+            q_id))  # start to update average in average table
+        data = cursor.fetchall()
+        for row in data:
+            templist.append(row[0])
+            if row[0] == 'yes':
+                total = total + 1
+            elif row[0] == 'no':
+                total = total - 1
+
+        cursor.execute(
+            "select count(answer) from evaluation where resource_id=" + resource_id + " and q_id=" + str(q_id))
+        dd = cursor.fetchall()
+        count = dd[0][0]
+
+        average = float(total) / count
+        cursor.execute("delete from average where resource_id=" + resource_id + " and q_id=" + str(q_id))
+        conx.commit()  # clear this entry in average
+        cursor.execute("insert into average values(" + resource_id + "," + str(q_id) + "," + str(average) + ")")
+        conx.commit()
+    flash("Evaluation submitted.", "success")
+    return redirect('/fairshake/myevaluations')
+
+@app.route(ENTRY_POINT + '/evaluationsubmitted', methods=['POST'])
+@login_required
+def evaluationsubmitted():
     answerlist = []
     commentlist = []
 
@@ -424,7 +500,8 @@ def submitted():
         cursor.execute("insert into average values(" + resource_id + "," + str(q_id) + "," + str(average) + ")")
         conx.commit()
 
-    return "Submitted"
+    flash("Evaluation submitted.", "success")
+    return redirect('/fairshake/resources')
 
 
 @app.route(ENTRY_POINT + '/refreshavg', methods=['GET'])

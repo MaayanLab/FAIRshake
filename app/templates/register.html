@@ -15,8 +15,9 @@
   text-align:center;
   padding-bottom:20px;
 }
-
-
+.form-actions{
+  padding-bottom:30px;
+}
 
 h2{
   padding-bottom:20px;
@@ -26,14 +27,24 @@ h2{
   padding-bottom:30px;
 }
 
-.btn-default{
-  color: #C7C2FF;
-}
-
 </style>
+</head>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+  {% if messages %}
+    {% for category,message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <!-- <strong>Title</strong> --> {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 
   <body>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   <div class="container-fluid">
     <h2 style = "text-align: center;">Create new account</h2>
 
@@ -43,7 +54,7 @@ h2{
     	<input type="submit" value="Send my Order">
     </form>-->
 
-    <form action="/registered" class="form-horizontal" method="post">
+    <form action="/fairshake/register" class="form-horizontal" method="post">
       <div class="accinfo">
         <div class="form-group">
           <label class="control-label col-sm-2 col-sm-offset-2" for="username">Enter Email:</label>
@@ -64,26 +75,6 @@ h2{
           </div>
         </div>
       </div>
-      <div class="userinfo">
-        <div class="form-group">
-          <label class="control-label col-sm-2 col-sm-offset-2" for="first_name">Enter First Name:</label>
-          <div class="col-sm-4">
-            <input type="text" class="form-control inputdefault" name="first_name" required></input>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="control-label col-sm-2 col-sm-offset-2" for="last_name">Enter Last Name:</label>
-          <div class="col-sm-4">
-            <input type="text" class="form-control inputdefault" name="last_name" required></input>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="control-label col-sm-2 col-sm-offset-2" for="affiliation">Enter Affiliation:</label>
-          <div class="col-sm-4">
-            <input type="text" class="form-control inputdefault" name="affiliation" required></input>
-          </div>
-      </div>
-      </div>
 
 
       <div class="form-actions">
@@ -91,6 +82,19 @@ h2{
       </div>
 	</form>
 
+
+      {% if current_user.is_authenticated %} <!-- home/logout footer -->
+      <div class="accmenu">
+      <div class="accmenuop">
+      <a href="/fairshake/myaccount">Home</a>
+      </div>
+      <div class="accmenuop">
+      <a href="/fairshake/acctmanagement">Settings</a>
+          |
+      <a href="/fairshake/logout">Logout</a>
+      </div>
+      </div>
+   {% endif %}
   </div>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
