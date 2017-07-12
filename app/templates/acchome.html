@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+
+
+<style type="text/css">
+
+.container-fluid{
+  text-align:center;
+  padding-bottom:20px;
+}
+
+
+
+h2{
+  padding-bottom:20px;
+}
+
+.heading2{
+	font-size:23px;
+}
+
+
+
+</style>
+</head>
+  <body>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <div class="container-fluid">
+    <div class="heading1">
+		<h2 style = "text-align: center;">Account Home
+			<div class="heading2">
+			<small>User ID: {{current_userid}}</small>
+			</div>
+			</h2>
+	</div>
+
+	<div class="myevals">
+	<a href="/myevaluations" target="_self">View/Modify submitted evaluations</a>
+	</div>
+	<div class="resources">
+	<a href="/resources" target="_self">LINCS Resource List</a> 
+	</div>
+	<div class="resetpass">
+	<a href="/resetpassword" target="_self">Reset Password</a> 
+	</div>
+      <div class="logout">
+      <a href="/logout" target="_self">Logout</a> 
+      </div>
+
+	</div>
+  </body>
+	
+</html>

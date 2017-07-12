@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+<style type="text/css">
+
+.container-fluid{
+  text-align:center;
+  padding-bottom:20px;
+}
+
+
+
+h2{
+  padding-bottom:20px;
+}
+
+</style>
+  <body>
+  
+  <div class="container-fluid">
+    <h2 style = "text-align: center;">Reset password</h2>
+
+
+
+    <form action="/passwordreset" class="form-horizontal" method="post">
+      <div class="form-group">
+        <label class="control-label col-sm-3 col-sm-offset-1" for="passwordold">Enter old password:</label>
+        <div class="col-sm-4">
+          <input type="password" class="form-control inputdefault" name="passwordold" required ></input>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-3 col-sm-offset-1" for="password1">Enter new password:</label>
+        <div class="col-sm-4">
+          <input type="password" class="form-control inputdefault" name="password1" required ></input>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-3 col-sm-offset-1" for="password2">Confirm new password:</label>
+        <div class="col-sm-4">
+          <input type="password" class="form-control inputdefault" name="password2" required ></input>
+        </div>
+      </div>
+  		<div class="form-actions">
+        <button type="submit" class="btn btn-default" value="Submit">Submit</button>
+      </div>
+	</form>
+
+  </div>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  </body>
+</html>

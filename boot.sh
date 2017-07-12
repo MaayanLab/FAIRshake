@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-root=/MyApp
+root=/lwfairness
 user=r
 log=$root/error.log
 

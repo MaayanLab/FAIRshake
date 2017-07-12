@@ -5,10 +5,10 @@ RUN apt-get -y install vim
 RUN apt-get -y install python python-dev python-pip python-setuptools
 RUN apt-get -y install nginx uwsgi-core
 
-RUN pip install -Iv Flask flask-cors requests uwsgi
+RUN pip install -Iv Flask flask-cors requests uwsgi flask-login flask-mysql
 
 EXPOSE 80
 
-ADD . /MyApp
-RUN chmod -R 777 /MyApp/boot.sh
-CMD /MyApp/boot.sh
+ADD . /lwfairness
+RUN chmod -R 777 /lwfairness/boot.sh
+CMD /lwfairness/boot.sh

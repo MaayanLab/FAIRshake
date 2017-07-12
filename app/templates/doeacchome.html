@@ -1,0 +1,62 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<style>
+.container-fluid{
+	padding-bottom:10px;
+	text-align:center;
+}
+
+.titlehead{
+	text-align:center;
+	padding-bottom:20px;
+}
+.btn-group{
+	text-align:center;
+}
+a{
+	padding:30px;
+}
+.footer{
+	padding-top:30px;
+}
+
+</style>
+</head>
+<body>
+<div class="container-fluid">
+	<div class="titlehead">
+	<h2>Home</h2>
+	</div>
+	<div class="buttons">
+	<div class="buttonrow1">
+	<form class="btn-group" action="/myprojects" method="get">
+		<button type="submit" class="btn btn-default" value="myprojects">My Projects</button>
+	</form>
+	<form class="btn-group" action="/mydoeevaluations" method="get">
+		<button type="submit" class="btn btn-default" value="myevaluations">My Evaluations</button>
+	</form>
+	</div>
+	<div class="buttonrow2">
+	<form class="btn-group" action="/startproject" method="get">
+		<button type="submit" class="btn btn-default" value="startproject">Start a Project</button>
+	</form>
+	<form class="btn-group" action="/projects" method="get">
+		<button type="submit" class="btn btn-default" value="evaluateproject">Evaluate a Project</button>
+	</form>
+	</div>
+	</div>
+
+
+	<div class="footer">
+	<a href="/acctmanagement">Settings</a>
+	|
+	<a href="/logout">Logout</a>
+	</div>
+
+</div>
+</body>
+</html>

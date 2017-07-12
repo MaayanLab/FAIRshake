@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+	<h2 style = "text-align: center;">Modify evaluation: <a href="{{url}}" target="_blank">{{resource_name}}</a></h2>
+	<h3 style = "text-align:center;">ID: {{resource_id}}  &nbsp; Type: {{resource_type}}</h3>
+	<h3 style = "text-align:center;">Description: {{description}}</h3>
+
+
+		<!--<form action="post.html" method="post">
+			Hello<input type="text" name="name"></input>
+			<input type="submit" value="Send my Order">
+		</form>-->
+
+
+		<script type="text/javascript">
+		window.onload = function() {
+			var x= document.getElementsByClassName('textfield');
+			var i;
+			for (i = 0; i < x.length; i++) {
+				x[i].style.display='none';
+			}
+
+			
+		}
+
+		function clickyesbut(obj){
+			if(!(obj.checked=="checked")){
+				document.getElementById(obj.name+'text').style.display='inline';
+			}
+			document.getElementById(obj.name+'text').required=true;
+		}
+
+		function clickother(obj){
+			document.getElementById(obj.name+'text').style.display='none';
+			document.getElementById(obj.name+'text').required=false;
+		}
+
+		
+	</script>
+
+
+
+
+		<form action="/submitted" method="post" onsubmit="return confirm('Are you sure you want to submit?');">
+
+
+			<input type="hidden" name="hiddenfield" value={{resource_id}}>
+
+
+
+			1. Q1 
+
+			<input type="radio" name = "q1" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q1" onclick="clickother(this)" value="no" >No
+			<input type="radio" name = "q1" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q1yesbutcomment" id="q1text" class="textfield">
+
+			<br>
+			2. Q2 
+
+			<input type="radio" name = "q2" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q2" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q2" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q2yesbutcomment" id="q2text" class="textfield">
+
+			<br>
+			3. Q3 
+
+			<input type="radio" name = "q3" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q3" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q3" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q3yesbutcomment" id="q3text" class="textfield">
+
+			<br>
+			4. Q4 
+
+			<input type="radio" name = "q4" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q4" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q4" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q4yesbutcomment" id="q4text" class="textfield">
+			<br>
+			5. Q5 
+			<input type="radio" name = "q5" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q5" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q5" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q5yesbutcomment" id="q5text" class="textfield">
+			<br>
+			6. Q6 
+			<input type="radio" name = "q6" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q6" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q6" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q6yesbutcomment" id="q6text" class="textfield">
+			<br>
+			7. Q7 
+			<input type="radio" name = "q7" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q7" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q7" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q7yesbutcomment" id="q7text" class="textfield">
+			<br>
+			8. Q8 
+			<input type="radio" name = "q8" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q8" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q8" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q8yesbutcomment" id="q8text" class="textfield">
+			<br>
+			9. Q9 
+			<input type="radio" name = "q9" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q9" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q9" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q9yesbutcomment" id="q9text" class="textfield">
+			<br>
+			10. Q10 
+			<input type="radio" name = "q10" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q10" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q10" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q10yesbutcomment" id="q10text" class="textfield">
+			<br>
+			11. Q11 
+			<input type="radio" name = "q11" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q11" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q11" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q11yesbutcomment" id="q11text" class="textfield">
+			<br>
+			12. Q12 
+			<input type="radio" name = "q12" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q12" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q12" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q12yesbutcomment" id="q12text" class="textfield">
+			<br>
+			13. Q13 
+			<input type="radio" name = "q13" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q13" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q13" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q13yesbutcomment" id="q13text" class="textfield">
+			<br>
+			14. Q14 
+			<input type="radio" name = "q14" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q14" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q14" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q14yesbutcomment" id="q14text" class="textfield">
+			<br>
+			15. Q15 
+			<input type="radio" name = "q15" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q15" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q15" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q15yesbutcomment" id="q15text" class="textfield">
+			<br>
+			16. Q16 
+			<input type="radio" name = "q16" onclick="clickother(this)" value="yes" required>Yes
+			<input type="radio" name = "q16" onclick="clickother(this)" value="no">No
+			<input type="radio" name = "q16" onclick="clickyesbut(this)" value="yesbut" >Yes, but:
+			<input type="text" size = "100" name = "q16yesbutcomment" id="q16text" class="textfield">
+			<br>
+			<input type="submit" value="Submit"></input>
+		</form>
+
+
+	</body>
+	</html>

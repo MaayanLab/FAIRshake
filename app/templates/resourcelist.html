@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<body onload="f_load()">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+
+<h2 style = "text-align: center;">Resource List</h2> <br>
+
+<table border=1>
+	<tr>
+		<th>Number</th>
+		<th>Square</th>
+	</tr>
+	{% for i in range(10): %}
+	<tr>
+		<td>{% print i %}</td>
+		<td>{% print i**2 %}</td>
+	</tr>
+	{% endfor %}
+</table>
+
+<table class="table table-responsive">
+	 <thead>
+		 <tr>
+			<th>Select</th>
+			<th>Name</th>
+			<th>ID</th>
+			<th>Type</th> 
+			<th>Description</th>
+			<th># of Evaluations</th>
+			<th>Insignia</th>
+		 </tr>
+	 </thead>
+	 <tbody>
+	 <form action="/evaluate" method="post" id="form1">
+		 <tr>
+			 <td>
+				 <div class="radio">
+					 <label><input type="radio" id='res1' name="resourceid" value={{resid1}}></label>
+				 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'><a href={{url1}} target="_blank">{{resname1}}</a></label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>{{resid1}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>{{restype1}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>{{resdesc1}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>{{resnumeval1}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>resinsignia1</label>
+			 </div>
+			 </td>
+		 </tr>
+		 <tr>
+			 <td>
+				 <div class="radio">
+					 <label><input type="radio" id='res2' name="resourceid" value={{resid2}}></label>
+				</div>
+			<td>
+			 <div class="radiotext">
+				 <label for='res2'><a href={{url2}} target="_blank">{{resname2}}</a></label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res2'>{{resid2}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res2'>{{restype2}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res2'>{{resdesc2}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res2'>{{resnumeval2}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res2'>resinsignia2</label>
+			 </div>
+			 </td>
+		 </tr>
+		 <tr>
+			 <td>
+				 <div class="radio">
+					 <label><input type="radio" id='express' name="resourceid" value={{resid3}}></label>
+				</div>
+			<td>
+			 <div class="radiotext">
+				 <label for='res3'><a href={{url3}} target="_blank">{{resname3}}</a></label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res3'>{{resid3}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res3'>{{restype3}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res3'>{{resdesc3}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res3'>{{resnumeval3}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res3'>resinsignia3</label>
+			 </div>
+			 </td>
+		 </tr>
+		 <tr>
+			 <td>
+				 <div class="radio">
+					 <label><input type="radio" id='express' name="resourceid" value={{resid4}}></label>
+				</div>
+			<td>
+			 <div class="radiotext">
+				 <label for='res4'><a href={{url4}} target="_blank">{{resname4}}</a></label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res4'>{{resid4}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res4'>{{restype4}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res4'>{{resdesc4}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res4'>{{resnumeval4}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res4'>resinsignia4</label>
+			 </div>
+			 </td>
+		 </tr>
+		 <tr>
+			 <td>
+				 <div class="radio">
+					 <label><input type="radio" id='express' name="resourceid" value={{resid5}}></label>
+				</div>
+			<td>
+			 <div class="radiotext">
+				 <label for='res5'><a href={{url5}} target="_blank">{{resname5}}</a></label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res5'>{{resid5}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res5'>{{restype5}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res5'>{{resdesc5}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res5'>{{resnumeval5}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res5'>resinsignia5</label>
+			 </div>
+			 </td>
+		 </tr>
+		 <br>
+		 </form>
+		 </tbody>
+</table>
+<br>
+<button type="submit" value="Submit" form="form1">Submit</button>
+
+
+<script>
+function f_load(){
+	let myarr=new Array();
+	myarr[0]=
+}
+</body>
+</html>
