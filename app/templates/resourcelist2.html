@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+ <style type="text/css">
+.form-actions{
+	padding:10px;
+}
+h2{
+	padding-bottom:30px;
+}
+.container-fluid{
+	padding-bottom:20px;
+}
+
+.accmenu{
+	text-align:center;
+}
+</style>
+ </head>
+
+<body>
+<script type="text/javascript">
+
+	var lastpage=1;
+	if({{total}}<{{per_page}}||({{total}}%{{per_page}}==0)){
+		lastpage=Math.trunc({{total}}/{{per_page}});
+		if (lastpage==0){
+			lastpage=1;
+		}
+	}
+	else{
+		lastpage=Math.trunc({{total}}/{{per_page}})+1;
+	}
+
+	window.onload=function(){
+		if({{page}}>=lastpage){
+			document.getElementById("next").style.display='none';
+		}
+		if({{page}}<=1){
+			document.getElementById("back").style.display='none';
+		}
+	}
+
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://d3js.org/d3.v3.js"></script>
+
+  <script type="text/javascript">
+  
+    
+
+  scale=d3.scale.linear().domain([-1,1])
+      .interpolate(d3.interpolateRgb)
+      .range([d3.rgb(0,0,255), d3.rgb(255,0,0)]);
+
+
+  function roundTwo(num){
+  	return +(Math.round(num+"e+2") +"e-2");
+  }
+
+  function opac(d){
+  	d3.select(this).style("fill-opacity",.3);
+
+
+
+  var text = d3.select(this.parentNode).append("text").text(d.qdata+": "+roundTwo(d.numdata)).attr("id","ttext").attr("text-anchor","middle")
+  		.attr("x",40).attr("y",100)
+  		.attr("fill","black").attr("font-size","14px");
+  }
+
+  function bopac(){
+  	d3.select(this).style("fill-opacity",.9);
+  	d3.selectAll("#ttext").remove();
+  }
+
+  var rectAttr = 
+  		{
+  		x:0,
+  		y:0,
+    	width: 20,
+    	height: 20}
+
+  var rectStyle=
+  		{fill: function(d){return scale(d.numdata);},
+    	stroke: "white",
+    	"stroke-width": 2
+    	}
+
+  function insig(i){ //avginfo goes from 1-16 for averages, 0 index is id
+
+    var body = d3.selectAll(document.getElementsByClassName("insignia"+i)).append("svg").attr("width",105).attr("height",100).style("overflow","visible");
+
+
+    body.selectAll("xyz1").data([{"numdata": {{avginfo|tojson}}[i][1],"qdata": {{qdat|tojson}}[i][1]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",0).style(rectStyle)
+    .on("mouseover",opac)
+    .on("mouseout",bopac);
+    
+    
+    body.selectAll("xyz2").data([{"numdata": {{avginfo|tojson}}[i][2],"qdata": {{qdat|tojson}}[i][2]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",0).style(rectStyle)
+    .on("mouseover",opac)
+    .on("mouseout",bopac);
+    
+    body.selectAll("xyz3").data([{"numdata": {{avginfo|tojson}}[i][3],"qdata": {{qdat|tojson}}[i][3]}]).enter().append("rect").attr(rectAttr).attr("x",40).attr("y",0).style(rectStyle)
+    .on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz4").data([{"numdata": {{avginfo|tojson}}[i][4],"qdata": {{qdat|tojson}}[i][4]}]).enter().append("rect").attr(rectAttr).attr("x",60).attr("y",0).style(rectStyle)
+    .on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz5").data([{"numdata": {{avginfo|tojson}}[i][5],"qdata": {{qdat|tojson}}[i][5]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz6").data([{"numdata": {{avginfo|tojson}}[i][6],"qdata": {{qdat|tojson}}[i][6]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz7").data([{"numdata": {{avginfo|tojson}}[i][7],"qdata": {{qdat|tojson}}[i][7]}]).enter().append("rect").attr(rectAttr).attr("x",40).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz8").data([{"numdata": {{avginfo|tojson}}[i][8],"qdata": {{qdat|tojson}}[i][8]}]).enter().append("rect").attr(rectAttr).attr("x",60).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz9").data([{"numdata": {{avginfo|tojson}}[i][9],"qdata": {{qdat|tojson}}[i][9]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",40).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz10").data([{"numdata": {{avginfo|tojson}}[i][10],"qdata": {{qdat|tojson}}[i][10]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",40).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz11").data([{"numdata": {{avginfo|tojson}}[i][11],"qdata": {{qdat|tojson}}[i][11]}]).enter().append("rect").attr(rectAttr).attr("x",40).attr("y",40).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz12").data([{"numdata": {{avginfo|tojson}}[i][12],"qdata": {{qdat|tojson}}[i][12]}]).enter().append("rect").attr(rectAttr).attr("x",60).attr("y",40).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz13").data([{"numdata": {{avginfo|tojson}}[i][13],"qdata": {{qdat|tojson}}[i][13]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",60).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz14").data([{"numdata": {{avginfo|tojson}}[i][14],"qdata": {{qdat|tojson}}[i][14]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",60).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz15").data([{"numdata": {{avginfo|tojson}}[i][15],"qdata": {{qdat|tojson}}[i][15]}]).enter().append("rect").attr(rectAttr).attr("x",40).attr("y",60).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz16").data([{"numdata": {{avginfo|tojson}}[i][16],"qdata": {{qdat|tojson}}[i][16]}]).enter().append("rect").attr(rectAttr).attr("x",60).attr("y",60).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+  }
+
+   
+  </script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+
+<h2 style = "text-align: center;">Resource List</h2>
+
+
+<div class="container-fluid">
+<table class="table table-responsive table-hover">
+	 <thead>
+		 <tr>
+			<th>Select</th>
+			<th>Name</th>
+			<th>ID</th>
+			<th>Type</th> 
+			<th>Description</th>
+			<th># of Evaluations</th>
+			<th>Insignia</th>
+		 </tr>
+	 </thead>
+	 <tbody>
+	 <form action="/evaluate" method="post" id="form1">
+	 {% for i in range(pagecount-per_page,showlast): %}
+		 <tr>
+			 <td>
+				 <div class="radio">
+				 	 {% if mylist[i][0] in userres: %}
+				 	 	<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+				 	 {% else: %}
+					 	<label><input type="radio" id='res1' name="resourceid" value={{mylist[i][0]}}></label>
+					 {% endif %}
+				 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'><a href={{mylist[i][2]}} target="_blank">{{mylist[i][1]}}</a></label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>{{mylist[i][0]}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>{{mylist[i][3]}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>{{mylist[i][4]}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="radiotext">
+				 <label for='res1'>{{listeval[i]}}</label>
+			 </div>
+			 </td>
+			 <td>
+			 <div class="insignia{{i}}">
+			 	<script>
+					insig({{i}});
+				</script>
+			 </div>
+			 </td>
+		 </tr>
+		 
+		 
+	{% endfor %}
+	</form>
+	</tbody>
+</table>
+
+
+<div class="form-actions">
+<button type="submit" class="btn btn-default" value="Submit" form="form1">Submit</button>
+</div>
+
+<div class="form-actions">
+<form action='/resources/page/{{page-1}}' method='get'>
+	<button type="submit" class="btn btn-default" value="Back" id="back">Back</input>
+</form>
+</div>
+
+<div class="form-actions">
+<form action='/resources/page/{{page+1}}' method='get'>
+	<button type="submit" class="btn btn-default" value="Next" id="next">Next</input>
+</form>
+</div>
+
+{% if current_user.is_authenticated %}
+    	<div class="accmenu">
+    	<div class="accmenuop">
+    	<a href="/myaccount">Home</a>
+    	</div>
+    	<div class="accmenuop">
+    	<a href="/logout">Logout</a>
+    	</div>
+   		</div>
+{% endif %}
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+</div>
+</body>
+</html>
