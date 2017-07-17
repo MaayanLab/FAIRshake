@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+
+    .nav-tabs{
+        padding-top:30px;
+        padding-left:10px;
+    }
+    .tab-pane{
+        padding-top:40px;
+        padding-left:40px;
+    }
+    .projinfo,.qnum{
+        padding:15px;
+        padding-left:15px;
+    }
+    #qnumbuttons{
+        padding-left:30px;
+        padding-top:10px;
+    }
+    h4{
+        padding-top:0px;
+        margin-top:0px;
+    }
+    .resinfo{
+        padding:15px;
+        padding-left:15px;
+    }
+    h5{
+        padding-top:0px;
+        margin-top:0px;
+    }
+    </style>
+{% endblock %}
+
+{% block header %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/fairshake/doe">FAIRShake</a>
+        </div>
+        <ul class="nav navbar-nav navbar-left">
+            <li><a href="/fairshake/projects">Projects</a></li>
+            <li class="active"><a href="/fairshake/startproject">Start a Project</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            {% if not current_user.is_authenticated %}
+                <li><a href="/fairshake/login">Login</a></li>
+                <li><a href="/fairshake/register">Sign up</a></li>
+            {% else %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">{{ current_user.username }}</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/fairshake/myaccount">Profile</a></li>
+                        <li><a href="/fairshake/settings">Settings</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/fairshake/logout">Logout</a></li>
+                    </ul>
+                </li>
+
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block content %}
+
+    <div class="tabbar">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#general">General</a></li>
+            <li><a data-toggle="tab" href="#resources">Resources</a></li>
+            <li><a data-toggle="tab" href="#questions">Questions</a></li>
+        </ul>
+
+        <form action="/fairshake/startproject" class="form-horizontal" method="post" onsubmit="return confirm('Are you sure you want to submit?');">
+            <div class="tab-content">
+
+                <div id="general" class="tab-pane fade in active">
+                    <h3>New Project</h3>
+                    <div class="projinfo">
+                        <h4>Enter Project Information:</h4>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="projectname">Name:</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control inputdefault" name="projectname" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="projectdesc">Description:</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control inputdefault" name="projectdesc" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="qnum">
+                        <div><h4>Pick # of Questions</h4></div>
+                        <input type="hidden" name="totalqu" id="totalqu">
+                        <div class="btn-group" id="qnumbuttons" data-toggle="buttons">
+
+                            <label class="btn btn-default qnumbtn" onclick="click4()" id="q4button">
+                                <input type="radio" name="options" id="pick4" autocomplete="off">4
+                            </label>
+                            <label class="btn btn-default qnumbtn" onclick="click9()" id="q9button">
+                                <input type="radio" name="options" id="pick9" autocomplete="off">9
+                            </label>
+                            <label class="btn btn-default qnumbtn" onclick="click16()" id="q16button">
+                                <input type="radio" name="options" id="pick16" autocomplete="off">16
+                            </label>
+                            <label class="btn btn-default qnumbtn" onclick="click25()" id="q25button">
+                                <input type="radio" name="options" id="pick25" autocomplete="off">25
+                            </label>
+
+                        </div>
+                    </div>
+
+
+                    <button type="submit" class="btn btn-default">Finish</button>
+                </div>
+
+                <div id="resources" class="tab-pane fade">
+                    <h3>Enter Digital Objects for Evaluation:</h3>
+                    <input type="hidden" name="totalresrc" id="totalresrc" value="1">
+
+                    <div class="resinfo" id="resinfo"> <!-- prnt -->
+
+                        <div class="resgrp">
+{#                            <button type="button" class="btn btn-default btn-xs removeresbtn col-sm-offset-11" onclick="removeres(this)">#}
+{#                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>#}
+{#                            </button>#}
+                            <h4>Resource:</h4>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label class="control-label col-sm-3">Name:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control inputdefault rname" name="resourcename"
+                                               required>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="control-label col-sm-3">Type:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control inputdefault rtype" name="resourcetype"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label class="control-label col-sm-3">URL:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control inputdefault rurl" name="resourceurl"
+                                               required>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label class="control-label col-sm-3">Description:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control inputdefault rdesc" name="resourcedesc"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="anotherresbtn">
+                        <button type="button" id="anotherresbtn" class="btn btn-default btn-xs">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <div class="totalres col-sm-offset-9">
+                        <h5 id="totres">Total Resources: 1</h5>
+                    </div>
+                </div>
+
+                <div id="questions" class="tab-pane fade">
+                    <h3>Enter Questions for Digital Object Evaluation:</h3>
+                    <div class="qgroup">
+                        {% for i in range(25) %}
+                            <div class="form-group" id="qugroup{{ i+1 }}">
+                                <label class="control-label col-sm-1" for="q{{ i+1 }}">{{ i+1 }}.</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control inputdefault" name="q{{ i+1 }}"></input>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $(".nav-tabs a").click(function () {
+                $(this).tab('show');
+            });
+            $('.nav-tabs a').on('shown.bs.tab', function (event) {
+                var x = $(event.target).text();
+                var y = $(event.relatedTarget).text();
+                $(".act span").text(x);
+                $(".prev span").text(y);
+            });
+            $("#anotherresbtn").click(function () {
+                $(".resinfo").append('<div class="resgrp"><button type="button" class="btn btn-default btn-xs col-sm-offset-11 removeresbtn" onclick="removeres(this)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button><h4>Resource:</h4><div class="row"><div class="form-group col-sm-6"><label class="control-label col-sm-3">Name:</label><div class="col-sm-8"><input type="text" class="form-control inputdefault rname" name="resourcename" required></div></div><div class="form-group col-sm-6"><label class="control-label col-sm-3">Type:</label><div class="col-sm-8"><input type="text" class="form-control inputdefault rtype" name="resourcetype" required></div></div></div><div class="row"><div class="form-group col-sm-6"><label class="control-label col-sm-3">URL:</label><div class="col-sm-8"><input type="text" class="form-control inputdefault rurl" name="resourceurl" required></div></div><div class="form-group col-sm-6"><label class="control-label col-sm-3">Description:</label><div class="col-sm-8"><input type="text" class="form-control inputdefault rdesc" name="resourcedesc" required></div></div></div></div>');
+                tr=$("#resinfo").children().length;
+                $("#totres").text('Total Resources: '+tr);
+                $('#totalresrc').val(tr);
+                writefieldname();
+            });
+            hideq();
+
+        });
+
+        function writefieldname(){ //change names of fields to distinct identifiers for request.form on submission
+            prnt=document.getElementById("resinfo");
+            ax=prnt.children.length;
+            for(k=0;k<ax;k++){  // loop through all instances of resources (checking against totalresrc)
+                prnt.children[k].getElementsByClassName("rname")[0].name="resourcename"+(k+1);
+                prnt.children[k].getElementsByClassName("rtype")[0].name="resourcetype"+(k+1);
+                prnt.children[k].getElementsByClassName("rurl")[0].name="resourceurl"+(k+1);
+                prnt.children[k].getElementsByClassName("rdesc")[0].name="resourcedesc"+(k+1);
+            }
+        }
+
+        function removeres(x) {
+            tt=x.parentNode;
+            tt.parentNode.removeChild(tt);
+            tr=document.getElementById("resinfo").childElementCount;
+            document.getElementById("totres").innerHTML='Total Resources: '+tr;
+            document.getElementById("totalresrc").value=tr;
+            writefieldname();
+        }
+
+        function hideq(){
+            for(w=1;w<26;w++){
+                document.getElementById('qugroup'+w).style.display = 'none';
+            }
+        }
+
+
+        function click4(){
+            hideq();
+            for (w = 1; w < 5; w++) {
+                document.getElementById('qugroup' + w).style.display = 'inline';
+            }
+            document.getElementById('totalqu').value="4";
+        }
+
+        function click9(){
+            hideq();
+            for (w = 1; w < 10; w++) {
+                document.getElementById('qugroup' + w).style.display = 'inline';
+            }
+            document.getElementById('totalqu').value="9";
+        }
+
+        function click16(){
+            hideq();
+            for (w = 1; w < 17; w++) {
+                document.getElementById('qugroup' + w).style.display = 'inline';
+            }
+            document.getElementById('totalqu').value="16";
+        }
+
+        function click25(){
+            hideq();
+            for (w = 1; w < 26; w++) {
+                document.getElementById('qugroup' + w).style.display = 'inline';
+            }
+            document.getElementById('totalqu').value="25";
+        }
+
+    </script>
+
+
+{% endblock %}

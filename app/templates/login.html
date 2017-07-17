@@ -1,101 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link href="https://fonts.googleapis.com/css?family=Lato:300|Montserrat:300" rel="stylesheet">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+
+        .container-fluid {
+            text-align: center;
+        }
+
+        .form-actions {
+            padding-bottom: 30px;
+        }
+
+        h2 {
+            padding-bottom: 20px;
+        }
 
 
-
-<style type="text/css">
-
-.container-fluid{
-  text-align:center;
-  padding-bottom:20px;
-}
-
-.form-actions{
-  padding-bottom:30px;
-}
-
-h2{
-  padding-bottom:20px;
-}
-
-body{
-  font-family: 'Lato', sans-serif;
-}
-.accmenu{
-  padding:30px;
-}
-
-
-</style>
-
-
-</head>
-{% with messages = get_flashed_messages(with_categories=true) %}
-  <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
-  {% if messages %}
-    {% for category,message in messages %}
-      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <!-- <strong>Title</strong> --> {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-  <body>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
-
-
+    </style>
+{% endblock %}
+{% block content %}
     <div class="container-fluid">
 
-    <h2>Login</h2>
+        <h2>Login</h2>
 
 
-    <form action="/fairshake/login" method="post" class="form-horizontal">
-      <div class="form-group">
-        <div class="col-sm-4 col-sm-offset-4">
-          <input type="email" class="form-control inputdefault" name="username" id="username" required placeholder="Email"></input>
+        <form action="/fairshake/login" method="post" class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-4">
+                    <input type="email" class="form-control inputdefault" name="username" id="username" required
+                           placeholder="Email"></input>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-4">
+                    <input type="password" class="form-control inputdefault" name="password" id="password" required
+                           placeholder="Password"></input>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-default" value="Login">Login</button>
+            </div>
+        </form>
+
+
+        <div class="forgotp">
+            <a href="/fairshake/forgotpassword" target="_self">Forgot Password?</a>
         </div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-4 col-sm-offset-4">
-          <input type="password" class="form-control inputdefault" name="password" id="password" required placeholder="Password"></input>
+        <div class="register">
+            <a href="/fairshake/register" target="_self">Sign up</a>
         </div>
-      </div>
-      <div class="form-actions">
-  		  <button type="submit" class="btn btn-default" value="Login">Login</button>
-      </div>
-    </form>
 
-
-      <div class="forgotp">
-        <a href="/fairshake/forgotpassword" target="_self">Forgot Password?</a>
-      </div>
-      <div class="register">
-      <a href="/fairshake/register" target="_self">Sign up</a>
-      </div>
-
-
-        {% if current_user.is_authenticated %} <!-- home/logout footer -->
-        <div class="accmenu">
-        <div class="accmenuop">
-        <a href="/fairshake/myaccount">Home</a>
-        </div>
-        <div class="accmenuop">
-        <a href="/fairshake/acctmanagement">Settings</a>
-        |
-        <a href="/fairshake/logout">Logout</a>
-        </div>
-        </div>
-    {% endif %}
-  </div>
-  </body>
-</html>
+    </div>
+{% endblock %}

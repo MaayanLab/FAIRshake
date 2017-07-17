@@ -1,145 +1,126 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+
+        h2 {
+            padding-bottom: 10px;
+        }
+
+        #bottom-heading {
+            padding-bottom: 20px;
+        }
+
+        .commentcol {
+            width: 40%;
+        }
+
+        .textfield {
+            width: 90%;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+
+    <h2 style="text-align: center;">Evaluation: <a href="{{ url }}" target="_blank">{{ resource_name }}</a></h2>
+    <h4 style="text-align:center;">ID: {{ resource_id }} &nbsp; Type: {{ resource_type }}</h4>
+    <h4 id="bottom-heading" style="text-align:center;">Description: {{ description }}</h4>
 
 
+    <script type="text/javascript">
 
-<style type="text/css">
+        function clickyesbut(obj) {
+            if (!(obj.checked === "checked")) {
+                document.getElementById(obj.name + 'text').style.display = 'inline';
+            }
+            document.getElementById(obj.name + 'text').required = true;
+        }
 
-h2{
-  padding-bottom:10px;
-}
+        function clickother(obj) {
+            document.getElementById(obj.name + 'text').style.display = 'none';
+            document.getElementById(obj.name + 'text').required = false;
+        }
 
-#bottom-heading{
-	padding-bottom: 20px;
-}
+        function click(obj) {
+            document.getElementById(obj).checked = true;
 
-.container-fluid{
-	padding-bottom:20px;
-}
-
-</style>
-</head>
-<body>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-
-	<h2 style = "text-align: center;">Evaluation: <a href="{{url}}" target="_blank">{{resource_name}}</a></h2>
-	<h4 style = "text-align:center;">ID: {{resource_id}}  &nbsp; Type: {{resource_type}}</h4>
-	<h4 id="bottom-heading" style = "text-align:center;">Description: {{description}}</h4>
+        }
 
 
-		<script type="text/javascript">
-
-		/*
-		window.onload = function() { //this function needs to be changed, it is being called last so wipes out the text required from loaded yes buts
-			var x= document.getElementsByClassName('textfield');
-			var i;
-			for (i = 0; i < x.length; i++) {
-				x[i].style.display='none';
-			}
+        function loadyesbut(obj, fill) {
+            document.getElementById(obj + "yesbut").checked = true;
+            document.getElementById(obj + 'text').style.display = 'inline';
+            document.getElementById(obj + 'text').required = true;
+            document.getElementById(obj + 'text').value = fill;
+        }
 
 
-		}
-		*/
+    </script>
+    <div class="container-fluid">
+        <table class="table table-responsive">
+            <thead>
+            <th>Question</th>
+            <th>Yes</th>
+            <th>No</th>
+            <th>Yes, but:</th>
+            <th>Comments</th>
+            </thead>
+            <form action="/fairshake/modifysubmitted" id="evform" method="post"
+                  onsubmit="return confirm('Are you sure you want to submit?');">
+                <input type="hidden" name="hiddenfield" value={{ resource_id }}>
+                <tbody>
+                {% for w in range(16) %}
+                    <tr>
+                        <td style="width:500px">
+                            {{ w+1}}. {{ setq[w][2] }}.
+                        </td>
+                        <td>
+                            <input type="radio" name="q{{ w+1}}" onclick="clickother(this)" id="q{{ w+1}}yes"
+                                   value="yes" required>
+                        </td>
+                        <td>
+                            <input type="radio" name="q{{ w+1}}" onclick="clickother(this)" id="q{{ w+1}}no" value="no">
+                        </td>
+                        <td>
+                            <input type="radio" name="q{{ w+1}}" onclick="clickyesbut(this)" id="q{{ w+1}}yesbut"
+                                   value="yesbut">
+                        </td>
+                        <td class="commentcol">
+                            <input type="text" size="10" name="q{{ w+1}}yesbutcomment" id="q{{ w+1}}text"
+                                   class="textfield">
+                        </td>
+                    </tr>
+                    </tbody>
+                {% endfor %}
+            </form>
+        </table>
 
 
-		function clickyesbut(obj){
-			if(!(obj.checked==="checked")){
-				document.getElementById(obj.name+'text').style.display='inline';
-			}
-			document.getElementById(obj.name+'text').required=true;
-		}
+        <button class="btn btn-default" type="submit" form="evform" value="Submit">Submit</button>
 
-		function clickother(obj){
-			document.getElementById(obj.name+'text').style.display='none';
-			document.getElementById(obj.name+'text').required=false;
-		}
+        <script>
+            var x = document.getElementsByClassName('textfield');
+            var i;
+            for (i = 0; i < x.length; i++) {
+                x[i].style.display = 'none';
+            }
+        </script>
 
-		function click(obj){
-			document.getElementById(obj).checked=true;
+        {% if setanswers %}
+            {% for e in range(16) %}
+                {% if setanswers[e][1]=="yes" %}
+                    <script>click("q{{e+1}}yes");</script>
+                {% elif setanswers[e][1]=="no" %}
+                    <script>click("q{{e+1}}no");</script>
+                {% else %}
+                    <script>
+                        loadyesbut("q{{e+1}}", {{setcomments[e]|tojson}});
+                    </script>
+                {% endif %}
 
-		}
+            {% endfor %}
+        {% endif %}
 
-
-		function loadyesbut(obj,fill){
-			document.getElementById(obj+"yesbut").checked=true;
-			document.getElementById(obj+'text').style.display='inline';
-			document.getElementById(obj+'text').required=true;
-			document.getElementById(obj+'text').value=fill;
-		}
-
-
-		</script>
-<div class="container-fluid">
-	<table class="table table-responsive">
-		<thead>
-			<th>Question</th>
-			<th>Yes</th>
-			<th>No</th>
-			<th>Yes, but:</th>
-			<th>Comments</th>
-		</thead>
-		<form action="/fairshake/modifysubmitted" id="evform" method="post" onsubmit="return confirm('Are you sure you want to submit?');">
-			<input type="hidden" name="hiddenfield" value={{resource_id}}>
-			<tbody>
-			{% for w in range(16) %}
-				<tr>
-					<td style="width:500px">
-						{{w+1}}. {{setq[w][2]}}.
-					</td>
-					<td>
-						<input type="radio" name = "q{{w+1}}" onclick="clickother(this)" id="q{{w+1}}yes" value="yes" required>
-					</td>
-					<td>
-						<input type="radio" name = "q{{w+1}}" onclick="clickother(this)" id="q{{w+1}}no" value="no" >
-					</td>
-					<td>
-						<input type="radio" name = "q{{w+1}}" onclick="clickyesbut(this)" id="q{{w+1}}yesbut" value="yesbut" >
-					</td>
-					<td>
-						<input type="text" size = "10" name = "q{{w+1}}yesbutcomment" id="q{{w+1}}text" class="textfield">
-					</td>
-				</tr>
-			</tbody>
-			{% endfor %}
-		</form>
-	</table>
-
-
-
-			<button class="btn btn-default" type="submit" form="evform" value="Submit">Submit</button>
-
-		<script>
-			var x= document.getElementsByClassName('textfield');
-			var i;
-			for (i = 0; i < x.length; i++) {
-				x[i].style.display='none';
-			}
-		</script>
-
-		{% if setanswers %}
-			{% for e in range(16) %}
-				{% if setanswers[e][1]=="yes" %}
-					<script>click("q{{e+1}}yes");</script>
-				{% elif setanswers[e][1]=="no" %}
-					<script>click("q{{e+1}}no");</script>
-				{% else %}
-					<script>
-						loadyesbut("q{{e+1}}",{{setcomments[e]|tojson}});
-					</script>
-				{% endif %}
-
-			{% endfor %}
-		{% endif %}
-
-</div>
-
-	</body>
-	</html>
+    </div>
+{% endblock %}

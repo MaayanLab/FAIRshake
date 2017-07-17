@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .container-fluid {
+            text-align: center;
+            padding-left: 0px;
+            padding-right: 0px;
+            padding-bottom: 0px;
+        }
+
+        .featproject {
+            background-color: #f5f5f5;
+        }
+
+        .projecthead {
+            padding: 30px;
+        }
+
+        .projectlist {
+            text-align: left;
+            padding-left: 40px;
+        }
+
+        .projectop {
+            padding: 20px;
+            padding-left: 30px;
+        }
+
+        .projectdesc {
+            padding-left: 30px;
+        }
+
+        .evalbutton {
+            padding-bottom: 20px;
+        }
+
+    </style>
+{% endblock %}
+{% block header %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/fairshake/doe">FAIRShake</a>
+        </div>
+        <ul class="nav navbar-nav navbar-left">
+            <li class="active"><a href="/fairshake/projects">Projects</a></li>
+            <li><a href="/fairshake/startproject">Start a Project</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            {% if not current_user.is_authenticated %}
+                <li><a href="/fairshake/login">Login</a></li>
+                <li><a href="/fairshake/register">Sign up</a></li>
+            {% else %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">{{ current_user.username }}</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/fairshake/myaccount">Profile</a></li>
+                        <li><a href="/fairshake/settings">Settings</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/fairshake/logout">Logout</a></li>
+                    </ul>
+                </li>
+
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <h3 class="projecthead text-left">Projects</h3>
+        <div class="featproject">
+
+            <div class="projectlist">
+                {% for i in range(projectlist|length) %}
+                    <div class="projectop">
+                        <div class="projecttitle">
+                            <h4>{{ projectlist[i][1] }}</h4>
+                        </div>
+                        <div class="projectinfo">
+                            <div class="projectowner">
+                                <small>by {{ projectlist[i][3] }}</small>
+                            </div>
+                            <div class="projectdesc">
+                                <p>{{ projectlist[i][2] }}</p>
+                            </div>
+                        </div>
+                        <div class="evalbutton">
+                            <form action="/fairshake/project/{{ projectlist[i][0] }}" method="get">
+                                <button type="submit" class="btn btn-default">Evaluate</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+                crossorigin="anonymous"></script>
+        <script src="http://d3js.org/d3.v3.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+        </script>
+
+        <title>{% block title %}{% endblock %}</title>
+        {% block style %}
+            <style>
+                html {
+                    min-height: 100%;
+                    position: relative;
+                }
+
+                body {
+                    margin-bottom: 60px;
+                    margin-top: 50px;
+                }
+
+                #footer {
+                    bottom: 0;
+                    width: 100%;
+                    position: absolute;
+                    height: 60px;
+                    background-color: #e6e6e6;
+                }
+
+                .navbar-right {
+                    padding-right: 20px;
+                }
+
+                .footer-block {
+                    margin: 20px;
+                }
+
+                .container-fluid {
+                    padding-bottom: 60px;
+                }
+            </style>
+        {% endblock %}
+    {% endblock %}
+</head>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+    {% if messages %}
+        {% for category,message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <!-- <strong>Title</strong> --> {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+<body>
+<div id="header">
+    {% block header %}
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/fairshake/doe">FAIRShake</a>
+            </div>
+            <ul class="nav navbar-nav navbar-left">
+                <li><a href="/fairshake/projects">Projects</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="/fairshake/startproject">Start a Project</a></li>
+                {% else %}
+                    <li><a href="/fairshake/register">Start a Project</a></li>
+                {% endif %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if not current_user.is_authenticated %}
+                    <li><a href="/fairshake/login">Login</a></li>
+                    <li><a href="/fairshake/register">Sign up</a></li>
+                {% else %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">{{ current_user.username }}</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/fairshake/myaccount">Profile</a></li>
+                            <li><a href="/fairshake/settings">Settings</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="/fairshake/logout">Logout</a></li>
+                        </ul>
+                    </li>
+
+                {% endif %}
+            </ul>
+        </nav>
+    {% endblock %}
+</div>
+<div id="content">{% block content %}{% endblock %}</div>
+<div id="footer">
+    {% block footer %}
+        <p class="footer-block">
+            <a href="http://icahn.mssm.edu/research/labs/maayan-laboratory">Ma'ayan Laboratory of Computational Systems
+                Biology</a>
+        </p>
+    {% endblock %}
+</div>
+</body>
+</html>

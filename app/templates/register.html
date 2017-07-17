@@ -1,20 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-
-
-
-<style type="text/css">
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
 
 .container-fluid{
   text-align:center;
-  padding-bottom:20px;
-}
 .form-actions{
   padding-bottom:30px;
 }
@@ -28,31 +18,10 @@ h2{
 }
 
 </style>
-</head>
-{% with messages = get_flashed_messages(with_categories=true) %}
-  <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
-  {% if messages %}
-    {% for category,message in messages %}
-      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <!-- <strong>Title</strong> --> {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-  <body>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-  <div class="container-fluid">
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
     <h2 style = "text-align: center;">Create new account</h2>
-
-
-    <!--<form action="post.html" method="post">
-    	Hello<input type="text" name="name"></input>
-    	<input type="submit" value="Send my Order">
-    </form>-->
 
     <form action="/fairshake/register" class="form-horizontal" method="post">
       <div class="accinfo">
@@ -83,20 +52,5 @@ h2{
 	</form>
 
 
-      {% if current_user.is_authenticated %} <!-- home/logout footer -->
-      <div class="accmenu">
-      <div class="accmenuop">
-      <a href="/fairshake/myaccount">Home</a>
-      </div>
-      <div class="accmenuop">
-      <a href="/fairshake/acctmanagement">Settings</a>
-          |
-      <a href="/fairshake/logout">Logout</a>
-      </div>
-      </div>
-   {% endif %}
   </div>
-
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-  </body>
-</html>
+{% endblock %}

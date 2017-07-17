@@ -1,70 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .container-fluid {
+            text-align: center;
+        }
+
+        h2 {
+            padding-bottom: 20px;
+        }
+
+        .heading2 {
+            font-size: 23px;
+        }
+
+        .accmenu {
+            padding-top: 30px;
+        }
 
 
-
-<style type="text/css">
-
-.container-fluid{
-  text-align:center;
-  padding-bottom:20px;
-}
-
-
-h2{
-  padding-bottom:20px;
-}
-
-.heading2{
-	font-size:23px;
-}
-.accmenu{
-	padding-top:30px;
-}
-
-
-
-</style>
-</head>
-  <body>
-
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
+    </style>
+{% endblock %}
+{% block content %}
 
     <div class="container-fluid">
-    <div class="heading1">
-		<h2 style = "text-align: center;">Account Home
-			<div class="heading2">
-			<small>User ID: {{current_userid}}</small>
-			</div>
-			</h2>
-	</div>
+        <div class="heading1">
+            <h2 style="text-align: center;">Account Home
+                <div class="heading2">
+                    <small>User ID: {{ current_userid }}</small>
+                </div>
+            </h2>
+        </div>
 
-	<div class="myevals">
-	<a href="/fairshake/myevaluations" target="_self">View/Modify Submitted Evaluations</a>
-	</div>
-	<div class="resources">
-	<a href="/fairshake/resources" target="_self">LINCS Resource List</a>
-	</div>
-	<div class="resetpass">
-	<a href="/fairshake/resetpassword" target="_self">Reset Password</a>
-	</div>
-      <div class="accmenu"> <!-- acc footer -->
-    	<div class="accmenuop">
-    	<a href="/acctmanagement">Settings</a>
-		|
-    	<a href="/logout">Logout</a>
-    	</div>
-   		</div>
+        <div class="myevals">
+            <a href="/fairshake/myevaluations" target="_self">View/Modify Submitted Evaluations</a>
+        </div>
+        <div class="resources">
+            <a href="/fairshake/resources" target="_self">LINCS Resource List</a>
+        </div>
+        <div class="resetpass">
+            <a href="/fairshake/resetpassword" target="_self">Reset Password</a>
+        </div>
 
-	</div>
-  </body>
-	
-</html>
+    </div>
+
+
+{% endblock %}

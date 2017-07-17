@@ -1,52 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .form-actions {
+            padding-bottom: 10px;
+        }
 
- <style type="text/css">
-.form-actions{
-	padding:10px;
-}
-h2{
-	padding-bottom:30px;
-}
-.container-fluid{
-	padding-bottom:20px;
-}
+        h2 {
+            padding-bottom: 30px;
+        }
 
-.accmenu{
-	text-align:center;
-}
-.otext{
-	display:block;
-	font-size:12px;
-	line-height:.95;
-    padding-top:3px;
-}
-.tdinsig{
-	width:12%;
-}
-</style>
- </head>
-{% with messages = get_flashed_messages(with_categories=true) %}
-  <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
-  {% if messages %}
-    {% for category,message in messages %}
-      <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <!-- <strong>Title</strong> --> {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-<body>
+        .otext {
+            display: block;
+            font-size: 12px;
+            line-height: .95;
+        }
+
+        .tdinsig {
+            width: 12%;
+        }
+
+        div.tooltip {
+            position: absolute;
+            padding: 2px;
+            font: 13px sans-serif;
+            background: black;
+            color:white;
+            border-radius:2px;
+            pointer-events: none;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
 <script type="text/javascript">
 
 	var lastpage=1;
-	if({{total}}<{{per_page}}||({{total}}%{{per_page}}==0)){
+	if({{total}}<{{per_page}}||({{total}}%{{per_page}}===0)){
 		lastpage=Math.trunc({{total}}/{{per_page}});
 		if (lastpage===0){
 			lastpage=1;
@@ -67,187 +57,178 @@ h2{
 
 </script>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="http://d3js.org/d3.v3.js"></script>
 
   <script type="text/javascript">
-  
-    
 
-  scale=d3.scale.linear().domain([-1,1])
-      .interpolate(d3.interpolateRgb)
-      .range([d3.rgb(0,0,255), d3.rgb(255,0,0)]);
+      scale = d3.scale.linear().domain([-1, 1])
+          .interpolate(d3.interpolateRgb)
+          .range([d3.rgb(0, 0, 255), d3.rgb(255, 0, 0)]);
 
 
-  function roundTwo(num){
-  	return +(Math.round(num+"e+2") +"e-2");
-  }
+      function roundTwo(num) {
+          return +(Math.round(num + "e+2") + "e-2");
+      }
 
-  function opac(d){
-  	d3.select(this).style("fill-opacity",.3);
-  	d3.select(this.parentNode.parentNode).append("div").append("text").text(roundTwo(d.numdata)).attr("class","ttext");
-    d3.select(this.parentNode.parentNode).append("div").append("text").text(d.qdata+".").attr("class","otext");
-  }
+      function opac(d) {
+          d3.select(this).style("fill-opacity", .3);
+          var div = d3.select(this.parentNode.parentNode).append("div")
+              .attr("class", "tooltip")
+              .style("opacity", 0);
 
-  function bopac(){
-  	d3.select(this).style("fill-opacity",1);
-  	d3.selectAll("text").remove();
-  }
+          div.transition().style("opacity", .8);
+          div.html(roundTwo(d.numdata) + "<br/>" + d.qdata + ".")
+              .style("left", (d3.event.pageX + 10) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
+      }
 
-  var rectAttr = 
-  		{
-  		x:0,
-  		y:0,
-    	width: 20,
-    	height: 20}
+      function bopac() {
+          d3.select(this).style("fill-opacity", 1);
+          d3.selectAll(".tooltip").remove();
+      }
 
-  var rectStyle=
-  		{fill: function(d){return scale(d.numdata);},
-    	stroke: "white",
-    	"stroke-width": 2
-    	}
+      var rectAttr =
+          {
+              width: 10,
+              height: 10
+          }
+
+      var rectStyle =
+          {
+              fill: function (d) {
+                  return scale(d.numdata);
+              },
+              stroke: "white",
+              "stroke-width": 1,
+              "shape-rendering": "crispEdges"
+          }
 
   function insig(i){ //avginfo goes from 1-16 for averages, 0 index is id
 
-    var body = d3.selectAll(document.getElementsByClassName("insignia"+i)).append("svg").attr("width",85).attr("height",85);
+    var body = d3.selectAll(document.getElementsByClassName("insignia"+i)).append("svg").attr("width",40).attr("height",40);
 
-
-    body.selectAll("xyz1").data([{"numdata": {{avginfo|tojson}}[i][1],"qdata": {{qdat|tojson}}[i][1]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",0).style(rectStyle)
+    body.selectAll("xyz1").data([{"numdata": {{avginfo|tojson}}[i][1],"qdata": "1. "+{{qdat|tojson}}[i][1]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",0).style(rectStyle)
     .on("mouseover",opac)
     .on("mouseout",bopac);
-    
-    
-    body.selectAll("xyz2").data([{"numdata": {{avginfo|tojson}}[i][2],"qdata": {{qdat|tojson}}[i][2]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",0).style(rectStyle)
+    body.selectAll("xyz2").data([{"numdata": {{avginfo|tojson}}[i][2],"qdata": "2. "+{{qdat|tojson}}[i][2]}]).enter().append("rect").attr(rectAttr).attr("x",10).attr("y",0).style(rectStyle)
     .on("mouseover",opac)
     .on("mouseout",bopac);
-    
-    body.selectAll("xyz3").data([{"numdata": {{avginfo|tojson}}[i][3],"qdata": {{qdat|tojson}}[i][3]}]).enter().append("rect").attr(rectAttr).attr("x",40).attr("y",0).style(rectStyle)
+    body.selectAll("xyz3").data([{"numdata": {{avginfo|tojson}}[i][3],"qdata": "3. "+{{qdat|tojson}}[i][3]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",0).style(rectStyle)
     .on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz4").data([{"numdata": {{avginfo|tojson}}[i][4],"qdata": {{qdat|tojson}}[i][4]}]).enter().append("rect").attr(rectAttr).attr("x",60).attr("y",0).style(rectStyle)
+    body.selectAll("xyz4").data([{"numdata": {{avginfo|tojson}}[i][4],"qdata": "4. "+{{qdat|tojson}}[i][4]}]).enter().append("rect").attr(rectAttr).attr("x",30).attr("y",0).style(rectStyle)
     .on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz5").data([{"numdata": {{avginfo|tojson}}[i][5],"qdata": {{qdat|tojson}}[i][5]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz6").data([{"numdata": {{avginfo|tojson}}[i][6],"qdata": {{qdat|tojson}}[i][6]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz7").data([{"numdata": {{avginfo|tojson}}[i][7],"qdata": {{qdat|tojson}}[i][7]}]).enter().append("rect").attr(rectAttr).attr("x",40).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz8").data([{"numdata": {{avginfo|tojson}}[i][8],"qdata": {{qdat|tojson}}[i][8]}]).enter().append("rect").attr(rectAttr).attr("x",60).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz9").data([{"numdata": {{avginfo|tojson}}[i][9],"qdata": {{qdat|tojson}}[i][9]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",40).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz10").data([{"numdata": {{avginfo|tojson}}[i][10],"qdata": {{qdat|tojson}}[i][10]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",40).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz11").data([{"numdata": {{avginfo|tojson}}[i][11],"qdata": {{qdat|tojson}}[i][11]}]).enter().append("rect").attr(rectAttr).attr("x",40).attr("y",40).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz12").data([{"numdata": {{avginfo|tojson}}[i][12],"qdata": {{qdat|tojson}}[i][12]}]).enter().append("rect").attr(rectAttr).attr("x",60).attr("y",40).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz13").data([{"numdata": {{avginfo|tojson}}[i][13],"qdata": {{qdat|tojson}}[i][13]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",60).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz14").data([{"numdata": {{avginfo|tojson}}[i][14],"qdata": {{qdat|tojson}}[i][14]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",60).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz15").data([{"numdata": {{avginfo|tojson}}[i][15],"qdata": {{qdat|tojson}}[i][15]}]).enter().append("rect").attr(rectAttr).attr("x",40).attr("y",60).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
-    body.selectAll("xyz16").data([{"numdata": {{avginfo|tojson}}[i][16],"qdata": {{qdat|tojson}}[i][16]}]).enter().append("rect").attr(rectAttr).attr("x",60).attr("y",60).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz5").data([{"numdata": {{avginfo|tojson}}[i][5],"qdata": "5. "+{{qdat|tojson}}[i][5]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",10).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz6").data([{"numdata": {{avginfo|tojson}}[i][6],"qdata": "6. "+{{qdat|tojson}}[i][6]}]).enter().append("rect").attr(rectAttr).attr("x",10).attr("y",10).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz7").data([{"numdata": {{avginfo|tojson}}[i][7],"qdata": "7. "+{{qdat|tojson}}[i][7]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",10).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz8").data([{"numdata": {{avginfo|tojson}}[i][8],"qdata": "8. "+{{qdat|tojson}}[i][8]}]).enter().append("rect").attr(rectAttr).attr("x",30).attr("y",10).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz9").data([{"numdata": {{avginfo|tojson}}[i][9],"qdata": "9. "+{{qdat|tojson}}[i][9]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz10").data([{"numdata": {{avginfo|tojson}}[i][10],"qdata": "10. "+{{qdat|tojson}}[i][10]}]).enter().append("rect").attr(rectAttr).attr("x",10).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz11").data([{"numdata": {{avginfo|tojson}}[i][11],"qdata": "11. "+{{qdat|tojson}}[i][11]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz12").data([{"numdata": {{avginfo|tojson}}[i][12],"qdata": "12. "+{{qdat|tojson}}[i][12]}]).enter().append("rect").attr(rectAttr).attr("x",30).attr("y",20).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz13").data([{"numdata": {{avginfo|tojson}}[i][13],"qdata": "13. "+{{qdat|tojson}}[i][13]}]).enter().append("rect").attr(rectAttr).attr("x",0).attr("y",30).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz14").data([{"numdata": {{avginfo|tojson}}[i][14],"qdata": "14. "+{{qdat|tojson}}[i][14]}]).enter().append("rect").attr(rectAttr).attr("x",10).attr("y",30).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz15").data([{"numdata": {{avginfo|tojson}}[i][15],"qdata": "15. "+{{qdat|tojson}}[i][15]}]).enter().append("rect").attr(rectAttr).attr("x",20).attr("y",30).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
+    body.selectAll("xyz16").data([{"numdata": {{avginfo|tojson}}[i][16],"qdata": "16. "+{{qdat|tojson}}[i][16]}]).enter().append("rect").attr(rectAttr).attr("x",30).attr("y",30).style(rectStyle).on("mouseover",opac).on("mouseout",bopac);
   }
 
-   
+
   </script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-<h2 style = "text-align: center;">Resource List</h2>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
+    <div class="container-fluid">
+        <h2 style="text-align: center;">Resource List</h2>
+        <table class="table table-responsive table-hover">
+            <thead>
+            <tr>
+                {% if current_user.is_authenticated %}
+                    <th>Select</th>
+                {% endif %}
+                <th>Name</th>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th># of Evaluations</th>
+                <th>All Evaluations</th>
+            </tr>
+            </thead>
+            <tbody>
+            <form action="/fairshake/newevaluation" method="post" id="form1">
+                {% for i in range(pagecount-per_page,showlast) %}
+                    <tr class="tablerow">
+                        {% if current_user.is_authenticated %}
+                            <td>
+                                <div class="radio">
+                                    {% if mylist[i][0] in userres %}
+                                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                    {% else: %}
+                                        <label><input type="radio" id='res1' name="resourceid" value={{ mylist[i][0] }}></label>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        {% endif %}
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'><a
+                                        href={{ mylist[i][2] }} target="_blank">{{ mylist[i][1] }}</a></label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'>{{ mylist[i][0] }}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'>{{ mylist[i][3] }}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'>{{ mylist[i][4] }}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'>{{ listeval[i] }}</label>
+                            </div>
+                        </td>
+                        <td class="tdinsig">
+                            <div class="insignia{{ i }}">
+                                {% if not avginfo[i][1]=='None' %}
+                                    <script>
+                                        insig({{i}});
+                                    </script>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
 
 
-<div class="container-fluid">
-<table class="table table-responsive table-hover">
-	 <thead>
-		 <tr>
-			<th>Select</th>
-			<th>Name</th>
-			<th>ID</th>
-			<th>Type</th> 
-			<th>Description</th>
-			<th># of Evaluations</th>
-			<th>Insignia</th>
-		 </tr>
-	 </thead>
-	 <tbody>
-	 <form action="/fairshake/newevaluation" method="post" id="form1">
-	 {% for i in range(pagecount-per_page,showlast) %}
-		 <tr>
-			 <td>
-				 <div class="radio">
-				 	 {% if mylist[i][0] in userres %}
-				 	 	<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-				 	 {% else: %}
-					 	<label><input type="radio" id='res1' name="resourceid" value={{mylist[i][0]}}></label>
-					 {% endif %}
-				 </div>
-			 </td>
-			 <td>
-			 <div class="radiotext">
-				 <label for='res1'><a href={{mylist[i][2]}} target="_blank">{{mylist[i][1]}}</a></label>
-			 </div>
-			 </td>
-			 <td>
-			 <div class="radiotext">
-				 <label for='res1'>{{mylist[i][0]}}</label>
-			 </div>
-			 </td>
-			 <td>
-			 <div class="radiotext">
-				 <label for='res1'>{{mylist[i][3]}}</label>
-			 </div>
-			 </td>
-			 <td>
-			 <div class="radiotext">
-				 <label for='res1'>{{mylist[i][4]}}</label>
-			 </div>
-			 </td>
-			 <td>
-			 <div class="radiotext">
-				 <label for='res1'>{{listeval[i]}}</label>
-			 </div>
-			 </td>
-			 <td class="tdinsig">
-			 <div class="insignia{{i}}">
-			 	<script>
-					insig({{i}});
-				</script>
-			 </div>
-			 </td>
-		 </tr>
-		 
-		 
-	{% endfor %}
-	</form>
-	</tbody>
-</table>
+                {% endfor %}
+            </form>
+            </tbody>
+        </table>
 
 
-<div class="form-actions">
-<button type="submit" class="btn btn-default" value="Submit" form="form1">Submit</button>
-</div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-default" value="Submit" form="form1">Evaluate</button>
+        </div>
 
-<div class="form-actions">
-<form action='/fairshake/resources/page/{{page-1}}' method='get'>
-	<button type="submit" class="btn btn-default" value="Back" id="back">Back</input>
-</form>
-</div>
+        <div class="form-actions">
+            <form action='/fairshake/resources/page/{{ page-1 }}' method='get'>
+                <button type="submit" class="btn btn-default" value="Back" id="back">Back</button>
+            </form>
+        </div>
 
-<div class="form-actions">
-<form action='/fairshake/resources/page/{{page+1}}' method='get'>
-	<button type="submit" class="btn btn-default" value="Next" id="next">Next</input>
-</form>
-</div>
+        <div class="form-actions">
+            <form action='/fairshake/resources/page/{{ page+1}}' method='get'>
+                <button type="submit" class="btn btn-default" value="Next" id="next">Next</button>
+            </form>
+        </div>
+    </div>
 
-{% if current_user.is_authenticated %} <!-- acc footer -->
-    	<div class="accmenu">
-    	<div class="accmenuop">
-    	<a href="/fairshake/myaccount">Home</a>
-    	</div>
-    	<div class="accmenuop">
-    	<a href="/fairshake/acctmanagement">Settings</a>
-		|
-    	<a href="/fairshake/logout">Logout</a>
-    	</div>
-   		</div>
-{% endif %}
-
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-</div>
-</body>
-</html>
+{% endblock %}

@@ -46,9 +46,9 @@ login_manager.login_view = "/fairshake/login"
 
 ENTRY_POINT = app.config['ENTRY_POINT']
 
-@app.route(ENTRY_POINT + "/")
-def index():
-    return render_template('index.html')
+@app.route(ENTRY_POINT + "/project/1")
+def lincsfairness():
+    return render_template('lincsfairness.html')
 
 
 @app.route(ENTRY_POINT + "/login", methods=['GET', 'POST'])
@@ -126,16 +126,15 @@ def register():
 @app.route(ENTRY_POINT + '/resources', defaults={'page': 1}, methods=['GET', 'POST'])
 @app.route(ENTRY_POINT + '/resources/page/<int:page>', methods=['GET'])
 def resourcelist(page):
-    mylist = []
-    userres = []
-    listeval = []
-    per_page = 5
+    mylist = []  # get resource info
+    userres = []  # list containing resources this user has evaluated - for check marks
+    listeval = []  # number of evaluations this resource has
+    per_page = 10
     pagecount = per_page * page
     showlast = 0
-    templist = []
 
-    avginfo = []
-    qdat = []
+    avginfo = []  # average answer data for insignia squares
+    qdat = []  # questions associated with insignia squares
 
     conx_getevalc = mysql.get_db()
     cursor = conx_getevalc.cursor()
@@ -150,7 +149,7 @@ def resourcelist(page):
     for row in data:
         mylist.append(row)
 
-    for i in range(total):
+    for i in range(total):  # go through all resources
         templist = []
         xlist = []
 
@@ -164,14 +163,19 @@ def resourcelist(page):
         templist.append(str(mylist[i][0]))
         xlist.append(str(mylist[i][0]))
 
-        for t in range(16):
+        for t in range(16):  # go through all 16 questions
             cursor.execute("select q_id from question where num=" + str((t + 1)) + " and res_type='" + str(
                 mylist[i][3]) + "' and version=(select max(version) from question)")
             q_id = cursor.fetchall()[0][0]
 
             cursor.execute("select avg from average where resource_id=" + str(mylist[i][0]) + " and q_id=" + str(q_id))
-            adata = cursor.fetchall()
-            templist.append(adata[0][0])
+            adata = cursor.fetchone()
+            if(adata is None):  # did not find an average for this resource for this question
+                templist.append('None')
+                break  # this resource has not yet been evaluated - newly added, break out of this resource
+            else:
+                templist.append(adata[0])  # else add this resources averages to templist --> avginfo
+            odata=cursor.fetchall()  # clean up this cursor call
 
             cursor.execute("select content from question where q_id=" + str(q_id))
             tst = cursor.fetchall()
@@ -180,7 +184,7 @@ def resourcelist(page):
         avginfo.append(templist)  # put into avginfo array the average data
         qdat.append(xlist)
 
-    if (current_user.is_anonymous == False):  # this person is logged in (resourceslist is a public page)
+    if (current_user.is_authenticated):  # this person is logged in (resourceslist is a public page)
         conx_getres = mysql.get_db()
         cursor = conx_getres.cursor()
         cursor.execute(
@@ -196,7 +200,8 @@ def resourcelist(page):
 
         # avginfo[0] returns first row (first resource's info)
         # avginfo[0][1] returns first resource's q1 avg
-    return render_template('resourcelist2.html', \
+
+    return render_template('resourcelist2.html',
                            mylist=mylist, listeval=listeval, total=total, pagecount=pagecount, page=page,
                            per_page=per_page, showlast=showlast, userres=userres, avginfo=avginfo, qdat=qdat)
 
@@ -208,7 +213,7 @@ def resourcelist(page):
 def myevals(page):
     resources = []
     listeval = []
-    per_page = 5
+    per_page = 10
     pagecount = per_page * page
     showlast = 0
 
@@ -252,8 +257,13 @@ def myevals(page):
             q_id = cursor.fetchall()[0][0]
             cursor.execute(
                 "select avg from average where resource_id=" + str(resources[i][0]) + " and q_id=" + str(q_id))
-            adata = cursor.fetchall()
-            templist.append(adata[0][0])
+            adata = cursor.fetchone()
+            if (adata is None):  # did not find an average for this resource for this question
+                templist.append('None')
+                break  # this resource has not yet been evaluated - newly added, break out of this resource
+            else:
+                templist.append(adata[0])  # else add this resources averages to templist --> avginfo
+            odata = cursor.fetchall()  # clean up this cursor call
 
             cursor.execute("select content from question where q_id=" + str(q_id))
             tst = cursor.fetchall()
@@ -281,7 +291,7 @@ def myevals(page):
         showlast = pagecount
 
         # return str(ans[0][3])
-    return render_template('myevaluations.html', \
+    return render_template('myevaluations.html',
                            page=page, resources=resources, per_page=per_page, pagecount=pagecount, showlast=showlast,
                            totalres=totalres, listeval=listeval, avginfo=avginfo, ans=ans, qdat=qdat)
 
@@ -434,7 +444,7 @@ def modifysubmitted():
         average = float(total) / count
         cursor.execute("delete from average where resource_id=" + resource_id + " and q_id=" + str(q_id))
         conx.commit()  # clear this entry in average
-        cursor.execute("insert into average values(" + resource_id + "," + str(q_id) + "," + str(average) + ")")
+        cursor.execute("insert into average(resource_id,q_id,avg) values(" + resource_id + "," + str(q_id) + "," + str(average) + ")")
         conx.commit()
     flash("Evaluation submitted.", "success")
     return redirect('/fairshake/myevaluations')
@@ -497,7 +507,7 @@ def evaluationsubmitted():
         average = float(total) / count
         cursor.execute("delete from average where resource_id=" + resource_id + " and q_id=" + str(q_id))
         conx.commit()  # clear this entry in average
-        cursor.execute("insert into average values(" + resource_id + "," + str(q_id) + "," + str(average) + ")")
+        cursor.execute("insert into average (resource_id,q_id,avg) values(" + resource_id + "," + str(q_id) + "," + str(average) + ")")
         conx.commit()
 
     flash("Evaluation submitted.", "success")
@@ -606,17 +616,74 @@ def passreset():
 
 @app.route(ENTRY_POINT + '/doe', methods=['GET'])
 def doe():
-    return render_template('doehome.html')
+    projectlist=[]
+
+    conx = mysql.get_db()
+    cursor = conx.cursor()
+    cursor.execute("select * from project")
+    data=cursor.fetchall()
+    for row in data:
+        projectlist.append(row)
+    return render_template('doehome.html',projectlist=projectlist)
 
 
 @app.route(ENTRY_POINT + '/projects', methods=['GET'])
 def projects():
-    return render_template('projects.html')
+    projectlist = []
+
+    conx = mysql.get_db()
+    cursor = conx.cursor()
+    cursor.execute("select * from project")
+    data = cursor.fetchall()
+    for row in data:
+        projectlist.append(row)
+    return render_template('projects.html', projectlist=projectlist)
 
 
-@app.route(ENTRY_POINT + '/account', methods=['GET'])
-def myprojects():
-    return render_template('doeacchome.html')
+@app.route(ENTRY_POINT+'/startproject',methods=['GET','POST'])
+@login_required
+def startproj():
+
+    if request.method=='POST':
+        conx = mysql.get_db()
+        cursor = conx.cursor()
+
+        projectname=request.form['projectname']
+        projectdesc=request.form['projectdesc']
+
+        cursor.execute("insert into project (project_name,project_description,user_id) values('"
+                       +projectname+"','"+projectdesc+"','"+current_user.user_id+"')")
+        conx.commit()
+
+
+        totalresrc=request.form['totalresrc']
+
+        for i in range(int(totalresrc)):
+            resourcename=request.form['resourcename' + str(i + 1)]
+            resourcetype = request.form['resourcetype' + str(i + 1)]
+            resourceurl = request.form['resourceurl' + str(i + 1)]
+            resourcedesc = request.form['resourcedesc' + str(i + 1)]
+
+            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
+                           +resourcename+"','"+resourcetype+"','"+resourceurl+"','"+resourcedesc
+                           +"',(select project_id from project where project_name='"+projectname+"'))")
+            conx.commit()
+
+
+        totalqu=request.form['totalqu']
+
+        for r in range(int(totalqu)):
+            qucontent=request.form['q'+str(r+1)]
+            cursor.execute("insert into question(num,version,res_type,content,project_id) values('"+str(r+1)+"','1','ex','"
+                           +qucontent+"',(select project_id from project where project_name='"+projectname+"'))")
+            conx.commit()
+
+        flash("Project successfully created.", "success")
+        return redirect(ENTRY_POINT + '/projects')
+
+    else:
+        return render_template('startproject.html')
+
 
 
 class User(UserMixin):
