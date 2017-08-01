@@ -59,7 +59,7 @@ http {
         large_client_header_buffers 8 32k;
 
         location /static  {
-            alias $root/pyvep/static;
+            alias $root/lwfairness/static;
         }
 
         location / {

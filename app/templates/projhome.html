@@ -1,0 +1,415 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+
+        .heading{
+            text-align:center;
+        }
+
+        h2 {
+            padding-bottom: 10px;
+        }
+
+        h4 {
+            padding-bottom: 20px;
+        }
+
+        .rbutton {
+            padding-top: 15px;
+        }
+
+        .btn-left{
+            text-align:left;
+        }
+
+
+        .glyphicon{
+            font-size:10px;
+        }
+        .form-actions {
+            padding-bottom: 10px;
+        }
+
+
+
+        .tdinsig {
+            width: 12%;
+        }
+
+        div.tooltip {
+            position: absolute;
+            padding: 2px;
+            font: 13px sans-serif;
+            background: black;
+            color:white;
+            border-radius:2px;
+            pointer-events: none;
+        }
+        .tablerow{
+            font-size:13px;
+            font-weight:100;
+
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+    <script>
+        function reslist() {
+
+        }
+
+    </script>
+
+    <script type="text/javascript">
+
+        var lastpage = 1;
+        if ({{total}}<{{per_page}}||({{total}} % {{per_page}} === 0)){
+            lastpage = Math.trunc({{total}}/{{per_page}});
+            if (lastpage === 0) {
+                lastpage = 1;
+            }
+        }else{
+            lastpage = Math.trunc({{total}}/{{per_page}})+1;
+        }
+
+        window.onload = function () {
+            if ({{page}}>=lastpage){
+                document.getElementById("next").style.display = 'none';
+            }
+            if ({{page}}<= 1){
+                document.getElementById("back").style.display = 'none';
+            }
+        }
+
+    </script>
+
+
+    <script type="text/javascript">
+
+        scale = d3.scale.linear().domain([-1, 1])
+            .interpolate(d3.interpolateRgb)
+            .range([d3.rgb(255, 0, 0), d3.rgb(0, 0, 255)]);
+
+
+        function roundTwo(num) {
+            return +(Math.round(num + "e+2") + "e-2");
+        }
+
+        function opac(d) {
+            d3.select(this).style("fill-opacity", .3);
+            var div = d3.select(this.parentNode.parentNode).append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            div.transition().style("opacity", .8);
+            div.html("Score: " + roundTwo(d.numdata) + "<br/>" + d.qdata)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+        }
+
+        function opacBlank(d) {
+            d3.select(this).style("fill-opacity", .3);
+            var div = d3.select(this.parentNode.parentNode).append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            div.transition().style("opacity", .8);
+            div.html("Score: " + "N/A" + "<br>" + d.qdata)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+        }
+
+        function bopac() {
+            d3.select(this).style("fill-opacity", 1);
+            d3.selectAll(".tooltip").remove();
+        }
+
+        var rectAttr =
+            {
+                width: 10,
+                height: 10
+            }
+
+        var rectStyle =
+            {
+                fill: function (d) {
+                    return scale(d.numdata);
+                }
+                ,
+                stroke: "white",
+                "stroke-width": 1,
+                "shape-rendering": "crispEdges"
+            }
+        var blankStyle =
+            {
+                fill: "darkgray",
+                stroke: "white",
+                "stroke-width": 1,
+                "shape-rendering": "crispEdges"
+            }
+
+
+        function makeInsig(par) {
+
+            var avg = {{ avginfo|tojson }}[par];
+
+            var qdt = {{ qdat|tojson }}[par];
+            return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
+                {numdata: avg[2], qdata: "2. " + qdt[2], posx: 10, posy: 0},
+                {numdata: avg[3], qdata: "3. " + qdt[3], posx: 20, posy: 0},
+                {numdata: avg[4], qdata: "4. " + qdt[4], posx: 30, posy: 0},
+                {numdata: avg[5], qdata: "5. " + qdt[5], posx: 0, posy: 10},
+                {numdata: avg[6], qdata: "6. " + qdt[6], posx: 10, posy: 10},
+                {numdata: avg[7], qdata: "7. " + qdt[7], posx: 20, posy: 10},
+                {numdata: avg[8], qdata: "8. " + qdt[8], posx: 30, posy: 10},
+                {numdata: avg[9], qdata: "9. " + qdt[9], posx: 0, posy: 20},
+                {numdata: avg[10], qdata: "10. " + qdt[10], posx: 10, posy: 20},
+                {numdata: avg[11], qdata: "11. " + qdt[11], posx: 20, posy: 20},
+                {numdata: avg[12], qdata: "12. " + qdt[12], posx: 30, posy: 20},
+                {numdata: avg[13], qdata: "13. " + qdt[13], posx: 0, posy: 30},
+                {numdata: avg[14], qdata: "14. " + qdt[14], posx: 10, posy: 30},
+                {numdata: avg[15], qdata: "15. " + qdt[15], posx: 20, posy: 30},
+                {numdata: avg[16], qdata: "16. " + qdt[16], posx: 30, posy: 30}
+
+
+            ]
+        }
+
+        function makeBlankInsig(par) {
+
+            var qdt = {{ qdat|tojson }}[par];
+
+            return [{qdata: "1. " + qdt[1], posx: 0, posy: 0},
+                {qdata: "2. " + qdt[2], posx: 10, posy: 0},
+                {qdata: "3. " + qdt[3], posx: 20, posy: 0},
+                {qdata: "4. " + qdt[4], posx: 30, posy: 0},
+                {qdata: "5. " + qdt[5], posx: 0, posy: 10},
+                {qdata: "6. " + qdt[6], posx: 10, posy: 10},
+                {qdata: "7. " + qdt[7], posx: 20, posy: 10},
+                {qdata: "8. " + qdt[8], posx: 30, posy: 10},
+                {qdata: "9. " + qdt[9], posx: 0, posy: 20},
+                {qdata: "10. " + qdt[10], posx: 10, posy: 20},
+                {qdata: "11. " + qdt[11], posx: 20, posy: 20},
+                {qdata: "12. " + qdt[12], posx: 30, posy: 20},
+                {qdata: "13. " + qdt[13], posx: 0, posy: 30},
+                {qdata: "14. " + qdt[14], posx: 10, posy: 30},
+                {qdata: "15. " + qdt[15], posx: 20, posy: 30},
+                {qdata: "16. " + qdt[16], posx: 30, posy: 30}
+
+
+            ]
+        }
+
+
+        function insig(i) {
+
+            var body = d3.selectAll(document.getElementsByClassName("insignia" + i)).append("svg").attr("width", 40).attr("height", 40);
+
+            body.selectAll("rect").data(makeInsig(i)).enter().append("rect").attr(rectAttr).attr("x", function (d) {
+                return d.posx;
+            }).attr("y", function (d) {
+                return d.posy;
+            }).style(rectStyle)
+                .on("mouseover", opac)
+                .on("mouseout", bopac);
+        }
+
+
+        function blankinsig(i) {
+
+            var body = d3.selectAll(document.getElementsByClassName("insignia" + i)).append("svg").attr("width", 40).attr("height", 40);
+
+            body.selectAll("rect").data(makeBlankInsig(i)).enter().append("rect").attr(rectAttr).attr("x", function (d) {
+                return d.posx;
+            }).attr("y", function (d) {
+                return d.posy;
+            }).style(blankStyle)
+                .on("mouseover", opacBlank)
+                .on("mouseout", bopac);
+        }
+
+        function gotoevals(){
+            $('#toggleForm')[0].submit();
+        }
+
+
+
+    </script>
+
+
+
+
+    <div class="container-fluid">
+        <div class="heading">
+            <div class="title">
+                <h2>{{ projinfo[0][1] }}<small> - Resources List</small></h2>
+                <h4>{{ projinfo[0][2] }} </h4>
+
+            </div>
+
+            {% if current_user.is_authenticated %}
+                <div class="btn-group" id="listgrpbtns" data-toggle="buttons">
+                    <label class="btn btn-default listgrpbtn active">
+                        <input type="radio" name="options" autocomplete="off">Resources List
+                    </label>
+
+                    <label class="btn btn-default listgrpbtn" onclick="gotoevals()">
+                        <input type="radio" name="options" autocomplete="off">My Evaluations
+                    </label>
+
+                </div>
+
+                <form action="/fairshake/project/{{ projinfo[0][0] }}/myevaluations" class="form-horizontal"
+                      method='GET' id="toggleForm">
+                </form>
+            {% endif %}
+
+        </div>
+
+
+
+        <table class="table table-responsive table-hover">
+            <thead>
+            <tr>
+                {% if current_user.is_authenticated %}
+                    <th>Select</th>
+                {% endif %}
+                <th>Name</th>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th># of Evaluations</th>
+                <th>All Evaluations</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <form action="/fairshake/newevaluation" method="post" id="form1">
+                {% for i in range(pagecount-per_page,showlast) %}
+                    <tr class="tablerow">
+                        {% if current_user.is_authenticated %}
+                            <td>
+                                <div class="radio">
+                                    {% if mylist[i][0] in userres %}
+                                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                    {% else: %}
+                                        <label><input type="radio" id='res1' name="resourceid"
+                                                      value={{ mylist[i][0] }} required></label>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        {% endif %}
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'>
+                                    <a
+                                            href={{ mylist[i][2] }} target="_blank">{{ mylist[i][1] }}</a></label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'>{{ mylist[i][0] }}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'>{{ mylist[i][3] }}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'><p>{{ mylist[i][4] }}</p></label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for='res1'>{{ listeval[i] }}</label>
+                            </div>
+                        </td>
+                        <td class="tdinsig">
+                            <div class="insignia{{ i }}">
+                                {% if not avginfo[i][1]=='None' %}
+                                    <script>
+                                        insig({{i}});
+                                    </script>
+                                {% else %}
+                                    <script>
+                                        blankinsig({{ i }});
+                                    </script>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </form>
+            </tbody>
+        </table>
+
+        {% if current_user.is_authenticated %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-default btn-left" value="Submit" form="form1">Evaluate</button>
+            </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <form action='/fairshake/project/{{ proj }}/resources/page/{{ page-1 }}' method='get'>
+                <button type="submit" class="btn btn-default btn-left" value="Back" id="back">Back</button>
+            </form>
+        </div>
+
+        <div class="form-actions">
+            <form action='/fairshake/project/{{ proj }}/resources/page/{{ page+1}}' method='get'>
+                <button type="submit" class="btn btn-default btn-left" value="Next" id="next">Next</button>
+            </form>
+        </div>
+
+
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+            </ul>
+        </nav>
+
+    </div>
+
+    <script>
+
+        var $pagination = $('.pagination');
+        var defaultOpts = {
+            initiateStartPageClick: false,
+            totalPages: lastpage,
+            visiblePages: 5,
+            prev: "&lt",
+            next: "&gt",
+            first: "&laquo",
+            last: "&raquo",
+            href: true
+            ,
+            onPageClick: function (event, page) { // works in terms of redirecting but needs also have same button function as before
+                window.location.href = "/fairshake/project/1/resources/page/" + page;
+            }
+        };
+        $pagination.twbsPagination(defaultOpts);
+        $.ajax({
+            success: function (data) {
+                var totalPages = data.newTotalPages;
+                var currentPage = $pagination.twbsPagination('getCurrentPage');
+                $pagination.twbsPagination('destroy');
+                $pagination.twbsPagination($.extend({}, defaultOpts, {
+                    startPage: currentPage,
+                    totalPages: totalPages
+                }));
+            }
+        })
+        ;
+
+
+        alert(lastpage);
+        $(document).ready(function () {
+            $(".pagination").rPage();
+        });
+    </script>
+
+    </div>
+{% endblock %}

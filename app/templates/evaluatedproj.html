@@ -35,12 +35,10 @@
             right: 30px;
             bottom: 38px;
         }
-
-        #picContainer {
-            height: 150px;
-            position: relative;
+        #picContainer{
+            height:150px;
+            position:relative;
         }
-
 
     </style>
 {% endblock %}
@@ -54,14 +52,14 @@
             </a>
         </div>
         <ul class="nav navbar-nav navbar-left">
-            <li class="active">
+            <li>
                 <a href="/fairshake/projects" class="headx">Projects</a></li>
             <li>
                 <a href="/fairshake/startproject" class="headx">Start a Project</a></li>
             <li>
                 <a href="/fairshake/chromeextension" class="headx">Download Chrome Extension</a></li>
             {% if current_user.is_authenticated %}
-                <li>
+                <li class="active">
                     <a href="/fairshake/evaluatedprojects" class="headx">Evaluated Projects</a></li>
             {% endif %}
         </ul>
@@ -91,33 +89,35 @@
     </nav>
 {% endblock %}
 
+
 {% block content %}
     <div class="container-fluid">
-        <h3 class="projecthead text-left">Projects</h3>
+        <h3 class="projecthead text-left">Evaluated Projects</h3>
 
         <div class="row">
-            {% for i in range(projectlist|length) %}
+            {% for i in range(evproj|length) %}
                 <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
                     <div class="panel panel-default">
                         <div class="panel-body text-center">
-                            <a href="/fairshake/project/{{ projectlist[i][0] }}/resources">
-                                <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
-                                    <img class="projectimg" src="{{ projectlist[i][4] }}">
+                            <a href="/fairshake/project/{{ evproj[i][0] }}/resources">
+                                <div onmouseover="overicon(this)" onmouseout="leaveicon(this)"id="picContainer">
+                                        <img class="projectimg" src="{{ evproj[i][4] }}">
                                 </div>
                             </a>
                             <div class="caption text-left">
-                                <h5 class="projecttitle">{{ projectlist[i][1] }}</h5>
-                                <p>{{ projectlist[i][2] }}</p>
+                                <h5 class="projecttitle">{{ evproj[i][1] }}</h5>
+                                <p>{{ evproj[i][2] }}</p>
                             </div>
 
                         </div>
-                        <form action="/fairshake/project/{{ projectlist[i][0] }}/resources" method="get" id="xyz1">
+                        <form action="/fairshake/project/{{ evproj[i][0] }}/resources" method="get" id="xyz1">
                             <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
                         </form>
                     </div>
                 </div>
             {% endfor %}
         </div>
+
     </div>
 
     <script>

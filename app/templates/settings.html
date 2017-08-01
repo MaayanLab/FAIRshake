@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .container-fluid{
+            text-align:center;
+        }
+        h2 {
+            padding-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="heading1">
+            <h2>Account Settings</h2>
+        </div>
+
+        <div class="resetpass">
+            <a href="/fairshake/resetpassword" target="_self">Change Password</a>
+        </div>
+
+    </div>
+
+{% endblock %}

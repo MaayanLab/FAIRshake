@@ -20,26 +20,27 @@
 {% block content %}
 
     <div class="container-fluid">
-        <h2 style="text-align: center;">Reset password</h2>
+        <h2 style="text-align: center;">Change password</h2>
 
 
-        <form action="/fairshake/passwordreset" class="form-horizontal" method="post">
+
+        <form action="/fairshake/resetpassword" class="form-horizontal" method="post">
             <div class="form-group">
                 <label class="control-label col-sm-3 col-sm-offset-1" for="passwordold">Enter old password:</label>
                 <div class="col-sm-4">
-                    <input type="password" class="form-control inputdefault" name="passwordold" required></input>
+                    <input type="password" class="form-control inputdefault" name="passwordold" required/>
                 </div>
             </div>
             <div class="form-group">
                 <label class="control-label col-sm-3 col-sm-offset-1" for="password1">Enter new password:</label>
                 <div class="col-sm-4">
-                    <input type="password" class="form-control inputdefault" name="password1" required></input>
+                    <input type="password" class="form-control inputdefault" name="password1" required/>
                 </div>
             </div>
             <div class="form-group">
                 <label class="control-label col-sm-3 col-sm-offset-1" for="password2">Confirm new password:</label>
                 <div class="col-sm-4">
-                    <input type="password" class="form-control inputdefault" name="password2" required></input>
+                    <input type="password" class="form-control inputdefault" name="password2" required/>
                 </div>
             </div>
             <div class="form-actions">
