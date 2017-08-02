@@ -27,11 +27,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+
 @login_manager.user_loader
 def load_user(user_id):  # given user id, returns user object
     conx = mysql.get_db()
     cursor = conx.cursor()
+    # query1 = "select username from user where user_id=%s"
     cursor.execute("select username from user where user_id='" + str(user_id) + "'")
+    # cursor.execute(query1,user_id)
     username = cursor.fetchone()[0]
     cursor.fetchall()
 
@@ -57,6 +60,22 @@ login_manager.login_view = "/fairshake/login"
 
 ENTRY_POINT = app.config['ENTRY_POINT']
 
+@app.route(ENTRY_POINT + '/testmysql')
+def testmysql():
+    conx=mysql.get_db()
+    cursor=conx.cursor()
+    test1='go5'
+    query1 = "insert into test1 values(%s)"
+    cursor.execute(query1, test1)
+    conx.commit()
+
+
+    return 'completed'
+
+
+
+
+
 
 
 @app.route(ENTRY_POINT + '/', methods=['GET'])
@@ -80,6 +99,7 @@ def chrome_extension_getAvg():
     cursor = conx.cursor()
     if request.args.get('select') == 'URL':
         theURL = request.args.get('theURL')
+        # query1 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url=%s"
         cursor.execute(
             "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url='" + theURL + "'")
         result1 = cursor.fetchall()
@@ -126,18 +146,6 @@ def chromeextension():
 
 
 
-# @app.route(ENTRY_POINT + "/project/<int:proj>")
-# def projhome(proj):
-#     conx = mysql.get_db()
-#     cursor = conx.cursor()
-#     cursor.execute("select * from project where project_id="+str(proj))
-#     projinfo=cursor.fetchall()
-#     if cursor.rowcount == 0:
-#         return "error"
-#
-#     return render_template('projhome.html',projinfo=projinfo)
-
-
 @app.route(ENTRY_POINT + "/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -146,8 +154,8 @@ def login():
         prevPage = request.args.get('next')
         conx = mysql.get_db()
         cursor = conx.cursor()
-        cursor.execute(
-            "select username,password from user where username='" + username + "' and password='" + password + "'")
+        query1 = "select username, password from user where username=%s and password=%s"
+        cursor.execute(query1,(username,password))
         data = cursor.fetchone()
 
         if data is None:  # username and password don't match
@@ -156,7 +164,8 @@ def login():
         else:  # correct username and password, log this person in
             conxlogin = mysql.get_db()
             cursorlogin = conxlogin.cursor()
-            cursorlogin.execute("select user_id from user where username='" + username + "'")
+            query2 = "select user_id from user where username=%s"
+            cursorlogin.execute(query2,(username))
             user_id = cursorlogin.fetchone()
             user = load_user(user_id[0])
             login_user(user)
@@ -167,13 +176,6 @@ def login():
 
     return render_template('login.html')
 
-#
-# @app.route(ENTRY_POINT + "/myaccount", methods=["GET", 'POST'])
-# @login_required
-# def myaccount():
-#
-#     return render_template('acchome.html')
-
 
 
 @app.route(ENTRY_POINT + "/evaluatedprojects", methods=["GET"])
@@ -183,7 +185,8 @@ def evaluatedprojects():
 
     conx = mysql.get_db()
     cursor = conx.cursor()
-    cursor.execute("select * from project where project_id in (select distinct(project_id) from evaluation where user_id = "+ current_user.user_id + ")")
+    query1 = "select * from project where project_id in (select distinct(project_id) from evaluation where user_id=%s)"
+    cursor.execute(query1,(current_user.user_id))
     evprojd = cursor.fetchall()
     for row in evprojd:
         evproj.append(row)
@@ -211,7 +214,8 @@ def register():
 
         conx_register = mysql.get_db()
         cursor = conx_register.cursor()
-        cursor.execute("select username from user where username='" + username + "'")
+        query1 = "select username from user where username=%s"
+        cursor.execute(query1, (username))
         data = cursor.fetchone()
 
         if data is None:  # username is new
@@ -222,17 +226,16 @@ def register():
                 if projrole == 'role_evaluator':
                     conx_add = mysql.get_db()
                     cursor = conx_add.cursor()
-                    cursor.execute("insert into user (username,password,first_name,last_name,role_evaluator) values ('" + username + "','"
-                                   + password1 + "','"+first_name+"','"+last_name+"','role_evaluator')")
+                    query1 = "insert into user(username,password,first_name,last_name,role_evaluator) values(%s,%s,%s,%s,'role_evaluator')"
+                    cursor.execute(query1,(username,password1,first_name,last_name))
                     conx_add.commit()
                     flash("Account successfully created.", "success")
                     return redirect(ENTRY_POINT + '/login')
                 elif projrole == 'role_starter':
                     conx_add = mysql.get_db()
                     cursor = conx_add.cursor()
-                    cursor.execute(
-                        "insert into user (username,password,first_name,last_name,role_starter) values ('" + username + "','"
-                        + password1 + "','" + first_name + "','" + last_name + "','role_starter')")
+                    query2 = "insert into user(username,password,first_name,last_name,role_starter) values(%s,%s,%s,%s,'role_starter')"
+                    cursor.execute(query2,(username,password1,first_name,last_name))
                     conx_add.commit()
                     flash("Account successfully created.", "success")
                     return redirect(ENTRY_POINT + '/login')
@@ -252,7 +255,8 @@ def resourcelist(proj,page):
 
     conx = mysql.get_db()
     cursor = conx.cursor()
-    cursor.execute("select * from project where project_id=" + str(proj))
+    query1 = "select * from project where project_id=%s"
+    cursor.execute(query1,(proj))
     projinfo = cursor.fetchall()
     if cursor.rowcount == 0:
         return "error"
@@ -269,13 +273,15 @@ def resourcelist(proj,page):
 
     conx_getevalc = mysql.get_db()
     cursor = conx_getevalc.cursor()
-    cursor.execute("select count(*) from resource where project_id="+str(proj))  # for pagination
+    query2 = "select count(*) from resource where project_id=%s"
+    cursor.execute(query2,(proj))  # for pagination
     data1 = cursor.fetchall()
     total = data1[0][0]
 
     conx_getres1 = mysql.get_db()
     cursor = conx_getres1.cursor()
-    cursor.execute("select * from resource where project_id="+str(proj))  # get resource info to display
+    query3 = "select * from resource where project_id=%s"
+    cursor.execute(query3,(proj))  # get resource info to display
     data = cursor.fetchall()
     for row in data:
         mylist.append(row)
@@ -286,8 +292,8 @@ def resourcelist(proj,page):
 
         conx_getnumeval1 = mysql.get_db()
         cursor = conx_getnumeval1.cursor()
-        cursor.execute("select count(distinct(user_id)) from evaluation where resource_id=" + str(
-            mylist[i][0]))  # get # of evaluations
+        query4 = "select count(distinct(user_id)) from evaluation where resource_id=%s"
+        cursor.execute(query4, (mylist[i][0]))  # get # of evaluations
         eval1 = cursor.fetchall()
         listeval.append(eval1[0][0])
 
@@ -295,11 +301,12 @@ def resourcelist(proj,page):
         xlist.append(str(mylist[i][0]))
 
         for t in range(16):  # go through all 16 questions
-            cursor.execute("select q_id from question where num=" + str((t + 1)) + " and res_type='" + str(
-                mylist[i][3]) + "' and version=(select max(version) from question)")  # can later add in project_id if res_type will have same names
+            query5 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
+            cursor.execute(query5,(t+1,mylist[i][3],mylist[i][3]))  # can later add in project_id if res_type will have same names
             q_id = cursor.fetchall()[0][0]
 
-            cursor.execute("select avg from average where resource_id=" + str(mylist[i][0]) + " and q_id=" + str(q_id))
+            query6 = "select avg from average where resource_id=%s and q_id=%s"
+            cursor.execute(query6,(mylist[i][0],q_id))
             adata = cursor.fetchone()
             if adata is None:  # did not find an average for this resource for this question
                 templist.append('None')
@@ -308,18 +315,19 @@ def resourcelist(proj,page):
                 templist.append(adata[0])  # else add this resources averages to templist --> avginfo
             odata=cursor.fetchall()  # clean up this cursor call
 
-            cursor.execute("select content from question where q_id=" + str(q_id))
+            query7 = "select content from question where q_id=%s"
+            cursor.execute(query7,(q_id))
             tst = cursor.fetchall()
             xlist.append(tst[0][0])
 
         avginfo.append(templist)  # put into avginfo array the average data
         qdat.append(xlist)
 
-    if current_user.is_authenticated:  # this person is logged in (resourceslist is a public page)
+    if current_user.is_authenticated:  # this person is logged in (resourceslist is a public page) for check marks
         conx_getres = mysql.get_db()
         cursor = conx_getres.cursor()
-        cursor.execute(
-            "select * from resource where resource_id in (select resource_id from evaluation where user_id=" + current_user.user_id + ")")  # should maybe change this in subquery #check off ones that this user has evaluated
+        query8 = "select * from resource where resource_id in (select resource_id from evaluation where user_id=%s)"
+        cursor.execute(query8,(current_user.user_id))  # should maybe change this in subquery #check off ones that this user has evaluated
         data = cursor.fetchall()
         for row in data:
             userres.append(row[0])  # list containing resource ids of resources this user evaluated
@@ -329,16 +337,10 @@ def resourcelist(proj,page):
     else:
         showlast = pagecount
 
-        # avginfo[0] returns first row (first resource's info)
-        # avginfo[0][1] returns first resource's q1 avg
 
     return render_template('projhome.html',
                            mylist=mylist, listeval=listeval, total=total, pagecount=pagecount, page=page,
                            per_page=per_page, showlast=showlast, userres=userres, avginfo=avginfo, qdat=qdat, proj=proj,projinfo=projinfo)
-
-    # return render_template('resourcelist3.html',
-    #                        mylist=mylist, listeval=listeval, total=total, pagecount=pagecount, page=page,
-    #                        per_page=per_page, showlast=showlast, userres=userres, avginfo=avginfo, qdat=qdat, proj=proj)
 
 
 @app.route(ENTRY_POINT + "/project/<int:proj>/myevaluations", defaults={'page': 1}, methods=['GET'])
@@ -349,7 +351,8 @@ def myevals(proj, page):
 
     conx = mysql.get_db()
     cursor = conx.cursor()
-    cursor.execute("select * from project where project_id=" + str(proj))
+    query1 = "select * from project where project_id=%s"
+    cursor.execute(query1,(proj))
     projinfo = cursor.fetchall()
     if cursor.rowcount == 0:
         return "error"
@@ -366,16 +369,15 @@ def myevals(proj, page):
 
     conx_getres = mysql.get_db()
     cursor = conx_getres.cursor()
-    cursor.execute(
-        "select count(distinct(resource_id)) from evaluation where user_id=" + current_user.user_id + " and project_id=" + str(proj))  # display only those resources this user has evaluated
+    query2 = "select count(distinct(resource_id)) from evaluation where user_id=%s and project_id=%s"
+    cursor.execute(query2,(current_user.user_id,proj))  # display only those resources this user has evaluated
     data1 = cursor.fetchall()
     totalres = data1[0][0]
 
     conx_getres1 = mysql.get_db()
     cursor = conx_getres1.cursor()
-    cursor.execute(
-        "select * from resource where resource_id in (select resource_id from evaluation where user_id=" + current_user.user_id
-        + " and project_id=" + str(proj) +")")  # get res info
+    query3 = "select * from resource where resource_id in (select resource_id from evaluation where user_id=%s and project_id=%s)"
+    cursor.execute(query3,(current_user.user_id,proj))  # get res info
     data = cursor.fetchall()
     for row in data:
         resources.append(row)
@@ -387,7 +389,8 @@ def myevals(proj, page):
 
         conx_getnumeval1 = mysql.get_db()
         cursor = conx_getnumeval1.cursor()
-        cursor.execute("select count(distinct(user_id)) from evaluation where resource_id=" + str(resources[i][0]))
+        query4 = "select count(distinct(user_id)) from evaluation where resource_id=%s"
+        cursor.execute(query4,(resources[i][0]))
         eval1 = cursor.fetchall()
         listeval.append(eval1[0][0])
 
@@ -395,12 +398,11 @@ def myevals(proj, page):
         xlist.append(str(resources[i][0]))
 
         for t in range(16):  # about question
-
-            cursor.execute("select q_id from question where num=" + str((t + 1)) + " and res_type='" + str(
-                resources[i][3]) + "' and version=(select max(version) from question)")
+            query5 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
+            cursor.execute(query5,(t+1,resources[i][3],resources[i][3]))
             q_id = cursor.fetchall()[0][0]
-            cursor.execute(
-                "select avg from average where resource_id=" + str(resources[i][0]) + " and q_id=" + str(q_id))
+            query6 = "select avg from average where resource_id=%s and q_id=%s"
+            cursor.execute(query6,(resources[i][0],q_id))
             adata = cursor.fetchone()
             if adata is None:  # did not find an average for this resource for this question
                 templist.append('None')
@@ -409,7 +411,8 @@ def myevals(proj, page):
                 templist.append(adata[0])  # else add this resources averages to templist --> avginfo
             odata = cursor.fetchall()  # clean up this cursor call
 
-            cursor.execute("select content from question where q_id=" + str(q_id))
+            query7 = "select content from question where q_id=%s"
+            cursor.execute(query7,(q_id))
             tst = cursor.fetchall()
             xlist.append(tst[0][0])
 
@@ -417,8 +420,8 @@ def myevals(proj, page):
         qdat.append(xlist)
 
         nlist.append(resources[i][0])  # first index 0 is resource_id
-        cursor.execute("select resource_id,answer from evaluation where resource_id=" + str(
-            resources[i][0]) + " and user_id=" + current_user.user_id  + " order by q_id")  # my insignia answers
+        query8 = "select resource_id,answer from evaluation where resource_id=%s and user_id=%s order by q_id"
+        cursor.execute(query8,(resources[i][0],current_user.user_id))  # my insignia answers
         nd = cursor.fetchall()  # iterating through
         for row in nd:
             if row[1] == 'yes':
@@ -434,7 +437,6 @@ def myevals(proj, page):
     else:
         showlast = pagecount
 
-        # return str(ans[0][3])
     return render_template('myevaluations.html',
                            page=page, resources=resources, per_page=per_page, pagecount=pagecount, showlast=showlast,
                            totalres=totalres, listeval=listeval, avginfo=avginfo, ans=ans, qdat=qdat, proj=proj, projinfo=projinfo)
@@ -450,22 +452,21 @@ def modifyevaluation():
 
     conx_getres = mysql.get_db()
     cursor = conx_getres.cursor()
-    cursor.execute(
-        "select q_id,answer from evaluation where resource_id =" + resourceid + " and user_id=" + current_user.user_id + " order by q_id")
+    query1 = "select q_id, answer from evaluation where resource_id=%s and user_id=%s order by q_id"
+    cursor.execute(query1,(resourceid,current_user.user_id))
     data = cursor.fetchall()
     for row in data:
         setanswers.append(row)
 
-    cursor.execute(
-        "select comment from evaluation where resource_id =" + resourceid + " and user_id=" + current_user.user_id + " order by q_id")
+    query2 = "select comment from evaluation where resource_id=%s and user_id=%s order by q_id"
+    cursor.execute(query2,(resourceid,current_user.user_id))
     data = cursor.fetchall()
     for row in data:
         setcomments.append(str(row[0]))
 
-    conx_getresource = mysql.get_db()
-    cursor1 = conx_getresource.cursor()
-    cursor1.execute("select * from resource where resource_id=" + resourceid)
-    row1 = cursor1.fetchone()
+    query3 = "select * from resource where resource_id=%s"
+    cursor.execute(query3,(resourceid))
+    row1 = cursor.fetchone()
     resource_name = row1[1]
     resource_id = row1[0]
     resource_type = row1[3]
@@ -473,8 +474,8 @@ def modifyevaluation():
     description = row1[4]
 
     for i in range(1, 17):
-        cursor.execute("select num,version,content from question where res_type='" + resource_type + "' and num="
-                       + str(i) + " and version=(select max(version) from question)")
+        query4 = "select num,version,content from question where res_type=%s and num=%s and version=(select max(version) from question where res_type=%s)"
+        cursor.execute(query4,(resource_type,i,resource_type))
         qd = cursor.fetchall()
         for row in qd:
             setq.append(row)
@@ -496,11 +497,9 @@ def newevaluation():
 
         conx_getres = mysql.get_db()
         cursor = conx_getres.cursor()
-
-        conx_getresource = mysql.get_db()
-        cursor1 = conx_getresource.cursor()
-        cursor1.execute("select * from resource where resource_id=" + resourceid)
-        row1 = cursor1.fetchone()
+        query1 = "select * from resource where resource_id=%s"
+        cursor.execute(query1,(resourceid))
+        row1 = cursor.fetchone()
         resource_name = row1[1]
         resource_id = row1[0]
         resource_type = row1[3]
@@ -508,8 +507,8 @@ def newevaluation():
         description = row1[4]
 
         for i in range(1, 17):
-            cursor.execute("select num,version,content from question where res_type='" + resource_type
-                           + "' and num=" + str(i) + " and version=(select max(version) from question) order by num")
+            query2 = "select num,version,content from question where res_type=%s and num=%s and version=(select max(version) from question) order by num"
+            cursor.execute(query2,(resource_type,i))
             qd = cursor.fetchall()
             for row in qd:
                 setq.append(row)
@@ -517,8 +516,6 @@ def newevaluation():
         return render_template('newevaluation.html',
                                resource_name=resource_name, resource_id=resource_id, resource_type=resource_type, url=url,
                                description=description, setq=setq)
-
-
 
 
 @app.route(ENTRY_POINT + '/modifysubmitted', methods=['POST'])
@@ -532,7 +529,8 @@ def modifysubmitted():
     conx = mysql.get_db()
     cursor = conx.cursor()
 
-    cursor.execute("select resource_type,project_id from resource where resource_id=" + resource_id)  # get resource type
+    query1 = "select resource_type,project_id from resource where resource_id=%s"
+    cursor.execute(query1,(resource_id))  # get resource type
     tt = cursor.fetchall()
     res_type = tt[0][0]
     project_id = tt[0][1]
@@ -541,28 +539,28 @@ def modifysubmitted():
         thisanswer = request.form['q' + str((i + 1))]  # get answer for this question 1-16
         thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question 1-16
 
-        cursor.execute("select q_id from question where num=" + str((i + 1))
-                       + " and res_type='" + res_type + "' and version=(select max(version) from question)")  # get q_id of most recent q 1-16
+        query2 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
+        cursor.execute(query2,(i+1,res_type,res_type))  # get q_id of most recent q 1-16
         q_id = cursor.fetchall()[0][0]  # use most recent q_id for this question 1-16
 
-        cursor.execute("delete from evaluation where q_id=" + str(q_id)
-                       + " and resource_id=" + resource_id + " and user_id=" + current_user.user_id)  # clear from evaluation my evaluation for this resource (of most updated q version)
+        query3 = "delete from evaluation where q_id=%s and resource_id=%s and user_id=%s"
+        cursor.execute(query3,(q_id,resource_id,current_user.user_id))  # clear from evaluation my evaluation for this resource (of most updated q version)
         conx.commit()
 
-        cursor.execute("insert into evaluation(q_id,answer,user_id,resource_id,project_id) values("
-                       + str(q_id) + ",'" + thisanswer + "'," + current_user.user_id + "," + resource_id + "," + str(project_id) + ")")
+        query4 = "insert into evaluation(q_id,answer,user_id,resource_id,project_id) values(%s,%s,%s,%s,%s)"
+        cursor.execute(query4,(q_id,thisanswer,current_user.user_id,resource_id,project_id))
         conx.commit()
         if thisanswer == 'yesbut':
-            cursor.execute("update evaluation set comment='" + thiscomment
-                           +"' where q_id=" + str(q_id) + " and user_id=" + current_user.user_id + " and resource_id=" + resource_id)
+            query5 = "update evaluation set comment=%s where q_id=%s and user_id=%s and resource_id=%s"
+            cursor.execute(query5,(thiscomment,q_id,current_user.user_id,resource_id))
             conx.commit()
 
         templist = []
         total = 0
         num = 0
 
-        cursor.execute("select answer from evaluation where resource_id=" + resource_id + " and q_id=" + str(
-            q_id))  # start to update average in average table
+        query6 = "select answer from evaluation where resource_id=%s and q_id=%s"
+        cursor.execute(query6,(resource_id,q_id))  # start to update average in average table
         data = cursor.fetchall()
         for row in data:
             templist.append(row[0])
@@ -571,17 +569,19 @@ def modifysubmitted():
             elif row[0] == 'no':
                 total = total - 1
 
-        cursor.execute(
-            "select count(answer) from evaluation where resource_id=" + resource_id + " and q_id=" + str(q_id))
+        query7 = "select count(answer) from evaluation where resource_id=%s and q_id=%s"
+        cursor.execute(query7,(resource_id,q_id))
         dd = cursor.fetchall()
         count = dd[0][0]
 
         average = float(total) / count
-        cursor.execute("delete from average where resource_id=" + resource_id + " and q_id=" + str(q_id))
+        query8 = "delete from average where resource_id=%s and q_id=%s"
+        cursor.execute(query8,(resource_id,q_id))
         conx.commit()  # clear this entry in average
-        cursor.execute("insert into average(resource_id,q_id,avg,project_id) values(" + resource_id + "," + str(q_id) + "," + str(average)
-                       + "," + str(project_id) + ")")
+        query9 = "insert into average(resource_id,q_id,avg,project_id) values(%s,%s,%s,%s)"
+        cursor.execute(query9,(resource_id,q_id,average,project_id))
         conx.commit()
+
     flash("Evaluation submitted.", "success")
     return redirect(ENTRY_POINT + '/project/' + str(project_id) + '/myevaluations')
 
@@ -589,117 +589,113 @@ def modifysubmitted():
 @login_required
 def evaluationsubmitted():
 
-    if not current_user.is_authenticated:
-        flash("Error: Not logged in.","danger")
-        redirect(ENTRY_POINT + "/")
+    resource_id = request.form['hiddenfield']
 
-    else:
-
-        resource_id = request.form['hiddenfield']
-
-        conx = mysql.get_db()
-        cursor = conx.cursor()
-
-        cursor.execute("select resource_type, project_id from resource where resource_id=" + resource_id)  # get resource type
-        tt = cursor.fetchall()
-        res_type = tt[0][0]
-        project_id = tt[0][1]
-
-        for i in range(16):  # for each question 1-16
-            thisanswer = request.form['q' + str((i + 1))]  # get answer for this question 1-16
-            thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question 1-16
-
-            cursor.execute("select q_id from question where num=" + str((i + 1)) + " and res_type='"
-                           + res_type + "' and version=(select max(version) from question)")  # get q_id of most recent q 1-16
-            q_id = cursor.fetchall()[0][0]  # use most recent q_id for this question 1-16
-
-
-            cursor.execute("delete from evaluation where q_id=" + str(q_id) + " and resource_id="
-                           + resource_id + " and user_id=" + current_user.user_id)  # clear from evaluation my evaluation for this resource (of most updated q version)
-            conx.commit()
-
-            cursor.execute("insert into evaluation(q_id,answer,user_id,resource_id,project_id) values("
-                           + str(q_id) + ",'" + thisanswer + "'," + current_user.user_id + "," + resource_id + "," + str(project_id) + ")")
-            conx.commit()
-            if thisanswer == 'yesbut':
-                cursor.execute("update evaluation set comment='" + thiscomment
-                               +"' where q_id=" + str(q_id) + " and user_id=" + current_user.user_id + " and resource_id=" + resource_id)
-                conx.commit()
-
-            templist = []
-            total = 0
-            num = 0
-
-            cursor.execute("select answer from evaluation where resource_id=" + resource_id + " and q_id=" + str(q_id))  # start to update average in average table
-            data = cursor.fetchall()
-            for row in data:
-                templist.append(row[0])
-                if row[0] == 'yes':
-                    total = total + 1
-                elif row[0] == 'no':
-                    total = total - 1
-
-            cursor.execute(
-                "select count(answer) from evaluation where resource_id=" + resource_id + " and q_id=" + str(q_id))
-            dd = cursor.fetchall()
-            count = dd[0][0]
-
-            average = float(total) / count
-            cursor.execute("delete from average where resource_id=" + resource_id + " and q_id=" + str(q_id))
-            conx.commit()  # clear this entry in average
-            cursor.execute("insert into average (resource_id,q_id,avg,project_id) values(" + resource_id + "," + str(q_id) + "," + str(average)
-                           + "," + str(project_id) + ")")
-            conx.commit()
-
-        flash("Evaluation submitted.", "success")
-        return redirect(ENTRY_POINT + '/project/' + str(project_id) + '/resources')
-
-
-@app.route(ENTRY_POINT + '/refreshavg', methods=['GET'])
-def refreshavg():
     conx = mysql.get_db()
     cursor = conx.cursor()
 
-    cursor.execute("select count(distinct(resource_id)) from resource")
-    eqq = cursor.fetchall()
-    tres = eqq[0][0]
+    query1 = "select resource_type, project_id from resource where resource_id=%s"
+    cursor.execute(query1,(resource_id))  # get resource type
+    tt = cursor.fetchall()
+    res_type = tt[0][0]
+    project_id = tt[0][1]
 
-    for j in range(1, tres + 1):  # for each resource
+    for i in range(16):  # for each question 1-16
+        thisanswer = request.form['q' + str((i + 1))]  # get answer for this question 1-16
+        thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question 1-16
 
-        cursor.execute("select resource_type from resource where resource_id=" + str(j))
-        res_type = cursor.fetchall()[0][0]
+        query2 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
+        cursor.execute(query2,(i+1,res_type,res_type))  # get q_id of most recent q 1-16
+        q_id = cursor.fetchall()[0][0]  # use most recent q_id for this question 1-16
 
-        for i in range(16):  # for each question
+        query3 = "delete from evaluation where q_id=%s and resource_id=%s and user_id=%s"
+        cursor.execute(query3,(q_id,resource_id,current_user.user_id)) # clear from evaluation my evaluation for this resource (of most updated q version)
+        conx.commit()
 
-            templist = []
-            total = 0
-            num = 0
+        query4 = "insert into evaluation(q_id,answer,user_id,resource_id,project_id) values(%s,%s,%s,%s,%s)"
+        cursor.execute(query4,(q_id,thisanswer,current_user.user_id,resource_id,project_id))
+        conx.commit()
 
-            cursor.execute("select answer from evaluation where resource_id=" + str(
-                j) + " and q_id=(select q_id from question where num=" + str(
-                (i + 1)) + " and res_type='" + res_type + "' and version=(select max(version) from question))")
-            data = cursor.fetchall()
-            for row in data:
-                templist.append(row[0])  # for each question 1-16
-                if row[0] == 'yes':
-                    total = total + 1
-                elif row[0] == 'no':
-                    total = total - 1
-
-            cursor.execute("select count(answer) from evaluation where resource_id=" + str(
-                j) + " and q_id=(select q_id from question where num=" + str(
-                (i + 1)) + " and res_type='" + res_type + "' and version=(select max(version) from question))")
-            dd = cursor.fetchall()
-            count = dd[0][0]
-
-            average = float(total) / count
-            cursor.execute("insert into average(avg,q_id,resource_id) values(" + str(
-                average) + ",(select q_id from question where num=" + str(
-                (i + 1)) + " and res_type='" + res_type + "' and version=(select max(version) from question))," + str(
-                j) + ")")
+        if thisanswer == 'yesbut':
+            query5 = "update evaluation set comment=%s where q_id=%s and user_id=%s and resource_id=%s"
+            cursor.execute(query5,(thiscomment,q_id,current_user.user_id,resource_id))
             conx.commit()
 
-    return "ok"
+        templist = []
+        total = 0
+        num = 0
+
+        query6 = "select answer from evaluation where resource_id=%s and q_id=%s"
+        cursor.execute(query6,(resource_id,q_id))  # start to update average in average table
+        data = cursor.fetchall()
+        for row in data:
+            templist.append(row[0])
+            if row[0] == 'yes':
+                total = total + 1
+            elif row[0] == 'no':
+                total = total - 1
+
+        query7 = "select count(answer) from evaluation where resource_id=%s and q_id=%s"
+        cursor.execute(query7,(resource_id,q_id))
+        dd = cursor.fetchall()
+        count = dd[0][0]
+
+        average = float(total) / count
+        query8 = "delete from average where resource_id=%s and q_id=%s"
+        cursor.execute(query8,(resource_id,q_id))
+        conx.commit()  # clear this entry in average
+        query9 = "insert into average(resource_id,q_id,avg,project_id) values(%s,%s,%s,%s)"
+        cursor.execute(query9,(resource_id,q_id,average,project_id))
+        conx.commit()
+
+    flash("Evaluation submitted.", "success")
+    return redirect(ENTRY_POINT + '/project/' + str(project_id) + '/resources')
+
+#
+# @app.route(ENTRY_POINT + '/refreshavg', methods=['GET'])
+# def refreshavg():
+#     conx = mysql.get_db()
+#     cursor = conx.cursor()
+#
+#     cursor.execute("select count(distinct(resource_id)) from resource")
+#     eqq = cursor.fetchall()
+#     tres = eqq[0][0]
+#
+#     for j in range(1, tres + 1):  # for each resource
+#         query1 = "select resource_type from resource where resource_id=%s"
+#         cursor.execute(query1,(j))
+#         res_type = cursor.fetchall()[0][0]
+#
+#         for i in range(16):  # for each question
+#
+#             templist = []
+#             total = 0
+#             num = 0
+#
+#             query2 = "select answer from evaluation where resource_id=%s and q_id=(select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s))"
+#             cursor.execute(query2,(j,i+1,res_type,res_type))
+#             data = cursor.fetchall()
+#             for row in data:
+#                 templist.append(row[0])  # for each question 1-16
+#                 if row[0] == 'yes':
+#                     total = total + 1
+#                 elif row[0] == 'no':
+#                     total = total - 1
+#
+#             cursor.execute("select count(answer) from evaluation where resource_id=" + str(
+#                 j) + " and q_id=(select q_id from question where num=" + str(
+#                 (i + 1)) + " and res_type='" + res_type + "' and version=(select max(version) from question))")
+#             dd = cursor.fetchall()
+#             count = dd[0][0]
+#
+#             average = float(total) / count
+#             cursor.execute("insert into average(avg,q_id,resource_id) values(" + str(
+#                 average) + ",(select q_id from question where num=" + str(
+#                 (i + 1)) + " and res_type='" + res_type + "' and version=(select max(version) from question))," + str(
+#                 j) + ")")
+#             conx.commit()
+#
+#     return "ok"
 
 
 @app.route(ENTRY_POINT + "/forgotpassword")
@@ -713,8 +709,8 @@ def sentpass():
 
     conx_forgotp = mysql.get_db()
     cursor = conx_forgotp.cursor()
-    cursor.execute("select password from user where username='" + username + "'")
-
+    query1 = "select password from user where username=%s"
+    cursor.execute(query1,(username))
     data = cursor.fetchone()
 
     if data is None:
@@ -738,9 +734,10 @@ def resetpass():
         password1 = request.form['password1']
         password2 = request.form['password2']
 
-        conx_checkup = mysql.get_db()
-        cursor = conx_checkup.cursor()
-        cursor.execute("select username from user where username='" + username + "' and password='" + passwordold + "'")
+        conx = mysql.get_db()
+        cursor = conx.cursor()
+        query1 = "select username from user where username=%s and password=%s"
+        cursor.execute(query1,(username,passwordold))
         data = cursor.fetchone()
 
         if data is None:
@@ -753,38 +750,13 @@ def resetpass():
             else:  # passwords match
                 conx_resetp = mysql.get_db()
                 cursor = conx_resetp.cursor()
-                cursor.execute("update user set password='" + password1 + "' where username='" + username + "'")
+                query2 = "update user set password=%s where username=%s"
+                cursor.execute(query2,(password1,username))
                 conx_resetp.commit()
                 flash("Password successfully changed.","success")
                 return redirect(ENTRY_POINT + '/settings')
 
     return render_template('resetpass.html')
-
-
-@app.route(ENTRY_POINT + '/passwordreset', methods=['POST', 'GET'])
-@login_required
-def passreset():
-    username = current_user.username
-    passwordold = request.form['passwordold']
-    password1 = request.form['password1']
-    password2 = request.form['password2']
-
-    conx_checkup = mysql.get_db()
-    cursor = conx_checkup.cursor()
-    cursor.execute("select username from user where username='" + username + "' and password='" + passwordold + "'")
-    data = cursor.fetchone()
-
-    if data is None:
-        return "Wrong password"
-    else:  # old pass + this username match
-        if not (password1 == password2):  # passwords don't match
-            return "Passwords do not match"
-        else:  # passwords match, now c
-            conx_resetp = mysql.get_db()
-            cursor = conx_resetp.cursor()
-            cursor.execute("update user set password='" + password1 + "' where username='" + username + "'")
-            conx_resetp.commit()
-            return "Password reset"
 
 
 @app.route(ENTRY_POINT + '/projects', methods=['GET'])
@@ -815,10 +787,9 @@ def startproj():
         projectdesc=request.form['projectdesc']
         projectimg=request.form['projectimg']
 
-        cursor.execute("insert into project (project_name,project_description,project_img, user_id) values('"
-                       +projectname+"','"+projectdesc+"','"+ projectimg + "','" +current_user.user_id+"')")
+        query1 = "insert into project(project_name,project_description,project_img,user_id) values(%s,%s,%s,%s)"
+        cursor.execute(query1,(projectname,projectdesc,projectimg,current_user.user_id))
         conx.commit()
-
 
         savertotal=request.form['savertotal']
 
@@ -828,18 +799,16 @@ def startproj():
             resourceurl = request.form['saverurl' + str(i + 1)]
             resourcedesc = request.form['saverdesc' + str(i + 1)]
 
-            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
-                           +resourcename+"','"+resourcetype+"','"+resourceurl+"','"+resourcedesc
-                           +"',(select project_id from project where project_name='"+projectname+"'))")
+            query2 = "insert into resource(resource_name,resource_type,url,description,project_id) values(%s,%s,%s,%s,(select project_id from project where project_name=%s))"
+            cursor.execute(query2,(resourcename,resourcetype,resourceurl,resourcedesc,projectname))
             conx.commit()
-
 
         saveqtotal=request.form['saveqtotal']
 
         for r in range(int(saveqtotal)):  # get the first x questions + ignore the rest
             qucontent=request.form['saveq'+str(r+1)]
-            cursor.execute("insert into question(num,version,res_type,content,project_id) values('"+str(r+1)+"','1','ex','"
-                           +qucontent+"',(select project_id from project where project_name='"+projectname+"'))")
+            query3 = "insert into question(num,version,res_type,content,project_id) values(%s,'1','example_type',%s,(select project_id from project where project_name=%s))"
+            cursor.execute(query3,(r+1,qucontent,projectname))
             conx.commit()
 
         flash("Project successfully created.", "success")
@@ -849,40 +818,23 @@ def startproj():
         return render_template('startproject.html')
 
 
-
-# @app.route(ENTRY_POINT+'/redirectedFromDataset',methods=['GET'])
-# def testfromsite():
-#
-#     dsName = request.args.get('dsName').strip()
-#     dsURL = request.args.get('dsURL')
-#     dsType = request.args.get('dsType')
-#     dsDescrip1 = request.args.get('dsDescrip1').strip()
-#     dsDescrip2 = request.args.get('dsDescrip2').strip()
-#     dsDescrip = dsDescrip1 + " " + dsDescrip2
-#
-#     return str(current_user.is_authenticated)
-#
-#     #
-#     # if not current_user.is_authenticated:
-#     #     return 'http://0.0.0.0:8080' + url_for('login', next=url_for('testfromsite2',dsName=dsName, dsURL=dsURL,dsType=dsType, dsDescrip=dsDescrip));
-#     # else:
-#     #     return "hi"
-
-@app.route(ENTRY_POINT + '/redirectedFromExt/evaluation', methods=['POST'])
+@app.route(ENTRY_POINT + '/redirectedFromExt/evaluation', methods=['GET'])
+@login_required
 def testfromsite2():
 
     setq=[]
 
-    theName = request.form['theName'].strip()
-    theURL = request.form['theURL']
-    theType = request.form['theType']
-    theSrc = request.form['theSrc']
+
+    theName = request.args.get('theName').strip()
+    theURL = request.args.get('theURL')
+    theType = request.args.get('theType')
+    theSrc = request.args.get('theSrc')
     if theSrc == 'LINCS Data Portal':
-        dsDescrip1 = request.form['dsDescrip1'].strip()
-        dsDescrip2 = request.form['dsDescrip2'].strip()
+        dsDescrip1 = request.args.get('dsDescrip1').strip()
+        dsDescrip2 = request.args.get('dsDescrip2').strip()
         theDescrip = dsDescrip1 + " " + dsDescrip2
     else:
-        theDescrip = request.form['theDescrip'].strip()
+        theDescrip = request.args.get('theDescrip').strip()
 
     theDescripIns = theDescrip
     if "'" in theDescripIns:
@@ -891,79 +843,73 @@ def testfromsite2():
 
     conx = mysql.get_db()
     cursor = conx.cursor()
-    cursor.execute("select * from resource where resource_name='"+theName+"'")
+    query1 = "select * from resource where resource_name=%s"
+    cursor.execute(query1,(theName))
     td = cursor.fetchall()
 
     if not td:  # this dataset is not already in database
+        query2 = "insert into resource(resource_name,resource_type,url,description,project_id) values(%s,%s,%s,%s,%s)"
+
         if theSrc == 'LINCS Data Portal' or theSrc == 'LINCS Tools':
-            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
-                               +theName+"','"+theType+"','"+theURL+"','"+theDescripIns
-                               +"',1)")
+            cursor.execute(query2,(theName,theType,theURL,theDescripIns,1))
             conx.commit()
         elif theSrc == 'MOD':
-            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
-                               +theName+"','"+theType+"','"+theURL+"','"+theDescripIns
-                               +"',2)")
+            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 2))
             conx.commit()
         elif theSrc == 'BioToolBay':
-            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
-                           + theName + "','" + theType + "','" + theURL + "','" + theDescripIns
-                           + "',3)")
+            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 3))
             conx.commit()
-        elif theSrc == 'DataMed Repository':
-            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
-                               +theName+"','"+theType+"','"+theURL+"','"+theDescripIns
-                               +"',4)")
+        elif theSrc == 'DataMed':
+            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 4))
             conx.commit()
         elif theSrc == 'Fairsharing':
-            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
-                           + theName + "','" + theType + "','" + theURL + "','" + theDescripIns
-                           + "',5)")
-            conx.commit()
-        elif theSrc == 'DataMed Dataset':
-            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
-                           + theName + "','" + theType + "','" + theURL + "','" + theDescripIns
-                           + "',6)")
+            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 5))
             conx.commit()
         else:
-            cursor.execute("insert into resource(resource_name,resource_type,url,description,project_id) values('"
-                           + theName + "','" + theType + "','" + theURL + "','" + theDescripIns
-                           + "',0)")
+            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 0))
             conx.commit()
 
-    cursor.execute("select resource_id from resource where resource_name='"+theName+"'")
-    rtt=cursor.fetchall()
-    resource_id=rtt[0][0]
+    if current_user.is_authenticated:
+        query3 = "select resource_id from resource where resource_name=%s"
+        cursor.execute(query3,(theName))
+        rtt=cursor.fetchall()
+        resource_id=rtt[0][0]
 
-    for i in range(1, 17):
-        cursor.execute("select num,version,content from question where res_type='" + theType
-                           + "' and num=" + str(i) + " and version=(select max(version) from question) order by num")
-        qd = cursor.fetchall()
-        for row in qd:
-            setq.append(row)
+        for i in range(1, 17):
+            query4 = "select num,version,content from question where res_type=%s and num=%s and version=(select max(version) from question where res_type=%s) order by num"
+            cursor.execute(query4,(theType,i,theType))
+            cursor.execute("select num,version,content from question where res_type='" + theType
+                               + "' and num=" + str(i) + " and version=(select max(version) from question) order by num")
+            qd = cursor.fetchall()
+            for row in qd:
+                setq.append(row)
 
-    cursor.execute("select * from evaluation where resource_id=" + str(resource_id) + " and user_id='" + current_user.user_id + "'")
-    chr=cursor.fetchall()
-    if not chr:  # decide whether to pull modify evaluation or new evaluation
-        return render_template('newevaluation.html',resource_name=theName, resource_id=resource_id, resource_type=theType, url=theURL,
-                           description=theDescrip, setq=setq)
-    else:
-        setanswers = []
-        setcomments = []
+        query5 = "select * from evaluation where resource_id=%s and user_id=%s"
+        cursor.execute(query5,(resource_id,current_user.user_id))
+        chr=cursor.fetchall()
+        if not chr:  # decide whether to pull modify evaluation or new evaluation
+            return render_template('newevaluation.html',resource_name=theName, resource_id=resource_id, resource_type=theType, url=theURL,
+                               description=theDescrip, setq=setq)
+        else:
+            setanswers = []
+            setcomments = []
 
-        cursor.execute("select q_id,answer from evaluation where resource_id =" + str(resource_id) + " and user_id=" + current_user.user_id + " order by q_id")
-        data = cursor.fetchall()
-        for row in data:
-            setanswers.append(row)
+            query6 = "select q_id, answer from evaluation where resource_id=%s and user_id=%s order by q_id"
+            cursor.execute(query6,(resource_id,current_user.user_id))
+            data = cursor.fetchall()
+            for row in data:
+                setanswers.append(row)
 
-        cursor.execute("select comment from evaluation where resource_id =" + str(resource_id) + " and user_id=" + current_user.user_id + " order by q_id")
-        data = cursor.fetchall()
-        for row in data:
-            setcomments.append(str(row[0]))
+            query7 = "select comment from evaluation where resource_id=%s and user_id=%s order by q_id"
+            cursor.execute(query7,(resource_id,current_user.user_id))
+            data = cursor.fetchall()
+            for row in data:
+                setcomments.append(str(row[0]))
 
-        return render_template('modifyevaluation.html',
-                               resource_name=theName, resource_id=resource_id, resource_type=theType, url=theURL,
-                               description=theDescrip, setanswers=setanswers, setcomments=setcomments, setq=setq)
+            return render_template('modifyevaluation.html',
+                                   resource_name=theName, resource_id=resource_id, resource_type=theType, url=theURL,
+                                   description=theDescrip, setanswers=setanswers, setcomments=setcomments, setq=setq)
+
 
 
 class User(UserMixin):

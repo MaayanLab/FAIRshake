@@ -74,7 +74,7 @@
     </style>
 {% endblock %}
 {% block header %}
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default navbar-static-top">
         <div class="navbar-header">
             <a id="navbar-logo" class="navbar-brand" href="/fairshake" style="display: table;">
                 <img src="{{ url_for('static', filename='favicon-32x32.png') }}"
@@ -143,7 +143,6 @@
         <h4 class="carouselhead text-left">Examples:</h4>
         <div class="bs-example">
             <div id="myCarousel" class="carousel slide" data-ride="carousel">
-                <!-- Carousel indicators -->
                 <ol class="carousel-indicators">
                     <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
                     <li data-target="#myCarousel" data-slide-to="1"></li>
@@ -152,7 +151,6 @@
                     <li data-target="#myCarousel" data-slide-to="4"></li>
                     <li data-target="#myCarousel" data-slide-to="5"></li>
                 </ol>
-                <!-- Wrapper for carousel items -->
                 <div class="carousel-inner">
                     <div class="item active">
                         <div id="picContainer">
@@ -173,24 +171,23 @@
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="/static/FAIRsharing.png"
+                            <img src="http://amp.pharm.mssm.edu/static/FAIRsharing.png"
                                  alt="Fourth Slide">
                         </div>
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="/static/LINCS_tools.png"
+                            <img src="http://amp.pharm.mssm.edu/static/LINCS_tools.png"
                                  alt="Fifth Slide">
                         </div>
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="/static/DataMed_ds.png"
+                            <img src="http://amp.pharm.mssm.edu/static/DataMed_ds.png"
                                  alt="Sixth Slide">
                         </div>
                     </div>
                 </div>
-                <!-- Carousel controls -->
                 <a class="carousel-control left" href="#myCarousel" data-slide="prev">
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </a>
