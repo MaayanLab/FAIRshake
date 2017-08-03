@@ -10,5 +10,5 @@ Setup
 ---------
 
 Requirements:
-    * Flask framework for Python
-    * MySQL for database management
+* Flask framework for Python
+* MySQL for database management
