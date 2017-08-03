@@ -15,7 +15,6 @@
             display: inline-block;
         }
 
-
         .caption {
             padding-left: 30px;
         }
@@ -26,8 +25,8 @@
         }
 
         .projectdesc{
-            font-size:16px;
-            color:gray;
+            font-size:15px;
+            color:darkgray;
         }
 
         .projecthead {
@@ -44,7 +43,6 @@
             margin: auto;
             position: absolute;
         }
-
 
         #nihlincsimg {
             height: auto;
@@ -80,7 +78,7 @@
         }
 
         #picContainer {
-            height: 250px;
+            height: 230px;
             position: relative;
         }
 
@@ -92,7 +90,6 @@
         <div class="title">
             <h2>FAIRShake</h2>
         </div>
-
 
         <div class="subtitle"><h4>A System to Evaluate Digital Objects</h4></div>
         <div class="start">
@@ -124,93 +121,89 @@
                     </form>
                 {% endif %}
             </div>
-
-
-    </div>
-
+        </div>
         <div class="featproject">
             <h3 class="projecthead text-left">Featured Projects</h3>
 
-
-                <div class="col-xs-6">
-                        <div class="panel panel-default">
-                        <div class="panel-body text-center">
-                            <a href="/fairshake/project/{{ projectlist[0][0] }}/resources">
-                                <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
-                                    <img class="projectimg" id="nihlincsimg" src="{{ projectlist[0][4] }}">
-                                </div>
-                            </a>
-                            <div class="caption text-left">
-                                <p class="projecttitle">{{ projectlist[0][1] }}</p>
-                                <p class="projectdesc">{{ projectlist[0][2] }}</p>
+            <div class="col-xs-6">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <a href="/fairshake/project/{{ projectlist[0][0] }}/resources">
+                            <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
+                                <img class="projectimg" id="nihlincsimg" src="{{ projectlist[0][4] }}">
                             </div>
-
+                        </a>
+                        <div class="caption text-left">
+                            <p class="projecttitle">{{ projectlist[0][1] }}</p>
+                            <p class="projectdesc">{{ projectlist[0][2] }}</p>
                         </div>
-                        <form action="/fairshake/project/{{ projectlist[0][0] }}/resources" method="get" id="xyz1">
-                            <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
-                        </form>
+
                     </div>
+                    <form action="/fairshake/project/{{ projectlist[0][0] }}/resources" method="get" id="xyz1">
+                        <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
+                    </form>
                 </div>
+            </div>
 
             <div class="col-xs-6">
-                        <div class="panel panel-default">
-                        <div class="panel-body text-center">
-                            <a href="/fairshake/project/{{ projectlist[1][0] }}/resources">
-                                <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
-                                    <img class="projectimg" id="modimg" src="{{ projectlist[1][4] }}">
-                                </div>
-                            </a>
-                            <div class="caption text-left">
-                                <p class="projecttitle">{{ projectlist[1][1] }}</p>
-                                <p class="projectdesc">{{ projectlist[1][2] }}</p>
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <a href="/fairshake/project/{{ projectlist[1][0] }}/resources">
+                            <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
+                                <img class="projectimg" id="modimg" src="{{ projectlist[1][4] }}">
                             </div>
-
+                        </a>
+                        <div class="caption text-left">
+                            <p class="projecttitle">{{ projectlist[1][1] }}</p>
+                            <p class="projectdesc">{{ projectlist[1][2] }}</p>
                         </div>
-                        <form action="/fairshake/project/{{ projectlist[1][0] }}/resources" method="get" id="xyz1">
-                            <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
-                        </form>
+
                     </div>
+                    <form action="/fairshake/project/{{ projectlist[1][0] }}/resources" method="get" id="xyz1">
+                        <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
+                    </form>
                 </div>
+            </div>
 
             <div class="col-xs-6">
-                        <div class="panel panel-default">
-                        <div class="panel-body text-center">
-                            <a href="/fairshake/project/{{ projectlist[2][0] }}/resources">
-                                <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
-                                    <img class="projectimg" src="{{ projectlist[2][4] }}">
-                                </div>
-                            </a>
-                            <div class="caption text-left">
-                                <p class="projecttitle">{{ projectlist[2][1] }}</p>
-                                <p class="projectdesc">{{ projectlist[2][2] }}</p>
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <a href="/fairshake/project/{{ projectlist[2][0] }}/resources">
+                            <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
+                                <img class="projectimg" src="{{ projectlist[2][4] }}">
                             </div>
-
+                        </a>
+                        <div class="caption text-left">
+                            <p class="projecttitle">{{ projectlist[2][1] }}</p>
+                            <p class="projectdesc">{{ projectlist[2][2] }}</p>
                         </div>
-                        <form action="/fairshake/project/{{ projectlist[2][0] }}/resources" method="get" id="xyz1">
-                            <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
-                        </form>
+
                     </div>
+                    <form action="/fairshake/project/{{ projectlist[2][0] }}/resources" method="get" id="xyz1">
+                        <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
+                    </form>
                 </div>
+            </div>
 
             <div class="col-xs-6">
-                        <div class="panel panel-default">
-                        <div class="panel-body text-center">
-                            <a href="/fairshake/project/{{ projectlist[3][0] }}/resources">
-                                <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
-                                    <img class="projectimg" src="{{ projectlist[3][4] }}">
-                                </div>
-                            </a>
-                            <div class="caption text-left">
-                                <p class="projecttitle">{{ projectlist[3][1] }}</p>
-                                <p class="projectdesc">{{ projectlist[3][2] }}</p>
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <a href="/fairshake/project/{{ projectlist[3][0] }}/resources">
+                            <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
+                                <img class="projectimg" src="{{ projectlist[3][4] }}">
                             </div>
-
+                        </a>
+                        <div class="caption text-left">
+                            <p class="projecttitle">{{ projectlist[3][1] }}</p>
+                            <p class="projectdesc">{{ projectlist[3][2] }}</p>
                         </div>
-                        <form action="/fairshake/project/{{ projectlist[3][0] }}/resources" method="get" id="xyz1">
-                            <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
-                        </form>
+
                     </div>
+                    <form action="/fairshake/project/{{ projectlist[3][0] }}/resources" method="get" id="xyz1">
+                        <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
+                    </form>
                 </div>
+            </div>
         </div>
     </div>
 

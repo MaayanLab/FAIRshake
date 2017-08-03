@@ -13,14 +13,6 @@
             padding-bottom: 20px;
         }
 
-        .accmenu {text-align: center;}
-{#        .descripCol{#}
-{#            width:100%;#}
-{#        }#}
-{#        .resnamecol{#}
-{#            width:2%#}
-{#        }#}
-
         .tdinsig {width: 12%;}
 
         .tdmyinsig {width: 12%;}
@@ -40,35 +32,29 @@
 
         }
 
-
     </style>
 {% endblock %}
 {% block content %}
-        <script type="text/javascript">
+        <script type="text/javascript"> //Pagination
 
         var lastpage = 1;
-        if ({{totalres}}<{{per_page}}||
-        ({{totalres}} % {{per_page}}===0)){
+        if ({{totalres}}<{{per_page}}||({{totalres}} % {{per_page}}===0)){
             lastpage = Math.trunc({{totalres}}/{{per_page}});
             if (lastpage === 0) {
                 lastpage = 1;
             }
-        }
-        else{
-            lastpage = Math.trunc({{totalres}}/{{per_page}})
-            +1;
+        } else{
+            lastpage = Math.trunc({{totalres}}/{{per_page}})+1;
         }
 
         window.onload = function () {
-            if ({{page}}>=//noinspection BadExpressionStatementJS
-            lastpage){
+            if ({{page}}>=lastpage){
                 document.getElementById("next").style.display = 'none';
             }
             if ({{page}}<=1){
                 document.getElementById("back").style.display = 'none';
             }
         }
-
 
     </script>
     <script type="text/javascript">
@@ -97,7 +83,6 @@
             d3.selectAll(".tooltip").remove();
         }
 
-
         var rectAttr =
             {width: 10,
                 height: 10}
@@ -111,11 +96,7 @@
                 "shape-rendering": "crispEdges"
             }
 
-
-
-
       function makeInsig(par) {
-
 
           var avg = {{ avginfo|tojson }}[par];
 
@@ -136,13 +117,10 @@
               {numdata: avg[14], qdata: "14. "+qdt[14], posx: 10, posy: 30},
               {numdata: avg[15], qdata: "15. "+qdt[15], posx: 20, posy: 30},
               {numdata: avg[16], qdata: "16. "+qdt[16], posx: 30, posy: 30}
-
-
           ]
       }
 
         function makeMyInsig(par) {
-
 
             var avg = {{ ans|tojson }}[par];
 
@@ -163,7 +141,6 @@
                 {numdata: avg[14], qdata: "14. " + qdt[14], posx: 10, posy: 30},
                 {numdata: avg[15], qdata: "15. " + qdt[15], posx: 20, posy: 30},
                 {numdata: avg[16], qdata: "16. " + qdt[16], posx: 30, posy: 30}
-
             ]
         }
 
@@ -223,7 +200,6 @@
             </form>
 
         </div>
-
 
         {% if totalres>0 %}
 
@@ -303,7 +279,6 @@
 
         {% else %}
             <p class="text-center">No evaluations.</p>
-
 
         {% endif %}
 

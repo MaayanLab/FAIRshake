@@ -2,8 +2,6 @@
 {% block head %}
     {{ super() }}
     <style type="text/css">
-
-
         .projecthead {
             padding: 30px;
         }
@@ -43,6 +41,7 @@
     </style>
 {% endblock %}
 {% block header %}
+    <!-- Change active tab -->
     <nav class="navbar navbar-default navbar-static-top">
         <div class="navbar-header">
             <a id="navbar-logo" class="navbar-brand" href="/fairshake" style="display: table;">
@@ -83,13 +82,10 @@
                             <a href="/fairshake/logout">Logout</a></li>
                     </ul>
                 </li>
-
             {% endif %}
         </ul>
     </nav>
 {% endblock %}
-
-
 {% block content %}
     <div class="container-fluid">
         <h3 class="projecthead text-left">Evaluated Projects</h3>

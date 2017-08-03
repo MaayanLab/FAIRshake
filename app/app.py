@@ -1,6 +1,5 @@
 from flask import Flask, request, redirect, render_template, flash, jsonify,url_for
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, confirm_login, \
-    fresh_login_required
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, login_url
 from flask_cors import CORS
 from flaskext.mysql import MySQL
 
@@ -22,169 +21,156 @@ app.secret_key = 'thisstring'
 # app.config['MYSQL_DATABASE_HOST'] = '146.203.54.78'
 app.config.from_pyfile('config.py')
 mysql.init_app(app)
+ENTRY_POINT = app.config['ENTRY_POINT']
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+login_manager.login_view = "/fairshake/login"
 
 
+# Required method for Flask login: Given user ID, returns user object #
 @login_manager.user_loader
-def load_user(user_id):  # given user id, returns user object
+def load_user(user_id):
     conx = mysql.get_db()
     cursor = conx.cursor()
-    # query1 = "select username from user where user_id=%s"
-    cursor.execute("select username from user where user_id='" + str(user_id) + "'")
-    # cursor.execute(query1,user_id)
-    username = cursor.fetchone()[0]
-    cursor.fetchall()
 
-    if username is None:
+    query1 = "select username,first_name,last_name,password from user where user_id=%s"
+    cursor.execute(query1,(user_id))
+    ud = cursor.fetchall()
+
+    if not ud:
         return None
     else:
-        cursor.execute("select first_name from user where user_id='" + str(user_id) + "'")
-        first_name = cursor.fetchone()[0]
-        cursor.fetchall()
+        username = ud[0][0]
+        first_name = ud[0][1]
+        last_name = ud[0][2]
+        password = ud[0][3]
 
-        cursor.execute("select last_name from user where user_id='" + str(user_id) + "'")
-        last_name = cursor.fetchone()[0]
-        cursor.fetchall()
-
-        cursor.execute("select password from user where user_id='" + str(user_id) + "'")
-        password = cursor.fetchone()[0]
-        cursor.fetchall()
-
+    # Return user object with these fields #
     return User(username, first_name, last_name, user_id, password)
 
 
-login_manager.login_view = "/fairshake/login"
-
-ENTRY_POINT = app.config['ENTRY_POINT']
-
-@app.route(ENTRY_POINT + '/testmysql')
-def testmysql():
-    conx=mysql.get_db()
-    cursor=conx.cursor()
-    test1='go5'
-    query1 = "insert into test1 values(%s)"
-    cursor.execute(query1, test1)
-    conx.commit()
-
-
-    return 'completed'
-
-
-
-
-
-
-
+# Home page #
 @app.route(ENTRY_POINT + '/', methods=['GET'])
 @app.route(ENTRY_POINT, methods=['GET'])
 def doe():
     projectlist=[]
-
     conx = mysql.get_db()
     cursor = conx.cursor()
-    cursor.execute("select * from project")
+
+    cursor.execute("select * from project order by project_id")
     data=cursor.fetchall()
     for row in data:
         projectlist.append(row)
+
     return render_template('doehome.html',projectlist=projectlist)
 
 
+# API to get this resource's average scores for insignia #
 @app.route(ENTRY_POINT + '/api/chrome_extension/getAvg')
 def chrome_extension_getAvg():
     avgStr=""
     conx = mysql.get_db()
     cursor = conx.cursor()
+
+    # Get this resource's average scores to make insignia, search by URL #
     if request.args.get('select') == 'URL':
         theURL = request.args.get('theURL')
-        # query1 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url=%s"
-        cursor.execute(
-            "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url='" + theURL + "'")
+        query1 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url=%s"
+        cursor.execute(query1,(theURL))
         result1 = cursor.fetchall()
+
+    # Get this resource's average scores to make insignia, search by name #
     elif request.args.get('select') == 'name':
         theName = request.args.get('theName')
-        cursor.execute(
-            "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where resource_name='" + theName + "'")
+        query2 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where resource_name=%s"
+        cursor.execute(query2,(theName))
         result1 = cursor.fetchall()
 
-
+    # No averages yet for this resource - has not yet been evaluated #
     if not result1:
         return 'None'
 
+    # Average scores exist - Return in comma separated string #
     else:
         for i in range(16):
             avgStr = avgStr + str(result1[i][0]) + ","
         return avgStr
 
 
+# API to get this resource's questions for insignia #
 @app.route(ENTRY_POINT + '/api/chrome_extension/getQ')
 def chrome_extension_getQ():
     resArr=[]
     theType = request.args.get('theType')
-
     conx = mysql.get_db()
     cursor = conx.cursor()
-    cursor.execute(
-        "select content from question where version=(select max(version) from question) and res_type ='" + theType + "' order by num")
+
+    # Get questions for this resource's type #
+    query1 = "select content from question where version=(select max(version) from question) and res_type=%s order by num"
+    cursor.execute(query1,(theType))
     result1 = cursor.fetchall()
 
+    # No questions for this resource type - invalid #
     if not result1:
         return 'None'
 
+    # Return questions #
     else:
         for row in result1:
             resArr.append(row[0])
         return str(resArr)
 
 
+# Download Chrome extension page #
 @app.route(ENTRY_POINT + '/chromeextension')
 def chromeextension():
-
     return render_template('chromext.html')
 
 
-
+# Login page #
 @app.route(ENTRY_POINT + "/login", methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
+    # Go to login page #
+    if request.method == 'GET':
+        return render_template('login.html')
+    # Login information submitted #
+    else:
         username = request.form['username']
         password = request.form['password']
+        # If redirected from page with @login_required view, that page is saved in "next" parameter by Flask Login #
         prevPage = request.args.get('next')
+
         conx = mysql.get_db()
         cursor = conx.cursor()
-        query1 = "select username, password from user where username=%s and password=%s"
+        query1 = "select username, password, user_id from user where username=%s and password=%s"
         cursor.execute(query1,(username,password))
-        data = cursor.fetchone()
+        data = cursor.fetchall()
 
-        if data is None:  # username and password don't match
+        # User with this username and password not found in database #
+        if not data:
             flash("Username or password is wrong.","danger")
             return redirect(ENTRY_POINT + '/login')
-        else:  # correct username and password, log this person in
-            conxlogin = mysql.get_db()
-            cursorlogin = conxlogin.cursor()
-            query2 = "select user_id from user where username=%s"
-            cursorlogin.execute(query2,(username))
-            user_id = cursorlogin.fetchone()
-            user = load_user(user_id[0])
+        # Correct username and password, log user in #
+        else:
+            user_id = data[0][2]
+            user = load_user(user_id)
             login_user(user)
 
-
+            # If there is a page saved in "next", go back to it. If not, go to homepage #
             return redirect((prevPage) or (ENTRY_POINT + '/'))
-            # return redirect(ENTRY_POINT + '/myaccount')
-
-    return render_template('login.html')
 
 
-
+# This user's evaluated projects page #
 @app.route(ENTRY_POINT + "/evaluatedprojects", methods=["GET"])
 @login_required
 def evaluatedprojects():
     evproj=[]
-
     conx = mysql.get_db()
     cursor = conx.cursor()
+
+    # Get projects this user has begun evaluating #
     query1 = "select * from project where project_id in (select distinct(project_id) from evaluation where user_id=%s)"
     cursor.execute(query1,(current_user.user_id))
     evprojd = cursor.fetchall()
@@ -193,35 +179,47 @@ def evaluatedprojects():
     return render_template('evaluatedproj.html',evproj=evproj)
 
 
+# Logout #
 @app.route(ENTRY_POINT + "/logout", methods=["GET"])
 @login_required
 def logout():
-    # Logout the current user
     logout_user()
     flash("Successfully logged out.","success")
     return redirect(ENTRY_POINT + '/login')
 
 
+# Signup page #
 @app.route(ENTRY_POINT + "/register", methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
+
+    # Go to signup page #
+    if request.method == 'GET':
+        return render_template('register.html')
+
+    # Signup information submitted #
+    else:
         username = request.form['username']
         password1 = request.form['password1']
         password2 = request.form['password2']
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         projrole = request.form['projrole']
-
         conx_register = mysql.get_db()
         cursor = conx_register.cursor()
+
+        # Check if this username (email) already exists in database #
         query1 = "select username from user where username=%s"
         cursor.execute(query1, (username))
         data = cursor.fetchone()
 
-        if data is None:  # username is new
-            if not (password1 == password2):  # passwords don't match
+        # Username is new #
+        if data is None:
+            # Passwords don't match #
+            if not (password1 == password2):
                 flash("Passwords do not match.", "danger")
                 return redirect(ENTRY_POINT + '/register')
+
+            # Passwords match #
             else:
                 if projrole == 'role_evaluator':
                     conx_add = mysql.get_db()
@@ -241,87 +239,85 @@ def register():
                     return redirect(ENTRY_POINT + '/login')
                 else:
                     return "error"
-        else:  # searching this username returned something , this username already in database
+
+        # Username already exists in database #
+        else:
             flash("Account with this username already exists.","danger")
             return redirect(ENTRY_POINT + '/register')
 
-    return render_template('register.html')
 
-
+# Project resources list page #
 @app.route(ENTRY_POINT + '/project/<int:proj>/resources/', defaults={'page': 1}, methods=['GET', 'POST'])
 @app.route(ENTRY_POINT + '/project/<int:proj>/resources', defaults={'page': 1}, methods=['GET', 'POST'])
 @app.route(ENTRY_POINT + '/project/<int:proj>/resources/page/<int:page>', methods=['GET'])
 def resourcelist(proj,page):
-
     conx = mysql.get_db()
     cursor = conx.cursor()
+
     query1 = "select * from project where project_id=%s"
     cursor.execute(query1,(proj))
     projinfo = cursor.fetchall()
-    if cursor.rowcount == 0:
+    if not projinfo:
         return "error"
 
-    mylist = []  # get resource info
-    userres = []  # list containing resources this user has evaluated - for check marks
-    listeval = []  # number of evaluations this resource has
-    per_page = 10
+    resourceslist = []  # For resources' information #
+    userres = []  # For resources this user has evaluated - for check marks #
+    listeval = []  # Number of evaluations resources have #
+    per_page = 10  # Number of resources per page #
     pagecount = per_page * page
-    showlast = 0
 
-    avginfo = []  # average answer data for insignia squares
-    qdat = []  # questions associated with insignia squares
+    avginfo = []  # Average scores for insignia #
+    qdat = []  # Questions for insignia #
 
-    conx_getevalc = mysql.get_db()
-    cursor = conx_getevalc.cursor()
-    query2 = "select count(*) from resource where project_id=%s"
-    cursor.execute(query2,(proj))  # for pagination
-    data1 = cursor.fetchall()
-    total = data1[0][0]
-
-    conx_getres1 = mysql.get_db()
-    cursor = conx_getres1.cursor()
+    # Add this project's resources to list #
     query3 = "select * from resource where project_id=%s"
     cursor.execute(query3,(proj))  # get resource info to display
     data = cursor.fetchall()
     for row in data:
-        mylist.append(row)
+        resourceslist.append(row)
+    total = len(resourceslist)
 
-    for i in range(total):  # go through all resources
+    # Go through all resources #
+    for i in range(total):
         templist = []
         xlist = []
 
-        conx_getnumeval1 = mysql.get_db()
-        cursor = conx_getnumeval1.cursor()
+        templist.append(str(resourceslist[i][0]))
+        xlist.append(str(resourceslist[i][0]))
+
+        # Get number of evaluations for this resource #
         query4 = "select count(distinct(user_id)) from evaluation where resource_id=%s"
-        cursor.execute(query4, (mylist[i][0]))  # get # of evaluations
+        cursor.execute(query4, (resourceslist[i][0]))
         eval1 = cursor.fetchall()
         listeval.append(eval1[0][0])
 
-        templist.append(str(mylist[i][0]))
-        xlist.append(str(mylist[i][0]))
-
-        for t in range(16):  # go through all 16 questions
+        # Go through all 16 questions #
+        for t in range(16):
             query5 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
-            cursor.execute(query5,(t+1,mylist[i][3],mylist[i][3]))  # can later add in project_id if res_type will have same names
+            cursor.execute(query5,(t+1,resourceslist[i][3],resourceslist[i][3]))  # can later add in project_id if res_type will have same names
             q_id = cursor.fetchall()[0][0]
 
             query6 = "select avg from average where resource_id=%s and q_id=%s"
-            cursor.execute(query6,(mylist[i][0],q_id))
-            adata = cursor.fetchone()
-            if adata is None:  # did not find an average for this resource for this question
-                templist.append('None')
-                # break  # this resource has not yet been evaluated - newly added, break out of this resource
-            else:
-                templist.append(adata[0])  # else add this resources averages to templist --> avginfo
-            odata=cursor.fetchall()  # clean up this cursor call
+            cursor.execute(query6,(resourceslist[i][0],q_id))
+            adata = cursor.fetchall()
 
+            # No average for this resource for this question #
+            if not adata:
+                templist.append('None')
+                # break  # Removed break - messes up if there are errors in database
+
+            # Add averages to list #
+            else:
+                templist.append(adata[0][0])
+
+            # Add questions to list #
             query7 = "select content from question where q_id=%s"
             cursor.execute(query7,(q_id))
             tst = cursor.fetchall()
             xlist.append(tst[0][0])
 
-        avginfo.append(templist)  # put into avginfo array the average data
-        qdat.append(xlist)
+        avginfo.append(templist)  # Append list of averages for this resource #
+        qdat.append(xlist) # Append list of questions for this resource (a project may have multiple resource types)
 
     if current_user.is_authenticated:  # this person is logged in (resourceslist is a public page) for check marks
         conx_getres = mysql.get_db()
@@ -332,6 +328,7 @@ def resourcelist(proj,page):
         for row in data:
             userres.append(row[0])  # list containing resource ids of resources this user evaluated
 
+    # For pagination: showlast is position of last resource #
     if pagecount > total:
         showlast = total
     else:
@@ -339,18 +336,19 @@ def resourcelist(proj,page):
 
 
     return render_template('projhome.html',
-                           mylist=mylist, listeval=listeval, total=total, pagecount=pagecount, page=page,
+                           resourceslist=resourceslist, listeval=listeval, total=total, pagecount=pagecount, page=page,
                            per_page=per_page, showlast=showlast, userres=userres, avginfo=avginfo, qdat=qdat, proj=proj,projinfo=projinfo)
 
 
+# Project my evaluations page #
 @app.route(ENTRY_POINT + "/project/<int:proj>/myevaluations", defaults={'page': 1}, methods=['GET'])
 @app.route(ENTRY_POINT + "/project/<int:proj>/myevaluations/", defaults={'page': 1}, methods=['GET'])
 @app.route(ENTRY_POINT + "/project/<int:proj>/myevaluations/page/<int:page>", methods=['GET'])
 @login_required
 def myevals(proj, page):
-
     conx = mysql.get_db()
     cursor = conx.cursor()
+
     query1 = "select * from project where project_id=%s"
     cursor.execute(query1,(proj))
     projinfo = cursor.fetchall()
@@ -441,6 +439,8 @@ def myevals(proj, page):
                            page=page, resources=resources, per_page=per_page, pagecount=pagecount, showlast=showlast,
                            totalres=totalres, listeval=listeval, avginfo=avginfo, ans=ans, qdat=qdat, proj=proj, projinfo=projinfo)
 
+
+# Evaluation form - Modify, old answers automatically filled in #
 @app.route(ENTRY_POINT + "/modifyevaluation", methods=['POST'])
 @login_required
 def modifyevaluation():
@@ -480,12 +480,12 @@ def modifyevaluation():
         for row in qd:
             setq.append(row)
 
-
     return render_template('modifyevaluation.html',
                            resource_name=resource_name, resource_id=resource_id, resource_type=resource_type, url=url,
                            description=description, setanswers=setanswers, setcomments=setcomments, setq=setq)
 
 
+# Evaluation form - New evaluation #
 @app.route(ENTRY_POINT + "/newevaluation", methods=['POST'])
 @login_required
 def newevaluation():
@@ -518,6 +518,7 @@ def newevaluation():
                                description=description, setq=setq)
 
 
+# Enter modify submission into database #
 @app.route(ENTRY_POINT + '/modifysubmitted', methods=['POST'])
 @login_required
 def modifysubmitted():
@@ -585,6 +586,8 @@ def modifysubmitted():
     flash("Evaluation submitted.", "success")
     return redirect(ENTRY_POINT + '/project/' + str(project_id) + '/myevaluations')
 
+
+# Enter new evaluation submission into database #
 @app.route(ENTRY_POINT + '/evaluationsubmitted', methods=['POST'])
 @login_required
 def evaluationsubmitted():
@@ -651,7 +654,8 @@ def evaluationsubmitted():
     flash("Evaluation submitted.", "success")
     return redirect(ENTRY_POINT + '/project/' + str(project_id) + '/resources')
 
-#
+# Manually refresh averages in database #
+
 # @app.route(ENTRY_POINT + '/refreshavg', methods=['GET'])
 # def refreshavg():
 #     conx = mysql.get_db()
@@ -716,19 +720,25 @@ def sentpass():
     if data is None:
         return "No account under this username"
     else:
-        return "Email placeholder"
+        return "Email placeholder" # To be implemented later #
 
 
 @app.route(ENTRY_POINT + "/settings",methods=["GET"])
 @login_required
-def setts():
+def settings():
     return render_template('settings.html')
 
 
 @app.route(ENTRY_POINT + "/resetpassword", methods=["GET","POST"])
 @login_required
-def resetpass():
-    if request.method=='POST':
+def resetPassword():
+
+    # Go to reset pass page #
+    if request.method=='GET':
+        return render_template('resetpass.html')
+
+    # Reset pass submitted #
+    else:
         username = current_user.username
         passwordold = request.form['passwordold']
         password1 = request.form['password1']
@@ -756,8 +766,6 @@ def resetpass():
                 flash("Password successfully changed.","success")
                 return redirect(ENTRY_POINT + '/settings')
 
-    return render_template('resetpass.html')
-
 
 @app.route(ENTRY_POINT + '/projects', methods=['GET'])
 def projects():
@@ -775,11 +783,18 @@ def projects():
 
 @app.route(ENTRY_POINT+'/startproject',methods=['GET','POST'])
 @login_required
-def startproj():
+def startProject():
 
-    if request.method=='POST':
+    # Go to start project page #
+    if request.method=='GET':
+        return render_template('startproject.html')
+
+    # Start project submitted #
+    else:
+        # To finish later #
         flash("In progress.","warning")
         return redirect(ENTRY_POINT + "/startproject")
+
         conx = mysql.get_db()
         cursor = conx.cursor()
 
@@ -814,94 +829,132 @@ def startproj():
         flash("Project successfully created.", "success")
         return redirect(ENTRY_POINT + '/projects')
 
-    else:
-        return render_template('startproject.html')
 
+@app.route(ENTRY_POINT + '/redirectedFromExt', methods=['POST','GET'])
+def redirectedFromExt():
 
-@app.route(ENTRY_POINT + '/redirectedFromExt/evaluation', methods=['GET'])
-@login_required
-def testfromsite2():
+    # URL reached through POST only through browser extension click #
+    if request.method == 'POST':
+        theName = request.form['theName'].strip()
+        theURL = request.form['theURL']
+        theType = request.form['theType']
+        theSrc = request.form['theSrc']
+        if theSrc == 'LINCS Data Portal':
+            dsDescrip1 = request.form['dsDescrip1'].strip()
+            dsDescrip2 = request.form['dsDescrip2'].strip()
+            theDescrip = dsDescrip1 + " " + dsDescrip2
+        else:
+            theDescrip = request.form['theDescrip'].strip()
 
-    setq=[]
+        # Check if this resource exists in database - if not, insert into database #
+        conx = mysql.get_db()
+        cursor = conx.cursor()
+        query1 = "select * from resource where resource_name=%s"
+        cursor.execute(query1,(theName))
+        td = cursor.fetchall()
 
+        # This resource is not in database yet --> insert #
+        if not td:
+            query2 = "insert into resource(resource_name,resource_type,url,description,project_id) values(%s,%s,%s,%s,%s)"
 
-    theName = request.args.get('theName').strip()
-    theURL = request.args.get('theURL')
-    theType = request.args.get('theType')
-    theSrc = request.args.get('theSrc')
-    if theSrc == 'LINCS Data Portal':
-        dsDescrip1 = request.args.get('dsDescrip1').strip()
-        dsDescrip2 = request.args.get('dsDescrip2').strip()
-        theDescrip = dsDescrip1 + " " + dsDescrip2
-    else:
+            if theSrc == 'LINCS Data Portal' or theSrc == 'LINCS Tools':
+                cursor.execute(query2,(theName,theType,theURL,theDescrip,1))
+                conx.commit()
+            elif theSrc == 'MOD':
+                cursor.execute(query2, (theName, theType, theURL, theDescrip, 2))
+                conx.commit()
+            elif theSrc == 'BioToolBay':
+                cursor.execute(query2, (theName, theType, theURL, theDescrip, 3))
+                conx.commit()
+            elif theSrc == 'DataMed':
+                cursor.execute(query2, (theName, theType, theURL, theDescrip, 4))
+                conx.commit()
+            elif theSrc == 'Fairsharing':
+                cursor.execute(query2, (theName, theType, theURL, theDescrip, 5))
+                conx.commit()
+            else:
+                cursor.execute(query2, (theName, theType, theURL, theDescrip, 0))
+                conx.commit()
+
+        # If logged in, go to evaluation form for this resource #
+        if current_user.is_authenticated:
+            return extensionEvaluation(theName=theName,theURL=theURL,theType=theType,theDescrip=theDescrip)
+
+        # If not logged in, go to login page with evaluation form URL #
+        # with resource information saved in query string (passed through GET) #
+        else:
+            flash("Please log in to view this page.","warning")
+            return redirect(login_url(ENTRY_POINT + '/login', next_url=url_for('redirectedFromExt',theName=theName,
+            theURL=theURL,theType=theType,theDescrip=theDescrip)))
+
+    # URL reached through GET if redirected from login or manually entered #
+    # If redirected from login, resource should be in database. If manually entered, resource will not be in database #
+    elif request.method == 'GET':
+        theName = request.args.get('theName').strip()
+        theURL = request.args.get('theURL')
+        theType = request.args.get('theType')
         theDescrip = request.args.get('theDescrip').strip()
+        return extensionEvaluation(theName=theName,theURL=theURL,theType=theType,theDescrip=theDescrip)
 
-    theDescripIns = theDescrip
-    if "'" in theDescripIns:
-        theDescripIns = theDescripIns.replace("'","\\'")
+    else:
+        return 'error'
 
 
+def extensionEvaluation(theName,theURL,theType,theDescrip):
     conx = mysql.get_db()
     cursor = conx.cursor()
-    query1 = "select * from resource where resource_name=%s"
-    cursor.execute(query1,(theName))
-    td = cursor.fetchall()
 
-    if not td:  # this dataset is not already in database
-        query2 = "insert into resource(resource_name,resource_type,url,description,project_id) values(%s,%s,%s,%s,%s)"
+    # Check if resource with these fields exists in database first #
+    query1 = "select * from resource where resource_name=%s and url=%s and resource_type=%s and description=%s"
+    cursor.execute(query1,(theName,theURL,theType,theDescrip))
+    resd = cursor.fetchall()
 
-        if theSrc == 'LINCS Data Portal' or theSrc == 'LINCS Tools':
-            cursor.execute(query2,(theName,theType,theURL,theDescripIns,1))
-            conx.commit()
-        elif theSrc == 'MOD':
-            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 2))
-            conx.commit()
-        elif theSrc == 'BioToolBay':
-            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 3))
-            conx.commit()
-        elif theSrc == 'DataMed':
-            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 4))
-            conx.commit()
-        elif theSrc == 'Fairsharing':
-            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 5))
-            conx.commit()
-        else:
-            cursor.execute(query2, (theName, theType, theURL, theDescripIns, 0))
-            conx.commit()
+    # This resource does not exist - wrong URL #
+    if not resd:
+        return 'error'
 
-    if current_user.is_authenticated:
+    # Resource does exist --> pull up correct form #
+    else:
+        setq=[]
+
         query3 = "select resource_id from resource where resource_name=%s"
-        cursor.execute(query3,(theName))
-        rtt=cursor.fetchall()
-        resource_id=rtt[0][0]
+        cursor.execute(query3, (theName))
+        rtt = cursor.fetchall()
+        resource_id = rtt[0][0]
 
         for i in range(1, 17):
             query4 = "select num,version,content from question where res_type=%s and num=%s and version=(select max(version) from question where res_type=%s) order by num"
-            cursor.execute(query4,(theType,i,theType))
+            cursor.execute(query4, (theType, i, theType))
             cursor.execute("select num,version,content from question where res_type='" + theType
-                               + "' and num=" + str(i) + " and version=(select max(version) from question) order by num")
+                           + "' and num=" + str(i) + " and version=(select max(version) from question) order by num")
             qd = cursor.fetchall()
             for row in qd:
                 setq.append(row)
 
+        # Decide whether to show modify evaluation or new evaluation #
         query5 = "select * from evaluation where resource_id=%s and user_id=%s"
-        cursor.execute(query5,(resource_id,current_user.user_id))
-        chr=cursor.fetchall()
-        if not chr:  # decide whether to pull modify evaluation or new evaluation
-            return render_template('newevaluation.html',resource_name=theName, resource_id=resource_id, resource_type=theType, url=theURL,
-                               description=theDescrip, setq=setq)
+        cursor.execute(query5, (resource_id, current_user.user_id))
+        chr = cursor.fetchall()
+
+        # User has not evaluated this resource yet --> show new evaluation #
+        if not chr:
+            return render_template('newevaluation.html', resource_name=theName, resource_id=resource_id,
+                                   resource_type=theType, url=theURL,
+                                   description=theDescrip, setq=setq)
+
+        # User has evaluated resource --> show modify evaluation #
         else:
             setanswers = []
             setcomments = []
 
             query6 = "select q_id, answer from evaluation where resource_id=%s and user_id=%s order by q_id"
-            cursor.execute(query6,(resource_id,current_user.user_id))
+            cursor.execute(query6, (resource_id, current_user.user_id))
             data = cursor.fetchall()
             for row in data:
                 setanswers.append(row)
 
             query7 = "select comment from evaluation where resource_id=%s and user_id=%s order by q_id"
-            cursor.execute(query7,(resource_id,current_user.user_id))
+            cursor.execute(query7, (resource_id, current_user.user_id))
             data = cursor.fetchall()
             for row in data:
                 setcomments.append(str(row[0]))
@@ -909,7 +962,6 @@ def testfromsite2():
             return render_template('modifyevaluation.html',
                                    resource_name=theName, resource_id=resource_id, resource_type=theType, url=theURL,
                                    description=theDescrip, setanswers=setanswers, setcomments=setcomments, setq=setq)
-
 
 
 class User(UserMixin):
@@ -947,7 +999,7 @@ class User(UserMixin):
     def get_id(self):
         return str(self.user_id)
 
-#
+
 # class AnonymousUserMixin(object):
 #     '''
 #     This is the default object for representing an anonymous user.
@@ -964,13 +1016,8 @@ class User(UserMixin):
 #     def is_anonymous(self):
 #         return True
 #
-#     def get_id(self):  #current implementation since I require anonymous user id
+#     def get_id(self):
 #         return str(1234567890)
-
-
-
-
-
 
 
 if __name__ == "__main__":
