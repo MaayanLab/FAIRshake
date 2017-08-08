@@ -50,4 +50,15 @@
         </div>
 
     </div>
+    <script>
+{#        if (typeof {{ redirectFromExt|tojson }} != "undefined") { //the variable exists#}
+{#            localStorage.setItem("theName", {{ theName|tojson }})#}
+{#            localStorage.setItem("theURL", {{ theURL|tojson }})#}
+{#            localStorage.setItem("theType", {{ theType|tojson }})#}
+{#            localStorage.setItem("theDescrip", {{ theDescrip|tojson }})#}
+{#        }#}
+{#        else{#}
+{#            alert('no hi')#}
+{#        }#}
+    </script>
 {% endblock %}

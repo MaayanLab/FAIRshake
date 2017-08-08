@@ -11,4 +11,6 @@ Setup
 
 Requirements:
 * Flask framework for Python
+    * Extensions required: Flask-Login, Flask-MySQL
 * MySQL for database management
+    * Download at https://dev.mysql.com/downloads/mysql/

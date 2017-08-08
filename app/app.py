@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, render_template, flash, jsonify,url_
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, login_url
 from flask_cors import CORS
 from flaskext.mysql import MySQL
+import re
 
 mysql = MySQL()
 
@@ -26,7 +27,7 @@ ENTRY_POINT = app.config['ENTRY_POINT']
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-login_manager.login_view = "/fairshake/login"
+login_manager.login_view = ENTRY_POINT + "/login"
 
 
 # Required method for Flask login: Given user ID, returns user object #
@@ -132,14 +133,31 @@ def chromeextension():
 # Login page #
 @app.route(ENTRY_POINT + "/login", methods=['GET', 'POST'])
 def login():
-    # Go to login page #
-    if request.method == 'GET':
-        return render_template('login.html')
-    # Login information submitted #
-    else:
+    # # Go to login page - accessed #
+    # if request.method == 'GET':
+    #     redirects = request.args.get('next')
+    #     if redirects is None:
+    #         return render_template('login.html')
+    #     else:
+    #         matchObj = re.match(r'[/]fairshake[/]redirectedFromExt.*', redirects)
+    #         if matchObj is None:
+    #             return render_template('login.html')
+    #         else:
+    #             theName = request.args.get('theName')
+    #             theURL = request.args.get('theURL')
+    #             theType = request.args.get('theType')
+    #             theDescrip = request.args.get('theDescrip')
+    #             if theName is None or theURL is None or theType is None or theDescrip is None:
+    #                 return render_template('login.html')
+    #             else:
+    #                 return render_template('login.html',redirectFromExt="yes",theName=theName,theURL=theURL,theType=theType,theDescrip=theDescrip)
+    # # Login information submitted through POST #
+    # else:
+
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # If redirected from page with @login_required view, that page is saved in "next" parameter by Flask Login #
+        # If redirected from page with login_required view, that page is saved in "next" parameter by Flask Login #
         prevPage = request.args.get('next')
 
         conx = mysql.get_db()
@@ -160,6 +178,26 @@ def login():
 
             # If there is a page saved in "next", go back to it. If not, go to homepage #
             return redirect((prevPage) or (ENTRY_POINT + '/'))
+    else:
+        return render_template('login.html')
+        # redirects = request.args.get('next')
+        # if redirects is None:
+        #     return render_template('login.html')
+        # else:
+        #     matchObj = re.match(r'[/]fairshake[/]redirectedFromExt.*', redirects)
+        #     if matchObj is None:
+        #         return render_template('login.html')
+        #     else:
+        #         theName = request.args.get('theName')
+        #         theURL = request.args.get('theURL')
+        #         theType = request.args.get('theType')
+        #         theDescrip = request.args.get('theDescrip')
+        #         if theName is None or theURL is None or theType is None or theDescrip is None:
+        #             return render_template('login.html')
+        #         else:
+        #             return render_template('login.html',redirectFromExt="yes",theName=theName,theURL=theURL,theType=theType,theDescrip=theDescrip)
+
+
 
 
 # This user's evaluated projects page #
@@ -883,21 +921,28 @@ def redirectedFromExt():
         # If not logged in, go to login page with evaluation form URL #
         # with resource information saved in query string (passed through GET) #
         else:
+            # redirectFromExt='yes'
             flash("Please log in to view this page.","warning")
             return redirect(login_url(ENTRY_POINT + '/login', next_url=url_for('redirectedFromExt',theName=theName,
-            theURL=theURL,theType=theType,theDescrip=theDescrip)))
+            theURL=theURL, theType=theType,theDescrip=theDescrip)))
+            # return redirect(url_for('login',redirectFromExt=redirectFromExt,theName=theName,theURL=theURL,theType=theType,theDescrip=theDescrip,
+            #                         next=url_for('redirectedFromExt',theName=theName,theURL=theURL, theType=theType,theDescrip=theDescrip)))
+
 
     # URL reached through GET if redirected from login or manually entered #
     # If redirected from login, resource should be in database. If manually entered, resource will not be in database #
-    elif request.method == 'GET':
-        theName = request.args.get('theName').strip()
-        theURL = request.args.get('theURL')
-        theType = request.args.get('theType')
-        theDescrip = request.args.get('theDescrip').strip()
-        return extensionEvaluation(theName=theName,theURL=theURL,theType=theType,theDescrip=theDescrip)
-
+    # Check if resource in database in extensionEvaluation #
     else:
-        return 'error'
+        # Got here from login or manually entered while logged in #
+        if current_user.is_authenticated:
+            theName = request.args.get('theName').strip()
+            theURL = request.args.get('theURL')
+            theType = request.args.get('theType')
+            theDescrip = request.args.get('theDescrip').strip()
+            return extensionEvaluation(theName=theName,theURL=theURL,theType=theType,theDescrip=theDescrip)
+        # Got here by manual entering #
+        else:
+            return render_template('error.html',errormsg='Invalid URL.')
 
 
 def extensionEvaluation(theName,theURL,theType,theDescrip):
@@ -911,7 +956,7 @@ def extensionEvaluation(theName,theURL,theType,theDescrip):
 
     # This resource does not exist - wrong URL #
     if not resd:
-        return 'error'
+        return render_template('error.html',errormsg='No such digital object.')
 
     # Resource does exist --> pull up correct form #
     else:
@@ -940,7 +985,7 @@ def extensionEvaluation(theName,theURL,theType,theDescrip):
         if not chr:
             return render_template('newevaluation.html', resource_name=theName, resource_id=resource_id,
                                    resource_type=theType, url=theURL,
-                                   description=theDescrip, setq=setq)
+                                   description=theDescrip, setq=setq, redirectedFromExt='yes')
 
         # User has evaluated resource --> show modify evaluation #
         else:
@@ -961,22 +1006,22 @@ def extensionEvaluation(theName,theURL,theType,theDescrip):
 
             return render_template('modifyevaluation.html',
                                    resource_name=theName, resource_id=resource_id, resource_type=theType, url=theURL,
-                                   description=theDescrip, setanswers=setanswers, setcomments=setcomments, setq=setq)
+                                   description=theDescrip, setanswers=setanswers, setcomments=setcomments, setq=setq,redirectedFromExt='yes')
 
 
+@app.route(ENTRY_POINT + '/testerror')
+def testerror():
+    return errorpage('its an error')
+
+
+def errorpage(errormsg):
+    return render_template('error.html',errormsg=errormsg)
+
+
+# Logged in user #
 class User(UserMixin):
-    """
-    This provides default implementations for the methods that Flask-Login
-    expects user objects to have.
 
-    if not PY2:  # pragma: no cover
-        # Python 3 implicitly set __hash__ to None if we override __eq__
-        # We set it back to its default implementation
-        __hash__ = object.__hash__"""
-
-    def __init__(self, username,
-                 first_name, last_name,
-                 user_id, password):
+    def __init__(self, username, first_name, last_name, user_id, password):
 
         self.username = username
         self.first_name = first_name
@@ -985,11 +1030,11 @@ class User(UserMixin):
         self.password = password
 
     @property
-    def is_active(self):  # active: activated account through email etc
+    def is_active(self):
         return True
 
     @property
-    def is_authenticated(self):  # authentication = user + password match
+    def is_authenticated(self):
         return True
 
     @property
