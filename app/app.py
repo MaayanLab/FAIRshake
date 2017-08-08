@@ -199,7 +199,6 @@ def login():
 
 
 
-
 # This user's evaluated projects page #
 @app.route(ENTRY_POINT + "/evaluatedprojects", methods=["GET"])
 @login_required
