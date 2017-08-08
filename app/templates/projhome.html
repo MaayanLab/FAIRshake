@@ -340,50 +340,48 @@
         </div>
 
 
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-            </ul>
-        </nav>
+{#        <nav aria-label="Page navigation example">#}
+{#            <ul class="pagination">#}
+{#            </ul>#}
+{#        </nav>#}
 
     </div>
 
-    <script>
-
-        var $pagination = $('.pagination');
-        var defaultOpts = {
-            initiateStartPageClick: false,
-            totalPages: lastpage,
-            visiblePages: 5,
-            prev: "&lt",
-            next: "&gt",
-            first: "&laquo",
-            last: "&raquo",
-            href: true
-            ,
-            onPageClick: function (event, page) { // works in terms of redirecting but needs also have same button function as before
-                window.location.href = "/fairshake/project/1/resources/page/" + page;
-            }
-        };
-        $pagination.twbsPagination(defaultOpts);
-        $.ajax({
-            success: function (data) {
-                var totalPages = data.newTotalPages;
-                var currentPage = $pagination.twbsPagination('getCurrentPage');
-                $pagination.twbsPagination('destroy');
-                $pagination.twbsPagination($.extend({}, defaultOpts, {
-                    startPage: currentPage,
-                    totalPages: totalPages
-                }));
-            }
-        })
-        ;
-
-
-        alert(lastpage);
-        $(document).ready(function () {
-            $(".pagination").rPage();
-        });
-    </script>
+{#    <script>#}
+{##}
+{#        var $pagination = $('.pagination');#}
+{#        var defaultOpts = {#}
+{#            initiateStartPageClick: false,#}
+{#            totalPages: lastpage,#}
+{#            visiblePages: 5,#}
+{#            prev: "&lt",#}
+{#            next: "&gt",#}
+{#            first: "&laquo",#}
+{#            last: "&raquo",#}
+{#            href: true#}
+{#            ,#}
+{#            onPageClick: function (event, page) { // works in terms of redirecting but needs also have same button function as before#}
+{#                window.location.href = "/fairshake/project/1/resources/page/" + page;#}
+{#            }#}
+{#        };#}
+{#        $pagination.twbsPagination(defaultOpts);#}
+{#        $.ajax({#}
+{#            success: function (data) {#}
+{#                var totalPages = data.newTotalPages;#}
+{#                var currentPage = $pagination.twbsPagination('getCurrentPage');#}
+{#                $pagination.twbsPagination('destroy');#}
+{#                $pagination.twbsPagination($.extend({}, defaultOpts, {#}
+{#                    startPage: currentPage,#}
+{#                    totalPages: totalPages#}
+{#                }));#}
+{#            }#}
+{#        })#}
+{#        ;#}
+{##}
+{#        $(document).ready(function () {#}
+{#            $(".pagination").rPage();#}
+{#        });#}
+{#    </script>#}
 
     </div>
 {% endblock %}
