@@ -35,28 +35,18 @@
     </style>
 {% endblock %}
 {% block content %}
-        <script type="text/javascript"> //Pagination
 
-        var lastpage = 1;
-        if ({{totalres}}<{{per_page}}||({{totalres}} % {{per_page}}===0)){
-            lastpage = Math.trunc({{totalres}}/{{per_page}});
-            if (lastpage === 0) {
-                lastpage = 1;
-            }
-        } else{
-            lastpage = Math.trunc({{totalres}}/{{per_page}})+1;
-        }
-
-        window.onload = function () {
-            if ({{page}}>=lastpage){
+    <script type="text/javascript"> //Pagination
+        $(document).ready(function() {
+            if ({{page}} >= {{lastpage}}){
                 document.getElementById("next").style.display = 'none';
             }
-            if ({{page}}<=1){
+            if ({{page}} === {{ 1 }}){
                 document.getElementById("back").style.display = 'none';
             }
-        }
-
+        });
     </script>
+
     <script type="text/javascript">
         scale = d3.scale.linear().domain([-1, 1])
           .interpolate(d3.interpolateRgb)

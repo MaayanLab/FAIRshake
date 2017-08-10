@@ -2,13 +2,13 @@ from flask import Flask, request, redirect, render_template, flash, jsonify,url_
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user, UserMixin, login_url
 from flask_cors import CORS
 from flaskext.mysql import MySQL
-import re
+import math
 
 mysql = MySQL()
 
 app = Flask(__name__)
 CORS(app)
-app.secret_key = 'thisstring'
+app.secret_key = 'thisstring'  # For sessions #
 
 
 # app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -60,15 +60,42 @@ def doe():
     conx = mysql.get_db()
     cursor = conx.cursor()
 
+    # Pass in list of projects to choose featured projects from #
     cursor.execute("select * from project order by project_id")
     data=cursor.fetchall()
+    if not data:
+        return render_template("error.html",errormsg="No projects")
     for row in data:
         projectlist.append(row)
 
     return render_template('doehome.html',projectlist=projectlist)
 
 
-# API to get this resource's average scores for insignia #
+# Chrome extension API to get this resource's questions for insignia #
+@app.route(ENTRY_POINT + '/api/chrome_extension/getQ')
+def chrome_extension_getQ():
+    resArr=[]
+    theType = request.args.get('theType')
+    conx = mysql.get_db()
+    cursor = conx.cursor()
+
+    # Get questions for this resource's type #
+    query1 = "select content from question where version=(select max(version) from question) and res_type=%s order by num"
+    cursor.execute(query1,(theType))
+    result1 = cursor.fetchall()
+
+    # No questions for this resource type - invalid #
+    if not result1:
+        return 'None'
+
+    # Return questions #
+    else:
+        for row in result1:
+            resArr.append(row[0])
+        return str(resArr)
+
+
+# Chrome extension API to get this resource's average scores for insignia #
 @app.route(ENTRY_POINT + '/api/chrome_extension/getAvg')
 def chrome_extension_getAvg():
     avgStr=""
@@ -98,30 +125,6 @@ def chrome_extension_getAvg():
         for i in range(16):
             avgStr = avgStr + str(result1[i][0]) + ","
         return avgStr
-
-
-# API to get this resource's questions for insignia #
-@app.route(ENTRY_POINT + '/api/chrome_extension/getQ')
-def chrome_extension_getQ():
-    resArr=[]
-    theType = request.args.get('theType')
-    conx = mysql.get_db()
-    cursor = conx.cursor()
-
-    # Get questions for this resource's type #
-    query1 = "select content from question where version=(select max(version) from question) and res_type=%s order by num"
-    cursor.execute(query1,(theType))
-    result1 = cursor.fetchall()
-
-    # No questions for this resource type - invalid #
-    if not result1:
-        return 'None'
-
-    # Return questions #
-    else:
-        for row in result1:
-            resArr.append(row[0])
-        return str(resArr)
 
 
 # Download Chrome extension page #
@@ -275,7 +278,7 @@ def register():
                     flash("Account successfully created.", "success")
                     return redirect(ENTRY_POINT + '/login')
                 else:
-                    return "error"
+                    return render_template('error.html',errormsg='Select valid role.')
 
         # Username already exists in database #
         else:
@@ -288,6 +291,9 @@ def register():
 @app.route(ENTRY_POINT + '/project/<int:proj>/resources', defaults={'page': 1}, methods=['GET', 'POST'])
 @app.route(ENTRY_POINT + '/project/<int:proj>/resources/page/<int:page>', methods=['GET'])
 def resourcelist(proj,page):
+    if page<1:
+        return render_template("error.html",errormsg="Not valid page number.")
+
     conx = mysql.get_db()
     cursor = conx.cursor()
 
@@ -295,7 +301,7 @@ def resourcelist(proj,page):
     cursor.execute(query1,(proj))
     projinfo = cursor.fetchall()
     if not projinfo:
-        return "error"
+        return render_template("error.html", errormsg="Not valid project.")
 
     resourceslist = []  # For resources' information #
     userres = []  # For resources this user has evaluated - for check marks #
@@ -313,6 +319,17 @@ def resourcelist(proj,page):
     for row in data:
         resourceslist.append(row)
     total = len(resourceslist)
+
+    lastpage=1
+    if total<per_page:
+        lastpage=1
+    elif total%per_page==0:
+        lastpage=total/per_page
+    else:
+        lastpage=math.trunc(total/per_page)+1
+
+    if page>lastpage:
+        return render_template("error.html",errormsg="Not valid page number.")
 
     # Go through all resources #
     for i in range(total):
@@ -374,7 +391,8 @@ def resourcelist(proj,page):
 
     return render_template('projhome.html',
                            resourceslist=resourceslist, listeval=listeval, total=total, pagecount=pagecount, page=page,
-                           per_page=per_page, showlast=showlast, userres=userres, avginfo=avginfo, qdat=qdat, proj=proj,projinfo=projinfo)
+                           per_page=per_page, showlast=showlast, userres=userres, avginfo=avginfo, qdat=qdat, proj=proj,
+                           projinfo=projinfo,lastpage=lastpage)
 
 
 # Project my evaluations page #
@@ -383,14 +401,17 @@ def resourcelist(proj,page):
 @app.route(ENTRY_POINT + "/project/<int:proj>/myevaluations/page/<int:page>", methods=['GET'])
 @login_required
 def myevals(proj, page):
+    if page<1:
+        return render_template("error.html",errormsg="Not valid page number.")
+
     conx = mysql.get_db()
     cursor = conx.cursor()
 
     query1 = "select * from project where project_id=%s"
     cursor.execute(query1,(proj))
     projinfo = cursor.fetchall()
-    if cursor.rowcount == 0:
-        return "error"
+    if not projinfo:
+        return render_template("error.html", errormsg="Not valid project.")
 
     resources = []
     listeval = []
@@ -408,6 +429,17 @@ def myevals(proj, page):
     cursor.execute(query2,(current_user.user_id,proj))  # display only those resources this user has evaluated
     data1 = cursor.fetchall()
     totalres = data1[0][0]
+
+    lastpage = 1
+    if totalres < per_page:
+        lastpage = 1
+    elif totalres % per_page == 0:
+        lastpage = totalres / per_page
+    else:
+        lastpage = math.trunc(totalres / per_page) + 1
+
+    if page>lastpage:
+        return render_template("error.html",errormsg="Not valid page number.")
 
     conx_getres1 = mysql.get_db()
     cursor = conx_getres1.cursor()
@@ -474,7 +506,8 @@ def myevals(proj, page):
 
     return render_template('myevaluations.html',
                            page=page, resources=resources, per_page=per_page, pagecount=pagecount, showlast=showlast,
-                           totalres=totalres, listeval=listeval, avginfo=avginfo, ans=ans, qdat=qdat, proj=proj, projinfo=projinfo)
+                           totalres=totalres, listeval=listeval, avginfo=avginfo, ans=ans, qdat=qdat, proj=proj,
+                           projinfo=projinfo,lastpage=lastpage)
 
 
 # Evaluation form - Modify, old answers automatically filled in #
@@ -691,53 +724,6 @@ def evaluationsubmitted():
     flash("Evaluation submitted.", "success")
     return redirect(ENTRY_POINT + '/project/' + str(project_id) + '/resources')
 
-# Manually refresh averages in database #
-
-# @app.route(ENTRY_POINT + '/refreshavg', methods=['GET'])
-# def refreshavg():
-#     conx = mysql.get_db()
-#     cursor = conx.cursor()
-#
-#     cursor.execute("select count(distinct(resource_id)) from resource")
-#     eqq = cursor.fetchall()
-#     tres = eqq[0][0]
-#
-#     for j in range(1, tres + 1):  # for each resource
-#         query1 = "select resource_type from resource where resource_id=%s"
-#         cursor.execute(query1,(j))
-#         res_type = cursor.fetchall()[0][0]
-#
-#         for i in range(16):  # for each question
-#
-#             templist = []
-#             total = 0
-#             num = 0
-#
-#             query2 = "select answer from evaluation where resource_id=%s and q_id=(select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s))"
-#             cursor.execute(query2,(j,i+1,res_type,res_type))
-#             data = cursor.fetchall()
-#             for row in data:
-#                 templist.append(row[0])  # for each question 1-16
-#                 if row[0] == 'yes':
-#                     total = total + 1
-#                 elif row[0] == 'no':
-#                     total = total - 1
-#
-#             cursor.execute("select count(answer) from evaluation where resource_id=" + str(
-#                 j) + " and q_id=(select q_id from question where num=" + str(
-#                 (i + 1)) + " and res_type='" + res_type + "' and version=(select max(version) from question))")
-#             dd = cursor.fetchall()
-#             count = dd[0][0]
-#
-#             average = float(total) / count
-#             cursor.execute("insert into average(avg,q_id,resource_id) values(" + str(
-#                 average) + ",(select q_id from question where num=" + str(
-#                 (i + 1)) + " and res_type='" + res_type + "' and version=(select max(version) from question))," + str(
-#                 j) + ")")
-#             conx.commit()
-#
-#     return "ok"
-
 
 @app.route(ENTRY_POINT + "/forgotpassword")
 def forgotpass():
@@ -814,7 +800,6 @@ def projects():
     data = cursor.fetchall()
     for row in data:
         projectlist.append(row)
-
     return render_template('projects.html', projectlist=projectlist)
 
 
@@ -839,8 +824,8 @@ def startProject():
         projectdesc=request.form['projectdesc']
         projectimg=request.form['projectimg']
 
-        query1 = "insert into project(project_name,project_description,project_img,user_id) values(%s,%s,%s,%s)"
-        cursor.execute(query1,(projectname,projectdesc,projectimg,current_user.user_id))
+        query1 = "insert into project(project_name,project_description,project_img) values(%s,%s,%s)"
+        cursor.execute(query1,(projectname,projectdesc,projectimg))
         conx.commit()
 
         savertotal=request.form['savertotal']
@@ -1006,15 +991,6 @@ def extensionEvaluation(theName,theURL,theType,theDescrip):
             return render_template('modifyevaluation.html',
                                    resource_name=theName, resource_id=resource_id, resource_type=theType, url=theURL,
                                    description=theDescrip, setanswers=setanswers, setcomments=setcomments, setq=setq,redirectedFromExt='yes')
-
-
-@app.route(ENTRY_POINT + '/testerror')
-def testerror():
-    return errorpage('its an error')
-
-
-def errorpage(errormsg):
-    return render_template('error.html',errormsg=errormsg)
 
 
 # Logged in user #
