@@ -91,7 +91,7 @@ MySQL Tables
     | -----          | ----- | -------------     |
     | user_id        | int   |  int, primary key, auto-increment
     | username       | text  |
-    | password       | text  |  URL of resource homepage to link to
+    | password       | text  |
     | first_name     | text  |
     | last_name      | text  |
     | role_evaluator | text  |   'role_evaluator'
