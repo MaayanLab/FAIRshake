@@ -40,6 +40,7 @@ MySQL Tables
 
 
 * evaluation
+
     |    column     |  type |     description   |
     | ------------- | ----- | -------------     |
     | user_id       | int   |
@@ -50,6 +51,7 @@ MySQL Tables
     | project_id    | int   |
 
 * project
+
     |    column           |  type |     description   |
     | -------------       | ----- | -------------     |
     | project_id          | int   |  int, primary key, auto-increment
@@ -58,6 +60,7 @@ MySQL Tables
     | project_img         | text  |  URL for picture to display for project
 
 * question
+
     |  column  |  type |     description   |
     | ---      | ----- | -------------     |
     | q_id     | int   |  int, primary key, auto-increment
@@ -72,6 +75,7 @@ MySQL Tables
 
 
 * resource
+
     |  column        |  type |     description   |
     | -----          | ----- | -------------     |
     | resource_id    | int   |  int, primary key, auto-increment
@@ -82,6 +86,7 @@ MySQL Tables
     | project_id     | int   |  Resources are associated with projects (currently one to many relationship represented)
 
 * user
+
     |  column        |  type |     description   |
     | -----          | ----- | -------------     |
     | user_id        | int   |  int, primary key, auto-increment
