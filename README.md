@@ -24,67 +24,73 @@ Components
 The MySQL database stores information on projects, resources, questions, evaluations, averages, and users.
 The Python `app.py` file is structured with Flask. It manages routes, connects to MySQL and executes database queries,
 manages account function (login, User objects), and passes variables into the HTML templates.
-The HTML templates provide the HTML for the webpages.
+The HTML templates build the webpages.
 
 MySQL Tables
 ---------
 
 * average
-    * resource_id (int)
-    * q_id (int)
-    * avg (float)
-        * Between -1 and 1
-    * project_id (int)
+
+    |    column     |  type |     description   |
+    | ------------- | ----- | -------------     |
+    | resource_id  | int    |
+    | q_id         | int    |
+    | avg          | float  |   Between -1 and 1
+    |  project_id  | int    |
+
+
 * evaluation
-    * user_id (int)
-    * resource_id (int)
-    * q_id (int)
-    * answer (text)
-    * comment (text)
-    * project_id (int)
+    |    column     |  type |     description   |
+    | ------------- | ----- | -------------     |
+    | user_id       | int   |
+    | resource_id   | int   |
+    | q_id          | int   |
+    | answer        | text  |   'yes' or 'no' or 'yesbut'
+    | comment       | text  |   Currently only if `answer` is 'yesbut'
+    | project_id    | int   |
+
 * project
-    * project_id (int, primary key, auto-increment)
-    * project_name (text)
-    * project_description (text)
-    * project_img (text)
-        * URL for picture to display for project
+    |    column           |  type |     description   |
+    | -------------       | ----- | -------------     |
+    | project_id          | int   |  int, primary key, auto-increment
+    | project_name        | text  |
+    | project_description | text  |
+    | project_img         | text  |  URL for picture to display for project
+
 * question
-    * q_id (int, primary key, auto-increment)
-    * num (int)
-        * Between 1 and 16
-    * version (int)
-        * Version of this question
-        * Default 1
-    * content (text)
-    * F (text)
-        * 'F'
-    * A (text)
-        * 'A'
-    * I (text)
-        * 'I'
-    * R (text)
-        * 'R'
-    * res_type (text)
-        * Questions are associated with a resource's type
+    |  column  |  type |     description   |
+    | ---      | ----- | -------------     |
+    | q_id     | int   |  int, primary key, auto-increment
+    | num      | int   |  Number within set (e.g. 1-16)
+    | version  | int   |  Default: 1
+    | content  | text  |
+    | F        | text  |  'F'
+    | A        | text  |  'A'
+    | I        | text  |  'I'
+    | R        | text  |  'R'
+    | res_type | text  |  Questions are associated with resource type
+
+
 * resource
-    * resource_id (int, primary key, auto-increment)
-    * resource_name (text)
-    * url (text)
-        * URL of resource homepage to link to
-    * resource_type (text)
-    * description (text)
-    * project_id (int)
-        * Resources are associated with a project
+    |  column        |  type |     description   |
+    | -----          | ----- | -------------     |
+    | resource_id    | int   |  int, primary key, auto-increment
+    | resource_name  | text  |
+    | url            | text  |  URL of resource homepage to link to
+    | resource_type  | text  |
+    | description    | text  |
+    | project_id     | int   |  Resources are associated with projects (currently one to many relationship represented)
+
 * user
-    * user_id (int, primary key, auto-increment)
-    * username (text)
-    * password (text)
-    * first_name (text)
-    * last_name (text)
-    * role_evaluator (text)
-        * 'role_evaluator'
-    * role_starter (text)
-        * 'role_starter'
+    |  column        |  type |     description   |
+    | -----          | ----- | -------------     |
+    | user_id        | int   |  int, primary key, auto-increment
+    | username       | text  |
+    | password       | text  |  URL of resource homepage to link to
+    | first_name     | text  |
+    | last_name      | text  |
+    | role_evaluator | text  |   'role_evaluator'
+    | role_starter   | text  | 'role_starter'
 
 
 Chrome extension related FAIRShake routes
@@ -95,14 +101,34 @@ Chrome extension related FAIRShake routes
     * Returns average scores ordered 1-16 for this resource for insignia color and score value
 * `/redirectedFromExt`
     * For insignia click - redirects to FAIRShake evaluation form
+* `/chromeextension`
+    * For Chrome extension download from website
 
 Adding pages to Chrome extension
 ----------
 
-* Create project in MySQL database
-* Create `.js` file for this website
-* Get resource URL, name, description using jQuery
-* Insert `insigform` into desired spot for insignia
+* Create project (e.g. repositories listed on DataMed):
+    * Enter project into MySQL database manually
+        * `insert into project (project_name,project_description,user_id,project_img)
+        values ('DataMed repositories','Repositories listed on DataMed', 'https://datamed.org/img/biocaddie_png2.png')`
+    * Enter resources into MySQL database with Chrome extension click
+        * Add resource pages to Chrome extension
+        * Click on insignia inserted on resource landing pages. This automatically inserts resource into database
+        (on insignia click, not when insignia appears on page).
+    * Enter questions into MySQL database (if the resource type is new)
+        * `insert into question (res_type,num,content,F)
+        values ('Repository',1,'The structure of the repository etc.','F')`
+        * `insert into question (res_type,num,content,F,A)
+        values ('Repository',2,'The repository is available online.','F', 'A')`
+* In Chrome extension:
+    * Create `.js` file in extension for this website
+    * Insert `insigform` into desired spot for insignia
+    * `insigform` hidden input values:
+        * Resource name, URL, description (using jQuery)
+        * Type of resource
+        * Source webpage (e.g. DataMed) to be used for project identification in `app.py`
+* In `app.py`:
+    * In `/redirectedFromExt`, add `elif` statement for new source webpage with new project number
 
 Features in Progress
 --------------
@@ -113,18 +139,6 @@ Features in Progress
     * Although the page allows you to select a number of questions for a project other than 16,
     this is currently not implemented if you actually submit the project. (Some HTML templates or parts of `app.py` may
     use 16 as the number of questions.)
-    * To create a new project, e.g. repositories listed on DataMed:
-        * Enter project into MySQL database manually
-            * `insert into project (project_name,project_description,user_id,project_img)
-            values ('DataMed repositories','Repositories listed on DataMed', 'https://datamed.org/img/biocaddie_png2.png')`
-        * Enter resources into MySQL database with Chrome extension
-            * Add resource pages to Chrome extension
-            * Click on insignia inserted on resource landing pages. This automatically inserts resource into database.
-        * Enter questions into MySQL database (if the resource type is new)
-            * `insert into question (res_type, num, content, F)
-            values ('Repository',1, 'The structure of the repository etc.','F')`
-            * `insert into question (res_type, num, content, F, A)
-            values ('Repository',2, 'The repository is available online.','F', 'A')`
     * `role_starter`
         * Currently, there is no difference in `role_evaluator` and `role_starter` accounts. Both can technically
         start projects (by accessing `/startproject` and submitting a project).
