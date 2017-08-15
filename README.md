@@ -260,6 +260,3 @@ Future features to implement
         * Use gamma adjust
 
 * Open comments on evaluation form no matter what option selected, not restricted to 'yes, but:'
-
-
-patrycjas
