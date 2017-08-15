@@ -105,6 +105,12 @@ Current list of resource types
 * Tool
 * Repository
 
+BioToolBay
+-------
+The FAIRShake FAIRness insignia with FAIRShake evaluation form connection on click (like the Chrome extension)
+has been placed on the tool landing pages on BioToolBay. Any changes made to the Chrome extension `.js` file structure
+should correspondingly be made for BioToolBay.
+
 Chrome extension-related routes
 ---------
 * `/api/chrome_extension/getQ`
@@ -307,3 +313,5 @@ information received from APIs.
     * Issue: A more secure implementation should be considered.
     * Possible solutions:
         * Creating a static image of the insignia and sending a link to that image with the API.
+
+* Legend explaining scoring/coloring of insignia
