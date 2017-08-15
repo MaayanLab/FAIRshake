@@ -2,4 +2,3 @@ __pycache__/
 *.DS_Store
 .gitignore
 .idea/
-lwfairness.sql

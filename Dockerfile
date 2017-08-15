@@ -9,6 +9,6 @@ RUN pip install -Iv Flask flask-cors requests uwsgi flask-login flask-mysql
 
 EXPOSE 80
 
-ADD . /lwfairness
-RUN chmod -R 777 /lwfairness
-CMD /lwfairness/boot.sh
+ADD . /fairshake
+RUN chmod -R 777 /fairshake
+CMD /fairshake/boot.sh

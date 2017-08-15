@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-root=/lwfairness
+root=/fairshake
 user=r
 log=$root/error.log
 
@@ -59,7 +59,7 @@ http {
         large_client_header_buffers 8 32k;
 
         location /static  {
-            alias $root/lwfairness/static;
+            alias $root/fairshake/static;
         }
 
         location / {

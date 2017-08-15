@@ -99,7 +99,13 @@ MySQL Tables
     | role_starter   | text  | 'role_starter'
 
 
-Chrome extension-related FAIRShake routes
+Current list of resource types
+--------------
+* Dataset
+* Tool
+* Repository
+
+Chrome extension-related routes
 ---------
 * `/api/chrome_extension/getQ`
     * Returns questions ordered 1-16 for this resource's type for insignia tooltip
@@ -113,36 +119,44 @@ Chrome extension-related FAIRShake routes
 * `/chromeextension`
     * For Chrome extension download from website
 
-Adding pages to Chrome extension
+Adding webpages to Chrome extension
 ----------
+
+* Until 'Start Project' or other appropriate automation implemented
 
 * Create project (e.g. repositories listed on DataMed):
     * Enter project into MySQL database manually
         * `insert into project (project_name,project_description,user_id,project_img)
         values ('DataMed repositories','Repositories listed on DataMed', 'https://datamed.org/img/biocaddie_png2.png')`
 
-    * Enter resources into MySQL database with Chrome extension click
-        * Add resource pages to Chrome extension
-        * Click on insignia inserted on resource landing pages. This automatically inserts resource into database
-        (on insignia click from `/redirectedFromExt`, not when insignia is placed on page through extension JavaScript
-        with information from APIs).
+* Enter questions into MySQL database (if the resource type is new)
+    * `insert into question (res_type,num,content,F)
+    values ('Repository',1,'The structure of the repository etc.','F')`
+    * `insert into question (res_type,num,content,F,A)
+    values ('Repository',2,'The repository is available online.','F', 'A')`
 
-    * Enter questions into MySQL database (if the resource type is new)
-        * `insert into question (res_type,num,content,F)
-        values ('Repository',1,'The structure of the repository etc.','F')`
-        * `insert into question (res_type,num,content,F,A)
-        values ('Repository',2,'The repository is available online.','F', 'A')`
+* Enter resources into MySQL database with Chrome extension click (or manually if not applicable)
+    * Add resource pages to Chrome extension
+        * In Chrome extension:
+            * Create `.js` file in extension for this website
+            * Insert `insigform` into desired spot for insignia
+            * `insigform` hidden input values:
+                * Resource name, URL, description (using jQuery)
+                * Type of resource
+                * Source webpage (e.g. DataMed) to be used for project identification in `app.py`
 
-* In Chrome extension:
-    * Create `.js` file in extension for this website
-    * Insert `insigform` into desired spot for insignia
-    * `insigform` hidden input values:
-        * Resource name, URL, description (using jQuery)
-        * Type of resource
-        * Source webpage (e.g. DataMed) to be used for project identification in `app.py`
+        * In `app.py`:
+            * In `/redirectedFromExt`, add `elif` statement for new source webpage with new project number
+                * `elif theSrc == 'DataMed':
+                        cursor.execute(query2, (theName, theType, theURL, theDescrip, 4))
+                        conx.commit()`
 
-* In `app.py`:
-    * In `/redirectedFromExt`, add `elif` statement for new source webpage with new project number
+    * Click on insignia inserted on resource landing pages. This automatically inserts resource into database
+    (on insignia click, not when insignia is placed on page through extension JavaScript
+    with information from APIs).
+
+    * or `insert into resource (resource_name,url,resource_type,description,project_id) values ('ArrayExpress,
+    'https://www.ebi.ac.uk/arrayexpress/','Repository','ArrayExpress Archive of Functional Genomics Data etc.',4)`
 
 Features in progress
 --------------
@@ -184,11 +198,13 @@ Features in progress
     * Sign in with Google or Facebook
     * Personalization features (avatar, about)
 
-* Finding a resource in the database to pull for Chrome extension
+* Finding a resource in the database to pull for Chrome extension - issues here refer mainly to repositories
 
-    * Since some resources may belong to multiple projects, the Chrome extension should recognize this. Currently,
-    the Chrome extension pulls resource averages and evaluations based on exact URL. So it will not recognize the
-    same resource if one project's page records the URL slightly differently from another project's page.
+    * Since some resources may belong to multiple projects, the Chrome extension should recognize this.
+
+    * Currently, the Chrome extension pulls resource averages and evaluations based on exact URL.
+    It will not recognize the same resource if one project's webpage records the URL slightly differently
+    from another project's webpage.
     * Examples:
 
         * '/' vs. no '/' at URL end
@@ -197,17 +213,26 @@ Features in progress
 
     * Possible solutions:
 
-        * Search by name
-            * Similar issue e.g. 'UniProt:Swiss-Prot' from DataMed repositories and 'UniProt KnowledgeBase'
-            in Model Organisms Database
-        * Use RegEx on URL search
+        * Search by name in database
+            * Similar issue by name e.g. 'UniProt:Swiss-Prot' from DataMed repositories and 'UniProt KnowledgeBase'
+            in Model Organisms Database, as different webpages may have different names for the same resource
+        * Use RegEx on URL search accounting for listed examples
+        * For repository only, if certain parts of the URL are identical, ex. host or host and path,
+        the resources should be considered identical
 
     * Current solution:
 
         * Using search both by name and URL in `/api/chrome_extension/getAvg` depending on source webpage.
         In Chrome extension JavaScript files, the call to the API passes in a `select` argument that can be `name`
-        or `URL`. However in `/redirectedFromExt`, to check if this resource from insignia click is already in the
-        database, it searches by name...
+        or `URL`. This specifies whether to search by name or URL in database for the average scores to display
+        in insignia. However in `/redirectedFromExt`, to check if this resource from insignia click is already in the
+        database, it searches by name... This is inconsistent and a better solution should be implemented.
+
+    * Another issue: Some repositories listed on DataMed (and possibly future sites added to FAIRShake)
+    are identified as distinct repositories even though they are hosted from the same site and can be considered
+    one repository.
+
+        * Repositories in question are: 'NeuroVault Atlases',' NeuroVault Cols', 'NeuroVault NIDM' all from NeuroVault
 
 * Login issue from Chrome extension
 
@@ -232,8 +257,24 @@ Features in progress
     * Current solution: Pushed `static` files to amp.pharm.mssm.edu and hardcoded these addresses where needed
     in FAIRShake files
 
+* Ensure consistency in results returned by APIs for questions and averages
+
+* In Chrome extension for LINCS Dataset landing pages, if you come to the dataset landing page by entering in the URL,
+the insignia appears normally. However, if you come to the dataset landing page by clicking on a
+dataset link in `http://lincsportal.ccs.miami.edu/datasets/`, the insignia does not appear.
+If you refresh the landing page, it will then appear. This is an issue specific to the LINCS Dataset landing pages.
+
+    * Possible solutions: Automatically refresh these pages once
+
+* Some LINCS Dataset landing pages do not show insignia at all, e.g.
+`http://lincsportal.ccs.miami.edu/datasets/#/view/LDS-1195`
+
+* Automate/standardize in some capacity the addition of webpages to Chrome extension
+
 Future features to implement
 ------------
+
+* Move website and database to Amazon server
 
 * Sortable tables for resource lists in `/project/x/resources` and `/project/x/myevaluations`
     * May require different pagination using JavaScript on same page rather than URL change to different pages
@@ -253,10 +294,16 @@ Future features to implement
 * Point/awards system
 
 * Improvement to insignia color scale: All colors should have same shades of brightness
-    * Issue: The only thing that should vary between the insignia colors is the red/blue shade. Currently, colors in
-    between are often darker than the two ends of the scale. This should be corrected.
+    * Issue: The only thing that should vary between the insignia colors is the red/blue shade in order to improve
+    clarity. Currently, colors in between are often darker than the two ends of the scale. This should be corrected.
     * Possible solutions:
         * Could try other D3 color scales - currently using `d3.interpolateRgb`
         * Use gamma adjust
 
 * Open comments on evaluation form no matter what option selected, not restricted to 'yes, but:'
+
+* Insignia is currently dynamically created with JavaScript by the Chrome extension on a resource page, through
+information received from APIs.
+    * Issue: A more secure implementation should be considered.
+    * Possible solutions:
+        * Creating a static image of the insignia and sending a link to that image with the API.
