@@ -11,10 +11,10 @@ CORS(app)
 app.secret_key = 'thisstring'  # For sessions #
 
 
-# app.config['MYSQL_DATABASE_USER'] = 'root'
-# app.config['MYSQL_DATABASE_PASSWORD'] = 'temp123'
-# app.config['MYSQL_DATABASE_DB'] = 'proj1'
-# app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_USER'] = 'root'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'temp123'
+app.config['MYSQL_DATABASE_DB'] = 'fairshake'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 # app.config['MYSQL_DATABASE_USER'] = 'fairshake'
 # app.config['MYSQL_DATABASE_PASSWORD'] = 'systemsbiology'
@@ -255,6 +255,7 @@ def resourcelist(proj,page):
     cursor.execute(query3,(proj))  # get resource info to display
     data = cursor.fetchall()
     for row in data:
+        # query10 = "select "
         resourceslist.append(row)
     total = len(resourceslist)
 
@@ -273,6 +274,7 @@ def resourcelist(proj,page):
     for i in range(total):
         templist = []
         xlist = []
+        q_idtemp=[]
 
         templist.append(str(resourceslist[i][0]))
         xlist.append(str(resourceslist[i][0]))
@@ -283,11 +285,13 @@ def resourcelist(proj,page):
         eval1 = cursor.fetchall()
         listeval.append(eval1[0][0])
 
-        # Go through all 16 questions #
-        for t in range(16):
-            query5 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
-            cursor.execute(query5,(t+1,resourceslist[i][3],resourceslist[i][3]))  # can later add in project_id if res_type will have same names
-            q_id = cursor.fetchall()[0][0]
+        query9 = "select q_id,content from question where res_type=%s and version=(select max(version) from question where res_type=%s) order by num"
+        cursor.execute(query9,(resourceslist[i][3],resourceslist[i][3]))
+        sqnum = cursor.rowcount
+        data = cursor.fetchall()
+        resourceslist[i] = resourceslist[i] + (sqnum,)
+        for row in data:
+            q_id=row[0]
 
             query6 = "select avg from average where resource_id=%s and q_id=%s"
             cursor.execute(query6,(resourceslist[i][0],q_id))
@@ -402,10 +406,14 @@ def myevals(proj, page):
         templist.append(str(resources[i][0]))
         xlist.append(str(resources[i][0]))
 
-        for t in range(16):  # about question
-            query5 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
-            cursor.execute(query5,(t+1,resources[i][3],resources[i][3]))
-            q_id = cursor.fetchall()[0][0]
+        query9 = "select q_id,content from question where res_type=%s and version=(select max(version) from question where res_type=%s) order by num"
+        cursor.execute(query9, (resources[i][3], resources[i][3]))
+        sqnum = cursor.rowcount
+        data = cursor.fetchall()
+        resources[i] = resources[i] + (sqnum,)
+        for row in data:
+            q_id = row[0]
+
             query6 = "select avg from average where resource_id=%s and q_id=%s"
             cursor.execute(query6,(resources[i][0],q_id))
             adata = cursor.fetchone()
@@ -481,7 +489,11 @@ def modifyevaluation():
     url = row1[2]
     description = row1[4]
 
-    for i in range(1, 17):
+    query5 = "select count(*) from question where res_type=%s and version=(select max(version) from question where res_type=%s)"
+    cursor.execute(query5,(resource_type,resource_type))
+    sqnum = cursor.fetchall()[0][0]
+
+    for i in range(1, sqnum+1):
         query4 = "select num,version,content from question where res_type=%s and num=%s and version=(select max(version) from question where res_type=%s)"
         cursor.execute(query4,(resource_type,i,resource_type))
         qd = cursor.fetchall()
@@ -490,7 +502,7 @@ def modifyevaluation():
 
     return render_template('modifyevaluation.html',
                            resource_name=resource_name, resource_id=resource_id, resource_type=resource_type, url=url,
-                           description=description, setanswers=setanswers, setcomments=setcomments, setq=setq)
+                           description=description, setanswers=setanswers, setcomments=setcomments, setq=setq,sqnum=sqnum)
 
 
 # Evaluation form - New evaluation #
@@ -514,7 +526,11 @@ def newevaluation():
         url = row1[2]
         description = row1[4]
 
-        for i in range(1, 17):
+        query5 = "select count(*) from question where res_type=%s and version=(select max(version) from question where res_type=%s)"
+        cursor.execute(query5, (resource_type, resource_type))
+        sqnum = cursor.fetchall()[0][0]
+
+        for i in range(1, sqnum + 1):
             query2 = "select num,version,content from question where res_type=%s and num=%s and version=(select max(version) from question) order by num"
             cursor.execute(query2,(resource_type,i))
             qd = cursor.fetchall()
@@ -523,7 +539,7 @@ def newevaluation():
 
         return render_template('newevaluation.html',
                                resource_name=resource_name, resource_id=resource_id, resource_type=resource_type, url=url,
-                               description=description, setq=setq)
+                               description=description, setq=setq,sqnum=sqnum)
 
 
 # Enter modify submission into database #
@@ -544,13 +560,17 @@ def modifysubmitted():
     res_type = tt[0][0]
     project_id = tt[0][1]
 
-    for i in range(16):  # for each question 1-16
-        thisanswer = request.form['q' + str((i + 1))]  # get answer for this question 1-16
-        thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question 1-16
+    query10 = "select count(*) from question where res_type=%s and version=(select max(version) from question where res_type=%s)"
+    cursor.execute(query10,(res_type,res_type))
+    qtotal = cursor.fetchall()[0][0]
+
+    for i in range(qtotal):  # for each question
+        thisanswer = request.form['q' + str((i + 1))]  # get answer for this question
+        thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question
 
         query2 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
-        cursor.execute(query2,(i+1,res_type,res_type))  # get q_id of most recent q 1-16
-        q_id = cursor.fetchall()[0][0]  # use most recent q_id for this question 1-16
+        cursor.execute(query2,(i+1,res_type,res_type))  # get q_id of most recent q
+        q_id = cursor.fetchall()[0][0]  # use most recent q_id for this question
 
         query3 = "delete from evaluation where q_id=%s and resource_id=%s and user_id=%s"
         cursor.execute(query3,(q_id,resource_id,current_user.user_id))  # clear from evaluation my evaluation for this resource (of most updated q version)
@@ -611,13 +631,17 @@ def evaluationsubmitted():
     res_type = tt[0][0]
     project_id = tt[0][1]
 
-    for i in range(16):  # for each question 1-16
-        thisanswer = request.form['q' + str((i + 1))]  # get answer for this question 1-16
-        thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question 1-16
+    query10 = "select count(*) from question where res_type=%s and version=(select max(version) from question where res_type=%s)"
+    cursor.execute(query10,(res_type,res_type))
+    qtotal = cursor.fetchall()[0][0]
+
+    for i in range(qtotal):  # for each question
+        thisanswer = request.form['q' + str((i + 1))]  # get answer for this question
+        thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question
 
         query2 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
-        cursor.execute(query2,(i+1,res_type,res_type))  # get q_id of most recent q 1-16
-        q_id = cursor.fetchall()[0][0]  # use most recent q_id for this question 1-16
+        cursor.execute(query2,(i+1,res_type,res_type))  # get q_id
+        q_id = cursor.fetchall()[0][0]
 
         query3 = "delete from evaluation where q_id=%s and resource_id=%s and user_id=%s"
         cursor.execute(query3,(q_id,resource_id,current_user.user_id)) # clear from evaluation my evaluation for this resource (of most updated q version)
@@ -752,8 +776,6 @@ def startProject():
     # Start project submitted #
     else:
         # To finish later #
-        flash("In progress.","warning")
-        return redirect(ENTRY_POINT + "/startproject")
 
         conx = mysql.get_db()
         cursor = conx.cursor()
@@ -782,8 +804,8 @@ def startProject():
 
         for r in range(int(saveqtotal)):  # get the first x questions + ignore the rest
             qucontent=request.form['saveq'+str(r+1)]
-            query3 = "insert into question(num,version,res_type,content,project_id) values(%s,'1','example_type',%s,(select project_id from project where project_name=%s))"
-            cursor.execute(query3,(r+1,qucontent,projectname))
+            query3 = "insert into question(num,version,res_type,content) values(%s,'1','example_type',%s)"
+            cursor.execute(query3,(r+1,qucontent))
             conx.commit()
 
         flash("Project successfully created.", "success")
@@ -839,8 +861,8 @@ def chrome_extension_getAvg():
 
     # Average scores exist - Return in comma separated string #
     else:
-        for i in range(16):
-            avgStr = avgStr + str(result1[i][0]) + ","
+        for row in result1:
+            avgStr = avgStr + str(row[0]) + ","
         return avgStr
 
 # Download Chrome extension page #
@@ -947,7 +969,11 @@ def extensionEvaluation(theName, theURL, theType, theDescrip):
         rtt = cursor.fetchall()
         resource_id = rtt[0][0]
 
-        for i in range(1, 17):
+        query8 = "select count(*) from question where res_type=%s and version=(select max(version) from question where res_type=%s)"
+        cursor.execute(query8, (theType, theType))
+        sqnum = cursor.fetchall()[0][0]
+
+        for i in range(1, sqnum + 1):
             query4 = "select num,version,content from question where res_type=%s and num=%s and version=(select max(version) from question where res_type=%s) order by num"
             cursor.execute(query4, (theType, i, theType))
             cursor.execute("select num,version,content from question where res_type='" + theType
@@ -966,7 +992,7 @@ def extensionEvaluation(theName, theURL, theType, theDescrip):
         if not chr:
             return render_template('newevaluation.html', resource_name=theName, resource_id=resource_id,
                                    resource_type=theType, url=theURL,
-                                   description=theDescrip, setq=setq, redirectedFromExt='yes')
+                                   description=theDescrip, setq=setq, redirectedFromExt='yes',sqnum=sqnum)
 
         # User has evaluated resource --> show modify evaluation #
         else:
@@ -989,7 +1015,7 @@ def extensionEvaluation(theName, theURL, theType, theDescrip):
                                    resource_name=theName, resource_id=resource_id, resource_type=theType,
                                    url=theURL,
                                    description=theDescrip, setanswers=setanswers, setcomments=setcomments,
-                                   setq=setq, redirectedFromExt='yes')
+                                   setq=setq, redirectedFromExt='yes',sqnum=sqnum)
 
 
 # Logged in user. Flask-login also provides class for anonymous users. #
@@ -1040,4 +1066,4 @@ class User(UserMixin):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True)

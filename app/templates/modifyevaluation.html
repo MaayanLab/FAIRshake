@@ -71,7 +71,7 @@
                   onsubmit="return confirm('Are you sure you want to submit?');">
                 <input type="hidden" name="hiddenfield" value={{ resource_id }}>
                 <tbody>
-                {% for w in range(16) %}
+                {% for w in range(sqnum) %}
                     <tr>
                         <td style="width:500px">
                             {{ w+1}}. {{ setq[w][2] }}
@@ -109,7 +109,7 @@
         </script>
 
         {% if setanswers %}
-            {% for e in range(16) %}
+            {% for e in range(sqnum) %}
                 {% if setanswers[e][1]=="yes" %}
                     <script>click("q{{e+1}}yes");</script>
                 {% elif setanswers[e][1]=="no" %}
