@@ -8,18 +8,7 @@ mysql = MySQL()
 
 app = Flask(__name__)
 CORS(app)
-app.secret_key = 'thisstring'  # For sessions #
 
-
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'temp123'
-app.config['MYSQL_DATABASE_DB'] = 'fairshake'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-
-# app.config['MYSQL_DATABASE_USER'] = 'fairshake'
-# app.config['MYSQL_DATABASE_PASSWORD'] = 'systemsbiology'
-# app.config['MYSQL_DATABASE_DB'] = 'fairshake'
-# app.config['MYSQL_DATABASE_HOST'] = '146.203.54.78'
 app.config.from_pyfile('config.py')
 mysql.init_app(app)
 ENTRY_POINT = app.config['ENTRY_POINT']
