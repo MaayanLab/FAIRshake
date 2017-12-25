@@ -3,6 +3,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from flask_cors import CORS
 from flaskext.mysql import MySQL
 import math
+from urlparse import urlparse
 
 mysql = MySQL()
 
@@ -803,10 +804,27 @@ def startProject():
 # Chrome extension API to get this resource's questions for insignia #
 @app.route(ENTRY_POINT + '/api/chrome_extension/getQ')
 def chrome_extension_getQ():
+
     resArr = []
     theType = request.args.get('theType')
     conx = mysql.get_db()
     cursor = conx.cursor()
+    src = request.args.get('src')
+    if src == "Bookmarklet":
+        url = request.args.get('url')
+        o = urlparse(url)
+        stripped = o.netloc + o.path
+        if stripped[(len(stripped) - 1):] == "/":
+            stripped = stripped[:len(stripped) - 1]
+        input = '%' + stripped + '%'
+        query0 = "select resource_type,resource_name from resource where url like %s"
+        cursor.execute(query0,(input))
+        result = cursor.fetchall()
+        if not result:
+            return 'None'
+        else:
+            theType = result[0][0]
+            theName = result[0][1]
 
     # Get questions for this resource's type #
     query1 = "select content from question where version=(select max(version) from question) and res_type=%s order by num"
@@ -821,6 +839,8 @@ def chrome_extension_getQ():
     else:
         for row in result1:
             resArr.append(row[0])
+        if theName:
+            resArr.append(theName)
         return str(resArr)
 
 # Chrome extension API to get this resource's average scores for insignia #
@@ -831,18 +851,26 @@ def chrome_extension_getAvg():
     cursor = conx.cursor()
 
     # Get this resource's average scores to make insignia, search by URL #
-    if request.args.get('select') == 'URL':
-        theURL = request.args.get('theURL')
-        query1 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url=%s"
-        cursor.execute(query1, (theURL))
-        result1 = cursor.fetchall()
+    # if request.args.get('select') == 'URL':
+    url = request.args.get('theURL')
+    o = urlparse(url)
+    stripped = o.netloc + o.path
+    if stripped[(len(stripped) - 1):] is '/':
+        stripped = stripped[:len(stripped) - 1]
+    input = '%' + stripped + '%'
+    query0 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url like %s"
+    cursor.execute(query0,(input))
+    # theURL = request.args.get('theURL')
+    # query1 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url=%s"
+    # cursor.execute(query1, (theURL))
+    result1 = cursor.fetchall()
 
     # Get this resource's average scores to make insignia, search by name #
-    elif request.args.get('select') == 'name':
-        theName = request.args.get('theName')
-        query2 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where resource_name=%s"
-        cursor.execute(query2, (theName))
-        result1 = cursor.fetchall()
+    # elif request.args.get('select') == 'name':
+    #     theName = request.args.get('theName')
+    #     query2 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where resource_name=%s"
+    #     cursor.execute(query2, (theName))
+    #     result1 = cursor.fetchall()
 
     # No averages yet for this resource - has not yet been evaluated #
     if not result1:
