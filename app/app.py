@@ -800,9 +800,9 @@ def startProject():
         flash("Project successfully created.", "success")
         return redirect(ENTRY_POINT + '/projects')
 
-# Chrome extension API to get this resource's questions for insignia #
-@app.route(ENTRY_POINT + '/api/chrome_extension/getQ')
-def chrome_extension_getQ():
+# API to get this resource's questions for insignia #
+@app.route(ENTRY_POINT + '/api/getQ')
+def getQ():
     resArr = []
     theType = request.args.get('theType')
     conx = mysql.get_db()
@@ -823,9 +823,9 @@ def chrome_extension_getQ():
             resArr.append(row[0])
         return str(resArr)
 
-# Chrome extension API to get this resource's average scores for insignia #
-@app.route(ENTRY_POINT + '/api/chrome_extension/getAvg')
-def chrome_extension_getAvg():
+# API to get this resource's average scores for insignia #
+@app.route(ENTRY_POINT + '/api/getAvg')
+def getAvg():
     avgStr = ""
     conx = mysql.get_db()
     cursor = conx.cursor()
