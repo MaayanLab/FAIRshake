@@ -24,7 +24,7 @@
             margin: 0 auto;
         }
 
-        .downloadbtn {
+        .downloadbtn .bookmarkletbtn {
             padding-left: 50px;
         }
 
@@ -196,6 +196,10 @@
                     <span class="glyphicon glyphicon-chevron-right"></span>
                 </a>
             </div>
+        </div>
+        <h3 class="projecthead text-left">FAIRShake Bookmarklet</h3>
+        <div class="bookmarkletbtn">
+            <a class="btn btn-success" href='javascript:(function(){if (document.getElementById("fairshakeScript") == null){var a = document.createElement("script"); a.setAttribute("src","https://cdn.rawgit.com/lw453/fairshake/9110e63/bookmarklet.js"); a.id="fairshakeScript"; document.body.appendChild(a);}})();'>Bookmarklet</a>
         </div>
     </div>
 

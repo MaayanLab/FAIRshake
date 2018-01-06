@@ -2,6 +2,7 @@
 {% block head %}
     {{ super() }}
     <style type="text/css">
+        table{table-layout:fixed;}
 
         h2 {
             padding-bottom: 10px;
@@ -11,112 +12,122 @@
             padding-bottom: 20px;
         }
 
-        .commentcol {
-            width: 40%;
-        }
-
         .textfield {
             width: 90%;
+            resize: none;
+            overflow: auto;
         }
 
+        .othercommentbox{
+            margin-top:10px;
+        }
     </style>
 {% endblock %}
 {% block content %}
-    <div class="container-fluid">
-
-    <h2 style="text-align: center;">Evaluation: <a href="{{ url }}" target="_blank">{{ resource_name }}</a></h2>
-    <h4 style="text-align:center;">ID: {{ resource_id }} &nbsp; Type: {{ resource_type }}</h4>
-    <h4 id="bottom-heading" style="text-align:center;">Description: {{ description }}</h4>
-
-
     <script type="text/javascript">
-
-        function clickyesbut(obj) {
-            if (!(obj.checked === "checked")) {
-                document.getElementById(obj.name + 'text').style.display = 'inline';
-            }
-            document.getElementById(obj.name + 'text').required = true;
-        }
-
-        function clickother(obj) {
-            document.getElementById(obj.name + 'text').style.display = 'none';
-            document.getElementById(obj.name + 'text').required = false;
-        }
-
         function click(obj) {
             document.getElementById(obj).checked = true;
-
         }
 
-
-        function loadyesbut(obj, fill) {
-            document.getElementById(obj + "yesbut").checked = true;
-            document.getElementById(obj + 'text').style.display = 'inline';
-            document.getElementById(obj + 'text').required = true;
-            document.getElementById(obj + 'text').value = fill;
+        function loadComments(obj, urlComment, comment) {
+            if (urlComment!==null){
+                document.getElementById(obj + 'urlcomment').value = urlComment;
+            }
+            if (comment!==null){
+                document.getElementById(obj + 'comment').value = comment;
+            }
         }
 
-
+        function validateURL(){
+            urlComments = document.getElementsByClassName('urlcommentbox');
+            str=""
+            bool=true;
+            for (var i=0; i<urlComments.length ; i++){
+                if (urlComments[i].value!==""){
+                    if (!(/^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/.test(urlComments[i].value))){
+                        if (str==""){
+                            str=str+(i+1);
+                        } else {
+                            str=str+", "+(i+1);
+                        }
+                        bool=false;
+                    }
+                }
+            }
+            if (bool==false){
+                alert('Invalid URL in question '+str);
+                return false;
+            } else {
+                return confirm('Are you sure you want to submit?');
+            }
+        }
     </script>
+    <div class="container-fluid">
+        <h2 style="text-align: center;">Evaluation: <a href="{{ url }}" target="_blank">{{ resource_name }}</a></h2>
+        <h4 style="text-align:center;">ID: {{ resource_id }} &nbsp; Type: {{ resource_type }}</h4>
+        <h4 id="bottom-heading" style="text-align:center;">Description: {{ description }}</h4>
         <table class="table table-responsive">
             <thead>
-            <th>Question</th>
+            <th style="width:30%">Question</th>
             <th>Yes</th>
             <th>No</th>
             <th>Yes, but:</th>
-            <th>Comments</th>
+            <th style="width:40%">Comments</th>
+            <th style="width:20%">Example answers for <a href="http://amp.pharm.mssm.edu/Harmonizome/">Harmonizome</a> tool</th>
             </thead>
 
-            <form action="/fairshake/modifysubmitted" id="evform" method="post"
-                  onsubmit="return confirm('Are you sure you want to submit?');">
+            <form action="/fairshake/modifysubmitted" id="evform" method="post" onsubmit="return validateURL()">
                 <input type="hidden" name="hiddenfield" value={{ resource_id }}>
                 <tbody>
                 {% for w in range(sqnum) %}
                     <tr>
-                        <td style="width:500px">
+                        <td>
                             {{ w+1}}. {{ setq[w][2] }}
                         </td>
                         <td>
-                            <input type="radio" name="q{{ w+1}}" onclick="clickother(this)" id="q{{ w+1}}yes"
+                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yes"
                                    value="yes" required>
                         </td>
                         <td>
-                            <input type="radio" name="q{{ w+1}}" onclick="clickother(this)" id="q{{ w+1}}no" value="no">
+                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}no" value="no">
                         </td>
                         <td>
-                            <input type="radio" name="q{{ w+1}}" onclick="clickyesbut(this)" id="q{{ w+1}}yesbut"
+                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yesbut"
                                    value="yesbut">
                         </td>
-                        <td class="commentcol">
-                            <input type="text" size="10" name="q{{ w+1}}yesbutcomment" id="q{{ w+1}}text"
-                                   class="textfield">
+                        <td>
+                            <textarea name="q{{w+1}}urlcomment" id="q{{w+1}}urlcomment" class="textfield urlcommentbox"
+                                      placeholder="Enter URL, if applicable and available." rows="3"></textarea>
+                            <textarea name="q{{ w+1}}comment" id="q{{ w+1}}comment" class="textfield othercommentbox"
+                                      placeholder="Other comments..." rows="5"></textarea>
+                        </td>
+                        <td>
+                            <a style="word-wrap:break-word;" href="{{exampleArr[w][0]}}">{{ exampleArr[w][0] }}</a>
+                            <p>{{ exampleArr[w][1] }}</p>
                         </td>
                     </tr>
                     </tbody>
                 {% endfor %}
             </form>
         </table>
-
-
         <button class="btn btn-default" type="submit" form="evform" value="Submit">Submit</button>
 
-        <script>
-            var x = document.getElementsByClassName('textfield');
-            var i;
-            for (i = 0; i < x.length; i++) {
-                x[i].style.display = 'none';
-            }
-        </script>
-
-        {% if setanswers %}
+        {% if setInfo %}
             {% for e in range(sqnum) %}
-                {% if setanswers[e][1]=="yes" %}
-                    <script>click("q{{e+1}}yes");</script>
-                {% elif setanswers[e][1]=="no" %}
-                    <script>click("q{{e+1}}no");</script>
+                {% if setInfo[e][0]=="yes" %}
+                    <script>
+                        click("q{{e+1}}yes");
+                        loadComments("q{{e+1}}", {{setInfo[e][1]|tojson}}, {{setInfo[e][2]|tojson}})
+                    </script>
+                {% elif setInfo[e][0]=="no" %}
+                    <script>
+                        click("q{{e+1}}no");
+                        loadComments("q{{e+1}}", {{setInfo[e][1]|tojson}}, {{setInfo[e][2]|tojson}})
+                    </script>
                 {% else %}
                     <script>
-                        loadyesbut("q{{e+1}}", {{setcomments[e]|tojson}});
+                        click("q{{e+1}}yesbut");
+                        loadComments("q{{e+1}}", {{setInfo[e][1]|tojson}}, {{setInfo[e][2]|tojson}})
                     </script>
                 {% endif %}
 

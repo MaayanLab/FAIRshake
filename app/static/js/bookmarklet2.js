@@ -1,61 +1,11 @@
-if (void 0 === window.jQuery) {
-    var jQueryScript = document.createElement("script");
-    if (jQueryScript.src = "https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js", document.getElementsByTagName("head")[0].appendChild(jQueryScript), "undefined" == typeof d3) {
-        var d3Script = document.createElement("script");
-        d3Script.src = "https://d3js.org/d3.v3.min.js", document.getElementsByTagName("head")[0].appendChild(d3Script)
-    }
-} else if ("undefined" == typeof d3) {
-    var script = document.createElement("script");
-    script.src = "https://d3js.org/d3.v3.min.js", document.getElementsByTagName("head")[0].appendChild(script);
-}
-
-var fairnessWrapper = document.createElement("div");
-fairnessWrapper.id = "fairness-wrapper";
-
-var fairness = document.createElement("div");
-fairness.id = "fairness";
-fairness.setAttribute("style","font-size:12px;text-align:left;font-family:arial, helvetica, clean, sans-serif;line-height:15px;width:120px;background-color:white;position:fixed;right:0;top:0;z-index:2147483636;padding:10px;-moz-box-shadow:0px 0px 5px #333333;-webkit-box-shadow:0px 0px 5px #333333;box-shadow:0px 0px 5px #333333");
-
-var fairnessInsig = document.createElement("div");
-fairnessInsig.setAttribute("class","fairness-insig");
-fairnessInsig.setAttribute("style","margin:0 auto;")
-
-var infoDiv = document.createElement("div");
-var fairshakeLink = document.createElement("a");
-fairshakeLink.setAttribute("href","http://amp.pharm.mssm.edu/fairshake");
-fairshakeLink.setAttribute("id","fairshakeLink");
-infoDiv.setAttribute("style","padding-top:10px;text-align:center;word-wrap:break-word;");
-fairshakeLink.setAttribute("style","font-family:arial;line-height:15px;font-size:12px;");
-
-var closeOverlay = document.createElement("a");
-closeOverlay.setAttribute("class","close-overlay");
-closeOverlay.setAttribute("style","line-height:10px;text-decoration:none;position:absolute;top:0;right:0;background:#eee;font-size:0.9em;padding:2px 5px;border:solid #ccc;border-width:0 0 1px 1px;display:block;")
-closeOverlay.setAttribute("onclick","removeBklet();")
-closeOverlay.setAttribute("href","javascript:void(0)")
-closeOverlay.innerText = "X";
-
-document.body.appendChild(fairnessWrapper);
-fairnessWrapper.appendChild(fairness);
-fairness.appendChild(fairnessInsig);
-fairness.appendChild(infoDiv);
-infoDiv.appendChild(fairshakeLink);
-fairness.appendChild(closeOverlay);
-
-function removeBklet(){
-    a = document.getElementById("fairness-wrapper");
-    a.parentNode.removeChild(a);
-    b = document.getElementById("fairshakeScript");
-    b.parentNode.removeChild(b);
-}
-
 var theURL = window.location.href;
+jQuery(document).ready(function(){
 var theQ = jQuery.ajax({
     async: false,
-    url: 'http://amp.pharm.mssm.edu/fairshake/api/chrome_extension/getQ?',
+    url: 'http://54.175.203.110/fairshake/api/getQ?',
     data: {
-        'src': 'Bookmarklet',
         'url': theURL
-        },
+    },
     success: function (data) {
         if (data === 'None') {
             notFound();
@@ -76,15 +26,14 @@ document.getElementById("fairshakeLink").innerText = "FAIRness Insignia\n" + tQu
 
 
 jQuery.ajax({
-    url: 'http://amp.pharm.mssm.edu/fairshake/api/chrome_extension/getAvg?',
+    url: 'http://54.175.203.110/fairshake/api/getAvg?',
     data: {
-        'select': 'URL',
-        'theURL': theURL
+//        'select': 'URL',
+        'url': theURL
     },
     success: function (data) {
         if (data === 'None') {
-                makeBlankInsig(tQuestions); //if getQ returns something but getAvg returns none
-                //returnInvalid(); //if getQ returns none
+                makeBlankInsig(tQuestions); //if getQ returns something but getAvg returns none - in database but no evaluations submitted yet
         } else {
             makeInsig(data, tQuestions);
         }
@@ -234,3 +183,4 @@ function bopac(d, i) {
 function notFound(){
     document.getElementById("fairshakeLink").innerText = "FAIRness data unavailable.";
 }
+});

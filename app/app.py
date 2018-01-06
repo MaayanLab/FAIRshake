@@ -3,6 +3,8 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from flask_cors import CORS
 from flaskext.mysql import MySQL
 import math
+from urlparse import urlparse
+import validators
 
 mysql = MySQL()
 
@@ -17,7 +19,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 login_manager.login_view = ENTRY_POINT + "/login"
-
+app.secret_key = app.config['SECRET_KEY']
 
 # Required method for Flask login: Given user ID, returns user object #
 @login_manager.user_loader
@@ -263,7 +265,6 @@ def resourcelist(proj,page):
     for i in range(total):
         templist = []
         xlist = []
-        q_idtemp=[]
 
         templist.append(str(resourceslist[i][0]))
         xlist.append(str(resourceslist[i][0]))
@@ -449,28 +450,21 @@ def myevals(proj, page):
 @app.route(ENTRY_POINT + "/modifyevaluation", methods=['POST'])
 @login_required
 def modifyevaluation():
-    setanswers = []
-    setcomments = []
+    setInfo = []
     setq = []
 
-    resourceid = request.form['resourceid']
+    resource_id = request.form['resourceid']
 
     conx_getres = mysql.get_db()
     cursor = conx_getres.cursor()
-    query1 = "select q_id, answer from evaluation where resource_id=%s and user_id=%s order by q_id"
-    cursor.execute(query1,(resourceid,current_user.user_id))
+    query1 = "select answer,url_comment,comment from evaluation where resource_id=%s and user_id=%s order by q_id"
+    cursor.execute(query1,(resource_id,current_user.user_id))
     data = cursor.fetchall()
     for row in data:
-        setanswers.append(row)
-
-    query2 = "select comment from evaluation where resource_id=%s and user_id=%s order by q_id"
-    cursor.execute(query2,(resourceid,current_user.user_id))
-    data = cursor.fetchall()
-    for row in data:
-        setcomments.append(str(row[0]))
+        setInfo.append(row)
 
     query3 = "select * from resource where resource_id=%s"
-    cursor.execute(query3,(resourceid))
+    cursor.execute(query3,(resource_id))
     row1 = cursor.fetchone()
     resource_name = row1[1]
     resource_id = row1[0]
@@ -489,9 +483,30 @@ def modifyevaluation():
         for row in qd:
             setq.append(row)
 
+    exampleArr = [];
+    if resource_type == "Tool":
+        exampleArr = [["", "No relevant repository."], ["https://github.com/MaayanLab/harmonizome", "On GitHub."],
+                      ["", "Written in Python."],
+                      ["", ""], ["", ""], ["http://amp.pharm.mssm.edu/Harmonizome/", ""],
+                      ["https://github.com/MaayanLab/harmonizome", "README.md available."], ["", ""],
+                      ["", "Tutorial page not provided."],
+                      ["http://amp.pharm.mssm.edu/Harmonizome/download", "Datasets listed to download."],
+                      ["http://amp.pharm.mssm.edu/Harmonizome/terms", "Free for academic, non-profit use, but for commercial uses please \
+                    contact Mount Sinai Innovation Partners for a license."],
+                      ["http://amp.pharm.mssm.edu/Harmonizome/terms", "Rouillard AD, Gundersen GW, Fernandez NF, Wang Z, \
+                    Monteiro CD, McDermott MG, Ma'ayan A. The harmonizome: a collection of processed datasets gathered to serve and mine \
+                    knowledge about genes and proteins. Database (Oxford). 2016 Jul 3;2016. pii: baw100."],
+                      ["", "No version information provided."],
+                      ["http://database.oxfordjournals.org/content/2016/baw100.short", "Paper published in Oxford about tool: \
+                    The harmonizome: a collection of processed datasets gathered to serve and mine knowledge about genes and proteins"],
+                      ["https://www.youtube.com/playlist?list=PL0Bwuj8819U8KXTPDSRe59ZPOYizZIpCS",
+                       "Video tutorials available on Youtube by Avi Ma'ayan."],
+                      ["http://icahn.mssm.edu/research/labs/maayan-laboratory",
+                       "Link to Ma'ayan laboratory at Mount Sinai."]]
+
     return render_template('modifyevaluation.html',
                            resource_name=resource_name, resource_id=resource_id, resource_type=resource_type, url=url,
-                           description=description, setanswers=setanswers, setcomments=setcomments, setq=setq,sqnum=sqnum)
+                           description=description, setInfo=setInfo, setq=setq, sqnum=sqnum, exampleArr=exampleArr)
 
 
 # Evaluation form - New evaluation #
@@ -526,18 +541,31 @@ def newevaluation():
             for row in qd:
                 setq.append(row)
 
+        exampleArr=[];
+        if resource_type=="Tool":
+            exampleArr=[["","No relevant repository."],["https://github.com/MaayanLab/harmonizome","On GitHub."],["","Written in Python."],
+                        ["",""],["",""],["http://amp.pharm.mssm.edu/Harmonizome/",""],
+                        ["https://github.com/MaayanLab/harmonizome","README.md available."],["",""],["","Tutorial page not provided."],
+                        ["http://amp.pharm.mssm.edu/Harmonizome/download","Datasets listed to download."],
+                        ["http://amp.pharm.mssm.edu/Harmonizome/terms","Free for academic, non-profit use, but for commercial uses please \
+                        contact Mount Sinai Innovation Partners for a license."],
+                        ["http://amp.pharm.mssm.edu/Harmonizome/terms","Rouillard AD, Gundersen GW, Fernandez NF, Wang Z, \
+                        Monteiro CD, McDermott MG, Ma'ayan A. The harmonizome: a collection of processed datasets gathered to serve and mine \
+                        knowledge about genes and proteins. Database (Oxford). 2016 Jul 3;2016. pii: baw100."],
+                        ["","No version information provided."],["http://database.oxfordjournals.org/content/2016/baw100.short","Paper published in Oxford about tool: \
+                        The harmonizome: a collection of processed datasets gathered to serve and mine knowledge about genes and proteins"],
+                        ["https://www.youtube.com/playlist?list=PL0Bwuj8819U8KXTPDSRe59ZPOYizZIpCS","Video tutorials available on Youtube by Avi Ma'ayan."],
+                        ["http://icahn.mssm.edu/research/labs/maayan-laboratory","Link to Ma'ayan laboratory at Mount Sinai."]]
+
         return render_template('newevaluation.html',
                                resource_name=resource_name, resource_id=resource_id, resource_type=resource_type, url=url,
-                               description=description, setq=setq,sqnum=sqnum)
+                               description=description, setq=setq,sqnum=sqnum, exampleArr=exampleArr)
 
 
 # Enter modify submission into database #
 @app.route(ENTRY_POINT + '/modifysubmitted', methods=['POST'])
 @login_required
 def modifysubmitted():
-    answerlist = []
-    commentlist = []
-
     resource_id = request.form['hiddenfield']
 
     conx = mysql.get_db()
@@ -549,36 +577,45 @@ def modifysubmitted():
     res_type = tt[0][0]
     project_id = tt[0][1]
 
-    query10 = "select count(*) from question where res_type=%s and version=(select max(version) from question where res_type=%s)"
-    cursor.execute(query10,(res_type,res_type))
+    query2 = "select count(*) from question where res_type=%s and version=(select max(version) from question where res_type=%s)"
+    cursor.execute(query2,(res_type,res_type))
     qtotal = cursor.fetchall()[0][0]
 
     for i in range(qtotal):  # for each question
-        thisanswer = request.form['q' + str((i + 1))]  # get answer for this question
-        thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question
+        thisAnswer = request.form['q' + str((i + 1))]  # get answer for this question
+        thisComment = request.form['q' + str((i + 1)) + 'comment']  # get comment for this question
+        thisURLComment = request.form['q' + str(i + 1) + 'urlcomment']  # get urlcomment for this question
 
-        query2 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
-        cursor.execute(query2,(i+1,res_type,res_type))  # get q_id of most recent q
+        query3 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
+        cursor.execute(query3,(i+1,res_type,res_type))  # get q_id of most recent q
         q_id = cursor.fetchall()[0][0]  # use most recent q_id for this question
 
-        query3 = "delete from evaluation where q_id=%s and resource_id=%s and user_id=%s"
-        cursor.execute(query3,(q_id,resource_id,current_user.user_id))  # clear from evaluation my evaluation for this resource (of most updated q version)
-        conx.commit()
-
-        query4 = "insert into evaluation(q_id,answer,user_id,resource_id,project_id) values(%s,%s,%s,%s,%s)"
-        cursor.execute(query4,(q_id,thisanswer,current_user.user_id,resource_id,project_id))
-        conx.commit()
-        if thisanswer == 'yesbut':
-            query5 = "update evaluation set comment=%s where q_id=%s and user_id=%s and resource_id=%s"
-            cursor.execute(query5,(thiscomment,q_id,current_user.user_id,resource_id))
-            conx.commit()
+        # update evaluation entry #
+        if thisComment:
+            if thisURLComment:
+                query5 = "update evaluation set answer=%s,url_comment=%s,comment=%s where resource_id=%s and q_id=%s and user_id=%s"
+                cursor.execute(query5, (thisAnswer,thisURLComment,thisComment,resource_id,q_id,current_user.user_id))
+                conx.commit()
+            else:
+                query5 = "update evaluation set answer=%s,url_comment=%s,comment=%s where resource_id=%s and q_id=%s and user_id=%s"
+                cursor.execute(query5, (thisAnswer,None,thisComment,resource_id,q_id,current_user.user_id))
+                conx.commit()
+        else:
+            if thisURLComment:
+                query5 = "update evaluation set answer=%s,url_comment=%s,comment=%s where resource_id=%s and q_id=%s and user_id=%s"
+                cursor.execute(query5, (thisAnswer,thisURLComment,None,resource_id,q_id,current_user.user_id))
+                conx.commit()
+            else:
+                query5 = "update evaluation set answer=%s,url_comment=%s,comment=%s where resource_id=%s and q_id=%s and user_id=%s"
+                cursor.execute(query5, (thisAnswer,None,None,resource_id,q_id,current_user.user_id))
+                conx.commit()
 
         templist = []
         total = 0
-        num = 0
 
         query6 = "select answer from evaluation where resource_id=%s and q_id=%s"
         cursor.execute(query6,(resource_id,q_id))  # start to update average in average table
+        count = cursor.rowcount
         data = cursor.fetchall()
         for row in data:
             templist.append(row[0])
@@ -587,17 +624,10 @@ def modifysubmitted():
             elif row[0] == 'no':
                 total = total - 1
 
-        query7 = "select count(answer) from evaluation where resource_id=%s and q_id=%s"
-        cursor.execute(query7,(resource_id,q_id))
-        dd = cursor.fetchall()
-        count = dd[0][0]
-
+        # update  average #
         average = float(total) / count
-        query8 = "delete from average where resource_id=%s and q_id=%s"
-        cursor.execute(query8,(resource_id,q_id))
-        conx.commit()  # clear this entry in average
-        query9 = "insert into average(resource_id,q_id,avg,project_id) values(%s,%s,%s,%s)"
-        cursor.execute(query9,(resource_id,q_id,average,project_id))
+        query8 = "update average set avg=%s where resource_id=%s and q_id=%s"
+        cursor.execute(query8,(average,resource_id,q_id))
         conx.commit()
 
     flash("Evaluation submitted.", "success")
@@ -625,8 +655,9 @@ def evaluationsubmitted():
     qtotal = cursor.fetchall()[0][0]
 
     for i in range(qtotal):  # for each question
-        thisanswer = request.form['q' + str((i + 1))]  # get answer for this question
-        thiscomment = request.form['q' + str((i + 1)) + 'yesbutcomment']  # get comment for this question
+        thisAnswer = request.form['q' + str(i+1)]  # get answer for this question
+        thisComment = request.form['q' + str(i+1) + 'comment']  # get comment for this question
+        thisURLComment = request.form['q' + str(i+1) + 'urlcomment'] # get urlcomment for this question
 
         query2 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
         cursor.execute(query2,(i+1,res_type,res_type))  # get q_id
@@ -636,21 +667,31 @@ def evaluationsubmitted():
         cursor.execute(query3,(q_id,resource_id,current_user.user_id)) # clear from evaluation my evaluation for this resource (of most updated q version)
         conx.commit()
 
-        query4 = "insert into evaluation(q_id,answer,user_id,resource_id,project_id) values(%s,%s,%s,%s,%s)"
-        cursor.execute(query4,(q_id,thisanswer,current_user.user_id,resource_id,project_id))
-        conx.commit()
-
-        if thisanswer == 'yesbut':
-            query5 = "update evaluation set comment=%s where q_id=%s and user_id=%s and resource_id=%s"
-            cursor.execute(query5,(thiscomment,q_id,current_user.user_id,resource_id))
-            conx.commit()
+        if thisComment:
+            if thisURLComment:
+                query5 = "insert into evaluation(user_id,q_id,answer,url_comment,comment,resource_id,project_id) values(%s,%s,%s,%s,%s,%s,%s)"
+                cursor.execute(query5, (current_user.user_id, q_id, thisAnswer, thisURLComment, thisComment, resource_id, project_id))
+                conx.commit()
+            else:
+                query4 = "insert into evaluation(user_id,q_id,answer,comment,resource_id,project_id) values(%s,%s,%s,%s,%s,%s)"
+                cursor.execute(query4, (current_user.user_id, q_id, thisAnswer, thisComment, resource_id, project_id))
+                conx.commit()
+        else:
+            if thisURLComment:
+                query4 = "insert into evaluation(user_id,q_id,answer,url_comment,resource_id,project_id) values(%s,%s,%s,%s,%s,%s)"
+                cursor.execute(query4, (current_user.user_id, q_id, thisAnswer, thisURLComment, resource_id, project_id))
+                conx.commit()
+            else:
+                query4 = "insert into evaluation(user_id,q_id,answer,resource_id,project_id) values(%s,%s,%s,%s,%s)"
+                cursor.execute(query4, (current_user.user_id, q_id, thisAnswer, resource_id, project_id))
+                conx.commit()
 
         templist = []
         total = 0
-        num = 0
 
         query6 = "select answer from evaluation where resource_id=%s and q_id=%s"
         cursor.execute(query6,(resource_id,q_id))  # start to update average in average table
+        count = cursor.rowcount
         data = cursor.fetchall()
         for row in data:
             templist.append(row[0])
@@ -658,11 +699,6 @@ def evaluationsubmitted():
                 total = total + 1
             elif row[0] == 'no':
                 total = total - 1
-
-        query7 = "select count(answer) from evaluation where resource_id=%s and q_id=%s"
-        cursor.execute(query7,(resource_id,q_id))
-        dd = cursor.fetchall()
-        count = dd[0][0]
 
         average = float(total) / count
         query8 = "delete from average where resource_id=%s and q_id=%s"
@@ -801,58 +837,191 @@ def startProject():
         return redirect(ENTRY_POINT + '/projects')
 
 # API to get this resource's questions for insignia #
+# returns None if invalid URL, 0 or more than 1 matches for URL, or no questions for this resource's type
+# otherwise returns array of questions and resource name
 @app.route(ENTRY_POINT + '/api/getQ')
-def getQ():
+def getQAPI():
+
     resArr = []
-    theType = request.args.get('theType')
     conx = mysql.get_db()
     cursor = conx.cursor()
-
-    # Get questions for this resource's type #
-    query1 = "select content from question where version=(select max(version) from question) and res_type=%s order by num"
-    cursor.execute(query1, (theType))
-    result1 = cursor.fetchall()
-
-    # No questions for this resource type - invalid #
-    if not result1:
+    url = request.args.get('url')
+    if not validators.url(url):
         return 'None'
-
-    # Return questions #
     else:
-        for row in result1:
-            resArr.append(row[0])
-        return str(resArr)
+        o = urlparse(url)
+        stripped = o.netloc + o.path
+        if stripped[(len(stripped) - 1):] == "/":
+            stripped = stripped[:len(stripped) - 1]
+        input = '%' + stripped + '%'
+        query0 = "select resource_type,resource_name from resource where url like %s"
+        cursor.execute(query0,(input))
+        if cursor.rowcount>1:
+            return 'None' # error
+        elif cursor.rowcount==0:
+            return 'None'
+        else:
+            result=cursor.fetchall()
+            theType = result[0][0]
+            theName = result[0][1]
+
+        # Get questions for this resource's type #
+        query1 = "select content from question where version=(select max(version) from question) and res_type=%s order by num"
+        cursor.execute(query1, (theType))
+
+        # No questions for this resource type yet
+        if cursor.rowcount==0:
+            return 'None'
+        else:
+            result1=cursor.fetchall()
+            for row in result1:
+                resArr.append(row[0])
+            resArr.append(theName)
+            return str(resArr)
 
 # API to get this resource's average scores for insignia #
+# returns 'None' if invalid URL, 0 or more than 1 matches to URL,
 @app.route(ENTRY_POINT + '/api/getAvg')
-def getAvg():
+def getAvgAPI():
     avgStr = ""
     conx = mysql.get_db()
     cursor = conx.cursor()
 
     # Get this resource's average scores to make insignia, search by URL #
-    if request.args.get('select') == 'URL':
-        theURL = request.args.get('theURL')
-        query1 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where url=%s"
-        cursor.execute(query1, (theURL))
-        result1 = cursor.fetchall()
+    # if request.args.get('select') == 'URL':
+    url = request.args.get('url')
+    if not validators.url(url):
+        return 'None'
+    else:
+        o = urlparse(url)
+        stripped = o.netloc + o.path
+        if stripped[(len(stripped) - 1):] == "/":
+            stripped = stripped[:len(stripped) - 1]
+        input = '%' + stripped + '%'
+        query0 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id inner join question t3 on t1.q_id=t3.q_id where url like %s order by num"
+        cursor.execute(query0,(input))
 
     # Get this resource's average scores to make insignia, search by name #
-    elif request.args.get('select') == 'name':
-        theName = request.args.get('theName')
-        query2 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where resource_name=%s"
-        cursor.execute(query2, (theName))
-        result1 = cursor.fetchall()
+    # elif request.args.get('select') == 'name':
+    #     theName = request.args.get('theName')
+    #     query2 = "select avg from average t1 inner join resource t2 on t1.resource_id=t2.resource_id where resource_name=%s"
+    #     cursor.execute(query2, (theName))
+    #     result1 = cursor.fetchall()
 
-    # No averages yet for this resource - has not yet been evaluated #
-    if not result1:
-        return 'None'
+        # No averages yet for this resource - has not yet been evaluated #
+        if cursor.rowcount==0:
+            return 'None'
+        # Average scores exist - Return in comma separated string #
+        else:
+            result1=cursor.fetchall()
+            for row in result1:
+                avgStr = avgStr + str(row[0]) + ","
+            return avgStr
 
-    # Average scores exist - Return in comma separated string #
+# API to enter evaluations into database and update average #
+# parameters: url, q1a (answer to q1), q1u (urlcomment to 1q), q1c (comment to q1), q2a, q2u, q2c,..., qna, qnu, qnc
+# answers may only be: 'yes', 'no', 'yesbut'
+# comments are not necessary
+# returns: '0' if unsuccessful, '1' if successful
+# if evaluating a resource with 16 questions, must enter answers for each question (i.e. q1a,...,q16a)
+# if no comment or urlcomment submitted, null in database
+# evaluation in database with user_id=-1
+
+@app.route(ENTRY_POINT + '/api/evaluate')
+def evaluateAPI():
+    conx = mysql.get_db()
+    cursor = conx.cursor()
+
+    url = request.args.get('url')
+    if not validators.url(url):
+        return '0'
     else:
-        for row in result1:
-            avgStr = avgStr + str(row[0]) + ","
-        return avgStr
+        o = urlparse(url)
+        stripped = o.netloc + o.path
+        if stripped[(len(stripped) - 1):] == "/":
+            stripped = stripped[:len(stripped) - 1]
+        input = '%' + stripped + '%'
+
+        query0 = "select resource_id,resource_type,project_id from resource where url like %s"
+        cursor.execute(query0, (input))
+        # check that there is 1 resource with this URL #
+        if cursor.rowcount>1:
+            return '0'
+        elif cursor.rowcount==0:
+            return '0'
+        else:
+            data=cursor.fetchall()[0]
+            resource_id=data[0]
+            res_type=data[1]
+            project_id=data[2]
+
+            query1 = "select count(*) from question where res_type=%s and version=(select max(version) from question where res_type=%s)"
+            cursor.execute(query1,(res_type,res_type))
+            qtotal = cursor.fetchall()[0][0]
+
+            # before beginning to enter anything in database, check that each question has an answer
+            for a in range(qtotal):
+                thisAnswer = request.args.get('q'+str(a+1)+'a')
+                thisURLComment = request.args.get('q'+str(a+1)+'u')
+                if not (thisAnswer=='yes' or thisAnswer=='no' or thisAnswer=='yesbut'):
+                    return '0'
+                if thisURLComment and not validators.url(thisURLComment):
+                    return '0'
+
+            for i in range(qtotal):  # for each question
+                thisComment = request.args.get('q'+str(i+1)+'c') # get the comment
+                thisURLComment = request.args.get('q'+str(i+1)+'u') # get the url comment
+                thisAnswer = request.args.get('q'+str(i+1)+'a')  # get the answer
+
+                query2 = "select q_id from question where num=%s and res_type=%s and version=(select max(version) from question where res_type=%s)"
+                cursor.execute(query2, (i + 1, res_type, res_type))  # get q_id
+                q_id = cursor.fetchall()[0][0]
+
+                # user_id
+                # project_id
+                # not reversible - you cannot go back and find this evaluation
+                if thisComment:
+                    if thisURLComment:
+                        query4 = "insert into evaluation(user_id,q_id,answer,url_comment,comment,resource_id,project_id) values(%s,%s,%s,%s,%s,%s,%s)"
+                        cursor.execute(query4, (-1, q_id, thisAnswer, thisURLComment, thisComment, resource_id, project_id))
+                        conx.commit()
+                    else:
+                        query4 = "insert into evaluation(user_id,q_id,answer,comment,resource_id,project_id) values(%s,%s,%s,%s,%s,%s)"
+                        cursor.execute(query4, (-1,q_id,thisAnswer,thisComment,resource_id,project_id))
+                        conx.commit()
+                else:
+                    if thisURLComment:
+                        query4 = "insert into evaluation(user_id,q_id,answer,url_comment,resource_id,project_id) values(%s,%s,%s,%s,%s,%s)"
+                        cursor.execute(query4, (-1, q_id, thisAnswer, thisURLComment, resource_id, project_id))
+                        conx.commit()
+                    else:
+                        query4 = "insert into evaluation(user_id,q_id,answer,resource_id,project_id) values(%s,%s,%s,%s,%s)"
+                        cursor.execute(query4, (-1,q_id,thisAnswer,resource_id,project_id))
+                        conx.commit()
+
+                templist = []
+                total = 0
+
+                query6 = "select answer from evaluation where resource_id=%s and q_id=%s"
+                cursor.execute(query6, (resource_id, q_id))  # start to update average in average table
+                count = cursor.rowcount
+                data = cursor.fetchall()
+
+                for row in data:
+                    templist.append(row[0])
+                    if row[0] == 'yes':
+                        total = total + 1
+                    elif row[0] == 'no':
+                        total = total - 1
+
+                average = float(total) / count
+                query8 = "delete from average where resource_id=%s and q_id=%s"
+                cursor.execute(query8, (resource_id, q_id))
+                conx.commit()  # clear this entry in average
+                query9 = "insert into average(resource_id,q_id,avg,project_id) values(%s,%s,%s,%s)"
+                cursor.execute(query9, (resource_id, q_id, average, project_id))
+                conx.commit()
+            return '1'
 
 # Download Chrome extension page #
 @app.route(ENTRY_POINT + '/chromeextension')

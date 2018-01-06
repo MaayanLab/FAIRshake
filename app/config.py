@@ -6,7 +6,7 @@ MYSQL_DATABASE_PASSWORD = 'syst3ms_bi0l0gy'
 MYSQL_DATABASE_DB = 'fairshaketest'
 MYSQL_DATABASE_HOST = 'fairshake-test.cwkzgduyhdfn.us-east-1.rds.amazonaws.com'
 
-# app.secret_key = 'thisstring'  # For sessions #
+SECRET_KEY = 'thisstring'  # For sessions #
 
 
 # app.config['MYSQL_DATABASE_USER'] = 'root'
