@@ -24,7 +24,7 @@
             margin: 0 auto;
         }
 
-        .downloadbtn .bookmarkletbtn {
+        .bookmarkletbtn {
             padding-left: 50px;
         }
 
@@ -88,9 +88,9 @@
                 <a href="/fairshake/projects" class="headx">Projects</a></li>
             <li>
                 <a href="/fairshake/startproject" class="headx">Start a Project</a></li>
-            <li class="active">
-                <a href="/fairshake/chromeextension" class="headx">Download Chrome Extension</a></li>
             <li>
+                <a href="/fairshake/chromeextension" class="headx">Download Chrome Extension</a></li>
+            <li class="active">
                     <a href="/fairshake/bookmarklet" class="headx">Download Bookmarklet</a></li>
             {% if current_user.is_authenticated %}
                 <li>
@@ -124,21 +124,21 @@
     </nav>
 {% endblock %}
 {% block content %}
+
+    {#    <button>#}
+    {#        <a href="{{ url_for('static', filename='download/fairshakext') }}" download>Click to Download!</a>#}
+    {#    </button>#}
+
     <div class="container-fluid">
-        <h3 class="projecthead text-left">FAIRShake Chrome Extension</h3>
-        <div class="downloadbtn">
-            <a href="https://cdn.rawgit.com/lw453/fairshake/1492706/FAIRShake_chrext.zip" download="FAIRShake_chrome_extension.zip">
-                <button type="button" class="btn btn-success btn-lg">Download&nbsp;&nbsp;<span
-                        class="glyphicon glyphicon-download" aria-hidden="true"></span></button>
-            </a>
+        <h3 class="projecthead text-left">FAIRShake Bookmarklet</h3>
+        <div class="bookmarkletbtn">
+            <a class="btn btn-lg btn-info" href='javascript:(function(){if (document.getElementById("fairshakeBkletScript") == null){var a = document.createElement("script"); a.setAttribute("src","https://cdn.rawgit.com/lw453/fairshake/27a0535/bookmarklet.js"); a.id="fairshakeBkletScript"; document.body.appendChild(a);}})();'>FAIRShake it!</a>
         </div>
         <div class="installinstr">
             <h4 class="installhead">How to install:</h4>
-            <p class="installp">1. Click "Download" button and unzip files.
-                <br>2. Open Google Chrome and go to "chrome://extensions".
-                <br>3. Enable Developer mode at the top right.
-                <br>4. Click "Load unpacked extension..." and choose the folder containing the downloaded files.
-                <br>5. Enable the FAIRShake extension in the Chrome extension list.</p>
+            <p class="installp">1. Click and drag the FAIRShake it! button to your Bookmarks bar.
+                <br>2. Visit the website of a digital object you are interested in.
+                <br>3. Click the button in your Bookmarks bar.</p>
         </div>
         <h4 class="carouselhead text-left">Examples:</h4>
         <div class="bs-example">
@@ -154,31 +154,19 @@
                 <div class="carousel-inner">
                     <div class="item active">
                         <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension1.png" alt="First Slide">
+                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/bookmarklet1.png" alt="First Slide">
                         </div>
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension2.png"
+                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/bookmarklet2.png"
                                  alt="Second Slide">
                         </div>
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension3.png"
+                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/bookmarklet3.png"
                                  alt="Third Slide">
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension4.png"
-                                 alt="Fourth Slide">
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension5.png"
-                                 alt="Fifth Slide">
                         </div>
                     </div>
                 </div>
@@ -191,6 +179,4 @@
             </div>
         </div>
     </div>
-
-
 {% endblock %}

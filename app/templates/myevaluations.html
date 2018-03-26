@@ -31,6 +31,9 @@
             font-weight:100;
 
         }
+        .pText{
+            padding-top:15px;
+        }
 
     </style>
 {% endblock %}
@@ -41,7 +44,7 @@
             if ({{page}} >= {{lastpage}}){
                 document.getElementById("next").style.display = 'none';
             }
-            if ({{page}} === {{ 1 }}){
+            if ({{page}} == {{ 1 }}){
                 document.getElementById("back").style.display = 'none';
             }
         });
@@ -74,16 +77,16 @@
         }
 
         function rectAttr(sqnum){
-            if(sqnum===4){
+            if(sqnum==4){
                 var rectAttr={width:20,height:20}
             }
-            else if(sqnum===9){
+            else if(sqnum==9){
                 var rectAttr={width:13,height:13}
             }
-            else if(sqnum===16){
+            else if(sqnum==16){
                 var rectAttr={width:10,height:10}
             }
-            else if(sqnum===25){
+            else if(sqnum==25){
                 var rectAttr={width:8,height:8}
             }
             return rectAttr
@@ -104,14 +107,14 @@
 
             var qdt = {{ qdat|tojson }}[par];
 
-            if (sqnum===4){
+            if (sqnum==4){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 20, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 0, posy: 20},
                     {numdata: avg[4], qdata: "4. " + qdt[4], posx: 20, posy: 20}
                 ]
             }
-            else if (sqnum===9){
+            else if (sqnum==9){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 13, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 26, posy: 0},
@@ -123,7 +126,7 @@
                     {numdata: avg[9], qdata: "9. " + qdt[9], posx: 26, posy: 26}
                 ]
             }
-            else if (sqnum===16){
+            else if (sqnum==16){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 10, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 20, posy: 0},
@@ -142,7 +145,7 @@
                     {numdata: avg[16], qdata: "16. " + qdt[16], posx: 30, posy: 30}
                 ]
             }
-            else if (sqnum===25){
+            else if (sqnum==25){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 8, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 16, posy: 0},
@@ -179,14 +182,14 @@
 
             var qdt = {{ qdat|tojson }}[par];
 
-            if (sqnum===4){
+            if (sqnum==4){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 20, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 0, posy: 20},
                     {numdata: avg[4], qdata: "4. " + qdt[4], posx: 20, posy: 20}
                 ]
             }
-            else if (sqnum===9){
+            else if (sqnum==9){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 13, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 26, posy: 0},
@@ -198,7 +201,7 @@
                     {numdata: avg[9], qdata: "9. " + qdt[9], posx: 26, posy: 26}
                 ]
             }
-            else if (sqnum===16){
+            else if (sqnum==16){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 10, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 20, posy: 0},
@@ -217,7 +220,7 @@
                     {numdata: avg[16], qdata: "16. " + qdt[16], posx: 30, posy: 30}
                 ]
             }
-            else if (sqnum===25){
+            else if (sqnum==25){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 8, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 16, posy: 0},
@@ -283,8 +286,8 @@
     <div class="container-fluid">
         <div class="heading">
             <div class="title">
-                <h2>{{ projinfo[0][1] }}<small> - My Evaluations</small></h2>
-                <h4>{{ projinfo[0][2] }} </h4>
+                <h2>{{ projinfo[1] }}<small> - My Evaluations</small></h2>
+                <h4>{{ projinfo[2] }} </h4>
 
             </div>
 
@@ -298,7 +301,7 @@
 
             </div>
 
-            <form action="/fairshake/project/{{ projinfo[0][0] }}/resources" class="form-horizontal" method='GET' id="toggleForm">
+            <form action="/fairshake/project/{{ projinfo[0] }}/resources" class="form-horizontal" method='GET' id="toggleForm">
             </form>
 
         </div>
@@ -320,7 +323,7 @@
                 </thead>
                 <tbody>
 
-                <form action="/fairshake/modifyevaluation" method="post" id="form1">
+                <form action="/fairshake/modifyevaluation" method="get" id="form1">
                     {% for i in range(pagecount-per_page,showlast) %}
                         <tr class="tablerow">
                             <td>
@@ -380,7 +383,7 @@
             </div>
 
         {% else %}
-            <p class="text-center">No evaluations.</p>
+            <p class="text-center pText">No evaluations.</p>
 
         {% endif %}
 

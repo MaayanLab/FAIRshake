@@ -96,12 +96,10 @@
 
             <div class="btngroup">
                 {% if current_user.is_authenticated %}
-
                     <form action="/fairshake/projects" method="get">
                         <button type="submit" class="btn btn-default">Evaluate a Project</button>
                     </form>
                 {% else %}
-
                     <form action="/fairshake/register" method="get">
                         <button type="submit" class="btn btn-default">Evaluate a Project</button>
                     </form>
@@ -110,12 +108,10 @@
 
             <div class="btngroup">
                 {% if current_user.is_authenticated %}
-
                     <form action="/fairshake/startproject" method="get">
                         <button type="submit" class="btn btn-default">Start a Project</button>
                     </form>
                 {% else %}
-
                     <form action="/fairshake/register" method="get">
                         <button type="submit" class="btn btn-default">Start a Project</button>
                     </form>

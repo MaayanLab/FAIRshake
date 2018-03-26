@@ -56,7 +56,7 @@
             if ({{page}} >= {{lastpage}}){
                 document.getElementById("next").style.display = 'none';
             }
-            if ({{page}} === {{ 1 }}){
+            if ({{page}} == {{ 1 }}){
                 document.getElementById("back").style.display = 'none';
             }
         });
@@ -104,16 +104,16 @@
         }
 
         function rectAttr(sqnum){
-            if(sqnum===4){
+            if(sqnum==4){
                 var rectAttr={width:20,height:20}
             }
-            else if(sqnum===9){
+            else if(sqnum==9){
                 var rectAttr={width:13,height:13}
             }
-            else if(sqnum===16){
+            else if(sqnum==16){
                 var rectAttr={width:10,height:10}
             }
-            else if(sqnum===25){
+            else if(sqnum==25){
                 var rectAttr={width:8,height:8}
             }
             return rectAttr
@@ -144,14 +144,14 @@
 
             var qdt = {{ qdat|tojson }}[par];
 
-            if (sqnum===4){
+            if (sqnum==4){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 20, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 0, posy: 20},
                     {numdata: avg[4], qdata: "4. " + qdt[4], posx: 20, posy: 20}
                 ]
             }
-            else if (sqnum===9){
+            else if (sqnum==9){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 13, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 26, posy: 0},
@@ -162,8 +162,7 @@
                     {numdata: avg[8], qdata: "8. " + qdt[8], posx: 13, posy: 26},
                     {numdata: avg[9], qdata: "9. " + qdt[9], posx: 26, posy: 26}
                 ]
-            }
-            else if (sqnum===16){
+            } else if (sqnum==16){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 10, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 20, posy: 0},
@@ -181,8 +180,7 @@
                     {numdata: avg[15], qdata: "15. " + qdt[15], posx: 20, posy: 30},
                     {numdata: avg[16], qdata: "16. " + qdt[16], posx: 30, posy: 30}
                 ]
-            }
-            else if (sqnum===25){
+            } else if (sqnum==25){
                 return [{numdata: avg[1], qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {numdata: avg[2], qdata: "2. " + qdt[2], posx: 8, posy: 0},
                     {numdata: avg[3], qdata: "3. " + qdt[3], posx: 16, posy: 0},
@@ -216,14 +214,13 @@
 
             var qdt = {{ qdat|tojson }}[par];
 
-            if (sqnum===4){
+            if (sqnum==4){
                 return [{qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {qdata: "2. " + qdt[2], posx: 20, posy: 0},
                     {qdata: "3. " + qdt[3], posx: 0, posy: 20},
                     {qdata: "4. " + qdt[4], posx: 20, posy: 20}
                 ]
-            }
-            else if (sqnum===9){
+            } else if (sqnum==9){
                 return [{qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {qdata: "2. " + qdt[2], posx: 13, posy: 0},
                     {qdata: "3. " + qdt[3], posx: 26, posy: 0},
@@ -234,8 +231,7 @@
                     {qdata: "8. " + qdt[8], posx: 13, posy: 26},
                     {qdata: "9. " + qdt[9], posx: 26, posy: 26}
                 ]
-            }
-            else if (sqnum===16){
+            } else if (sqnum==16){
                 return [{qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {qdata: "2. " + qdt[2], posx: 10, posy: 0},
                     {qdata: "3. " + qdt[3], posx: 20, posy: 0},
@@ -253,8 +249,7 @@
                     {qdata: "15. " + qdt[15], posx: 20, posy: 30},
                     {qdata: "16. " + qdt[16], posx: 30, posy: 30}
                 ]
-            }
-            else if (sqnum===25){
+            } else if (sqnum==25){
                 return [{qdata: "1. " + qdt[1], posx: 0, posy: 0},
                     {qdata: "2. " + qdt[2], posx: 8, posy: 0},
                     {qdata: "3. " + qdt[3], posx: 16, posy: 0},
@@ -320,8 +315,8 @@
     <div class="container-fluid">
         <div class="heading">
             <div class="title">
-                <h2>{{ projinfo[0][1] }}<small> - Resources List</small></h2>
-                <h4>{{ projinfo[0][2] }} </h4>
+                <h2>{{ projinfo[1] }}<small> - Resources List</small></h2>
+                <h4>{{ projinfo[2] }} </h4>
 
             </div>
 
@@ -337,7 +332,7 @@
 
                 </div>
 
-                <form action="/fairshake/project/{{ projinfo[0][0] }}/myevaluations" class="form-horizontal"
+                <form action="/fairshake/project/{{ projinfo[0] }}/myevaluations" class="form-horizontal"
                       method='GET' id="toggleForm">
                 </form>
             {% endif %}
@@ -358,17 +353,17 @@
             </thead>
             <tbody>
 
-            <form action="/fairshake/newevaluation" method="post" id="form1">
+            <form action="/fairshake/newevaluation" method="GET" id="form1">
                 {% for i in range(pagecount-per_page,showlast) %}
                     <tr class="tablerow">
                         {% if current_user.is_authenticated %}
                             <td>
                                 <div class="radio">
-                                    {% if resourceslist[i][0] in userres %}
+                                    {% if resources[i][0] in userres %}
                                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                     {% else: %}
                                         <label><input type="radio" id='res1' name="resourceid"
-                                                      value={{ resourceslist[i][0] }} required></label>
+                                                      value={{ resources[i][0] }} required></label>
                                     {% endif %}
                                 </div>
                             </td>
@@ -376,22 +371,22 @@
                         <td>
                             <div class="radiotext">
                                 <label for='res1'>
-                                    <a href={{ resourceslist[i][2] }} target="_blank">{{ resourceslist[i][1] }}</a></label>
+                                    <a href={{ resources[i][2] }} target="_blank">{{ resources[i][1] }}</a></label>
                             </div>
                         </td>
                         <td>
                             <div class="radiotext">
-                                <label for='res1'>{{ resourceslist[i][0] }}</label>
+                                <label for='res1'>{{ resources[i][0] }}</label>
                             </div>
                         </td>
                         <td>
                             <div class="radiotext">
-                                <label for='res1'>{{ resourceslist[i][3] }}</label>
+                                <label for='res1'>{{ resources[i][3] }}</label>
                             </div>
                         </td>
                         <td>
                             <div class="radiotext">
-                                <label for='res1'><p>{{ resourceslist[i][4] }}</p></label>
+                                <label for='res1'><p>{{ resources[i][4] }}</p></label>
                             </div>
                         </td>
                         <td>
@@ -403,11 +398,11 @@
                             <div class="insignia{{ i }}">
                                 {% if not avginfo[i][1]=='None' %}
                                     <script>
-                                        insig({{ i }}, {{ resourceslist[i][6] }});
+                                        insig({{ i }}, {{ resources[i][6] }});
                                     </script>
                                 {% else %}
                                     <script>
-                                        blankinsig({{ i }}, {{ resourceslist[i][6] }});
+                                        blankinsig({{ i }}, {{ resources[i][6] }});
                                     </script>
                                 {% endif %}
                             </div>

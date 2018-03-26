@@ -45,7 +45,7 @@
     <nav class="navbar navbar-default navbar-static-top">
         <div class="navbar-header">
             <a id="navbar-logo" class="navbar-brand" href="/fairshake" style="display: table;">
-                <img src="{{ url_for('static', filename='favicon-32x32.png') }}"
+                <img src="https://cdn.rawgit.com/lw453/fairshake/d67c9cf/icon-32.png"
                      style="display: table-cell; vertical-align: middle; margin-right: 10px;">
                 <div style="display: table-cell; vertical-align: middle;">FAIRShake</div>
             </a>
@@ -57,6 +57,8 @@
                 <a href="/fairshake/startproject" class="headx">Start a Project</a></li>
             <li>
                 <a href="/fairshake/chromeextension" class="headx">Download Chrome Extension</a></li>
+            <li>
+                    <a href="/fairshake/bookmarklet" class="headx">Download Bookmarklet</a></li>
             {% if current_user.is_authenticated %}
                 <li class="active">
                     <a href="/fairshake/evaluatedprojects" class="headx">Evaluated Projects</a></li>

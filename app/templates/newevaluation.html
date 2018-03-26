@@ -21,28 +21,56 @@
         .othercommentbox{
             margin-top:10px;
         }
+
+        .cancelBtn{
+            padding-top:20px;
+        }
     </style>
 {% endblock %}
 {% block content %}
 
 <script type="text/javascript">
+    function clickAffirmative(obj) {
+        if (!(obj.checked == "checked")) {
+            document.getElementById(obj.name + 'urlcomment').style.display = 'inline';
+            document.getElementById(obj.name + 'comment').style.display = 'inline';
+        }
+    }
+
+    function clickNo(obj) {
+        document.getElementById(obj.name + 'urlcomment').style.display = 'none';
+        document.getElementById(obj.name + 'comment').style.display = 'none';
+    }
+
+    // check if all the URL comment boxes contain valid URLs, ignore if the radio button answer selected is 'no'
     function validateURL(){
         urlComments = document.getElementsByClassName('urlcommentbox');
         str=""
         bool=true;
         for (var i=0; i<urlComments.length ; i++){
-            if (urlComments[i].value!==""){
-                if (!(/^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/.test(urlComments[i].value))){
+            thisUrlComment = urlComments[i].value;
+            if ((thisUrlComment!=="") && (document.getElementById('q'+(i+1)+'no').checked!==true)){
+                //Remove leading/trailing whitespace, then check URLs separated by whitespace
+                thisUrlComment = thisUrlComment.trim()
+                thisUrlComment = thisUrlComment.replace(/\s\s+/g, ' ');
+                thisUrlComment = thisUrlComment.split(/\s/);
+                temp=true;
+                for (var a=0;a<thisUrlComment.length;a++){
+                    if (!(/^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/.test(thisUrlComment[a]))){
+                        bool=false;
+                        temp=false;
+                    }
+                }
+                if (temp==false){ //if any of the whitespace-separated strings are not valid URLs, add this q to alert string
                     if (str==""){
-                        str=str+(i+1);
+                            str=str+(i+1);
                     } else {
                         str=str+", "+(i+1);
                     }
-                    bool=false;
                 }
             }
         }
-        if (bool==false){
+        if (bool==false){ //alert
             alert('Invalid URL in question '+str);
             return false;
         } else {
@@ -50,31 +78,32 @@
         }
     }
 
-    <!--function mouseover(obj){-->
-        <!--obj.style.opacity='.5';-->
-    <!--}-->
-
-    <!--function mouseout(obj){-->
-        <!--obj.style.opacity='1';-->
-    <!--}-->
 </script>
 <div class="container-fluid">
-    <h2 style="text-align: center;">Evaluation: <a href="{{ url }}" target="_blank">{{ resource_name }}</a></h2>
-    <h4 style="text-align:center;">ID: {{ resource_id }} &nbsp; Type: {{ resource_type }}</h4>
-    <h4 id="bottom-heading" style="text-align:center;">Description: {{ description }}</h4>
-
+    <h2 style="text-align: center;"><b>Evaluation:</b> <a href="{{ url }}" target="_blank">{{ resource_name }}</a></h2>
+    <h4 style="text-align:center;"><b>ID:</b> {{ resource_id }} &nbsp; <b>Type:</b> {{ resource_type }}</h4>
+    <h4 id="bottom-heading" style="text-align:center;"><b>Description:</b> {{ description }}</h4>
     <table class="table table-responsive">
         <thead>
-        <th style="width:30%">Question</th>
+        <th style="width:20%">Question</th>
         <th>Yes</th>
         <th>No</th>
         <th>Yes, but:</th>
-        <th style="width:40%">Comments</th>
-        <th style="width:20%">Example answers for <a href="http://amp.pharm.mssm.edu/Harmonizome/">Harmonizome</a> tool</th>
+        <th style="width:35%">Comments</th>
+        {% if exampleArr %}
+            <th style="width:35%">Example answers for
+                {% if resource_type == 'Tool' %}
+                    <a href="http://amp.pharm.mssm.edu/Harmonizome/">Harmonizome</a> tool</th>
+                {% elif resource_type == 'Dataset' %}
+                    <a href="http://lincsportal.ccs.miami.edu/datasets/#/view/LDS-1409">LDG-1348: LDS-1409</a> LINCS Data Portal Dataset</th>
+                {% elif resource_type == 'Repository' %}
+                    <a href="https://www.ebi.ac.uk/arrayexpress/">ArrayExpress</a> repository</th>
+                {% endif %}
+        {% endif %}
         </thead>
-
-        <form action="/fairshake/evaluationsubmitted" id="evform" method="post" onsubmit="return validateURL()">
-            <input type="hidden" name="hiddenfield" value={{ resource_id }}>
+        <form action="/fairshake/evaluationsubmitted" id="evalForm" method="post" onsubmit="return validateURL()">
+            <input type="hidden" name="resource_id" value={{ resource_id }}>
+            <input type="hidden" name="formType" value="evalForm">
             <tbody>
             {% for w in range(sqnum) %}
                 <tr>
@@ -83,31 +112,51 @@
                     </td>
                     <td>
                         <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yes" value="yes"
-                               required>
+                               onclick="clickAffirmative(this)" required>
                     </td>
                     <td>
-                        <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}no" value="no">
+                        <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}no" value="no" onclick="clickNo(this)">
                     </td>
                     <td>
-                        <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yesbut"
-                               value="yesbut">
+                        <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yesbut" value="yesbut"
+                                onclick="clickAffirmative(this)">
                     </td>
                     <td>
-                        <textarea name="q{{w+1}}urlcomment" class="textfield urlcommentbox"
-                                  placeholder="Enter URL, if applicable and available." rows="3"></textarea>
-                        <textarea name="q{{ w+1}}comment" class="textfield othercommentbox"
-                                  placeholder="Other comments..." rows="5"></textarea>
+                        <textarea name="q{{w+1}}urlcomment" id="q{{w+1}}urlcomment" class="textfield urlcommentbox"
+                                  placeholder="Enter URLs, if applicable and available. Separate URLs by spaces or new lines." rows="3"></textarea>
+                        <textarea name="q{{w+1}}comment" id="q{{w+1}}comment" class="textfield othercommentbox"
+                                  placeholder="Please explain or describe your answer." rows="5"></textarea>
                     </td>
-                    <td>
-                        <a style="word-wrap:break-word;" href="{{exampleArr[w][0]}}">{{ exampleArr[w][0] }}</a>
-                        <p>{{ exampleArr[w][1] }}</p>
-                    </td>
+                    {% if exampleArr %}
+                        <td>
+                            {% for i in range(exampleArr[w][0]|length) %}
+                                <a style="word-wrap:break-word;" href="{{exampleArr[w][0][i]}}">{{ exampleArr[w][0][i] }}</a>
+                            {% endfor %}
+                            <p>{{ exampleArr[w][1] }}</p>
+                        </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </tbody>
         </form>
     </table>
-    <button class="btn btn-default" type="submit" form="evform" value="Submit">Submit</button>
+    <div class="submitBtn">
+        <button class="btn btn-default" type="submit" form="evalForm" value="Submit">Submit</button>
+    </div>
+    <form action="/fairshake/evaluationsubmitted" id="cancelForm" method="post">
+        <input type="hidden" name="resource_id" value={{ resource_id }}>
+        <input type="hidden" name="formType" value="cancelForm">
+    </form>
+    <div class="cancelBtn">
+        <button class="btn btn-default" type="submit" form="cancelForm" value="Cancel">Cancel</button>
+    </div>
 </div>
+
+<script>
+    var commentBoxes = document.getElementsByClassName('textfield');
+    for (var i = 0; i < commentBoxes.length; i++) {
+        commentBoxes[i].style.display = 'none';
+    }
+</script>
 
 {% endblock %}

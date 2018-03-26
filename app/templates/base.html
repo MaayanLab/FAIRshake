@@ -21,7 +21,8 @@
         <link href="https://fonts.googleapis.com/css?family=Open+Sans"
               rel="stylesheet">
 
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <!--<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">-->
+        <link rel="shortcut icon" href="https://cdn.rawgit.com/lw453/fairshake/d67c9cf/favicon.ico">
 
         <title>{% block title %}{% endblock %}</title>
         {% block style %}
@@ -78,7 +79,8 @@
         <nav class="navbar navbar-default navbar-static-top">
             <div class="navbar-header">
                 <a id="navbar-logo" class="navbar-brand" href="/fairshake" style="display: table;">
-                    <img src="{{ url_for('static', filename='favicon-32x32.png') }}" style="display: table-cell; vertical-align: middle; margin-right: 10px;">
+                    <!--<img src="{{ url_for('static', filename='icon-32.png') }}" style="display: table-cell; vertical-align: middle; margin-right: 10px;">-->
+                    <img src="https://cdn.rawgit.com/lw453/fairshake/d67c9cf/icon-32.png" style="display: table-cell; vertical-align: middle; margin-right: 10px;">
                     <div style="display: table-cell; vertical-align: middle;">FAIRShake</div>
                 </a>
             </div>
@@ -89,6 +91,8 @@
                     <a href="/fairshake/startproject" class="headx">Start a Project</a></li>
                 <li>
                     <a href="/fairshake/chromeextension" class="headx">Download Chrome Extension</a></li>
+                <li>
+                    <a href="/fairshake/bookmarklet" class="headx">Download Bookmarklet</a></li>
                 {% if current_user.is_authenticated %}
                 <li>
                     <a href="/fairshake/evaluatedprojects" class="headx">Evaluated Projects</a></li>
