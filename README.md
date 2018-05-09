@@ -11,11 +11,10 @@ Setup
 
 Requirements:
 
+* Python 2.7.1
+
 * Flask framework for Python
-    * Extensions required: Flask-Login, Flask-MySQL
-    * `pip install flask`
-    * `pip install flask-login`
-    * `pip install flask-mysql`
+    * `pip install -r requirements.txt`
 
 * MySQL for database management
     * Download at https://dev.mysql.com/downloads/mysql/
