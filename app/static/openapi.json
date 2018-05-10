@@ -1,0 +1,339 @@
+{
+    "openapi": "3.0.0",
+    "servers": [
+      {
+        "url": "http://54.165.203.110/fairshake/api"
+      }
+    ],
+    "info": {
+      "description": "A web interface for the scoring of biomedical digital objects by user evaluation according to the FAIR data principles: Findability, Accessibility, Interoperability, and Reusability",
+      "version": "1.0.0-oas3",
+      "termsOfService": "",
+      "title": "FAIRshake",
+      "contact": {
+        "email": "avi.maayan@mssm.edu",
+        "x-role": "responsible organization"
+      }
+    },
+    "tags": [
+      {
+        "name": "information",
+        "description": "Retrieve FAIR information about a digital object"
+      },
+      {
+        "name": "evaluation",
+        "description": "FAIR evaluation of a digital object"
+      }
+    ],
+    "paths": {
+      "/getQ": {
+        "get": {
+          "tags": [
+            "information"
+          ],
+          "summary": "Retrieve FAIR questions for a digital object",
+          "description": "",
+          "operationId": "getQ",
+          "parameters": [
+            {
+              "name": "url",
+              "in": "query",
+              "description": "URL of digital object",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Request processed. Returns 'None' if no questions assigned to this digital object. Returns questions if questions have been assigned",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/getQByType": {
+        "get": {
+          "tags": [
+            "information"
+          ],
+          "summary": "Retrieve FAIR questions for a digital object type",
+          "description": "",
+          "operationId": "getQByType",
+          "parameters": [
+            {
+              "name": "type",
+              "in": "query",
+              "description": "Type of digital object",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "Dataset",
+                  "Tool",
+                  "Repository"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Request processed. Returns 'None' if no questions assigned to this type. Returns questions if questions have been assigned",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/getAvg": {
+        "get": {
+          "tags": [
+            "information"
+          ],
+          "summary": "Retrieve FAIR evaluation averages for a digital object",
+          "description": "",
+          "operationId": "getAvg",
+          "parameters": [
+            {
+              "name": "url",
+              "in": "query",
+              "description": "URL of digital object",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Request processed. Returns 'None' if invalid object URL or no FAIR score",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/evaluate": {
+        "post": {
+          "tags": [
+            "evaluation"
+          ],
+          "summary": "Submit a FAIR evaluation for a digital object catalogued in the FAIRshake database",
+          "description": "",
+          "operationId": "evaluate",
+          "responses": {
+            "200": {
+              "description": "Evaluation processed. Returns '1' if evaluation successfully submitted to database. Returns '0' if evaluation rejected",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "description": "URL of digital object",
+                      "type": "string"
+                    },
+                    "q1a": {
+                      "description": "Answer to question 1",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q1u": {
+                      "description": "URL comment for question 1. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q1c": {
+                      "description": "Text comment for question 1",
+                      "type": "string"
+                    },
+                    "q2a": {
+                      "description": "Answer to question 2",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q2u": {
+                      "description": "URL comment for question 2. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q2c": {
+                      "description": "Text comment for question 2",
+                      "type": "string"
+                    },
+                    "q3a": {
+                      "description": "Answer to question 3",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q3u": {
+                      "description": "URL comment for question 3. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q3c": {
+                      "description": "Text comment for question 3",
+                      "type": "string"
+                    },
+                    "q4a": {
+                      "description": "Answer to question 4",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q4u": {
+                      "description": "URL comment for question 4. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q4c": {
+                      "description": "Text comment for question 4",
+                      "type": "string"
+                    },
+                    "q5a": {
+                      "description": "Answer to question 5",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q5u": {
+                      "description": "URL comment for question 5. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q5c": {
+                      "description": "Text comment for question 5",
+                      "type": "string"
+                    },
+                    "q6a": {
+                      "description": "Answer to question 6",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q6u": {
+                      "description": "URL comment for question 6. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q6c": {
+                      "description": "Text comment for question 6",
+                      "type": "string"
+                    },
+                    "q7a": {
+                      "description": "Answer to question 7",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q7u": {
+                      "description": "URL comment for question 7. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q7c": {
+                      "description": "Text comment for question 7",
+                      "type": "string"
+                    },
+                    "q8a": {
+                      "description": "Answer to question 8",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q8u": {
+                      "description": "URL comment for question 8. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q8c": {
+                      "description": "Text comment for question 8",
+                      "type": "string"
+                    },
+                    "q9a": {
+                      "description": "Answer to question 9",
+                      "type": "string",
+                      "enum": [
+                        "yes",
+                        "yesbut",
+                        "no"
+                      ]
+                    },
+                    "q9u": {
+                      "description": "URL comment for question 9. Must be a valid URL",
+                      "type": "string"
+                    },
+                    "q9c": {
+                      "description": "Text comment for question 9",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "url"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {}
+    }
+  }
