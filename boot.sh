@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 root=/fairshake
+webroot=/fairshake
 user=r
 log=$root/error.log
 
@@ -58,8 +59,8 @@ http {
         keepalive_timeout 0;
         large_client_header_buffers 8 32k;
 
-        location /static  {
-            alias $root/fairshake/static;
+        location $webroot/static  {
+            alias $root/app/static;
         }
 
         location / {
