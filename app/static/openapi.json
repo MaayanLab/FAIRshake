@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "servers": [
       {
-        "url": "http://54.165.203.110/fairshake/api"
+        "url": "http://54.175.203.110/fairshake/api"
       }
     ],
     "info": {
