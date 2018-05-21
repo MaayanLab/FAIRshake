@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'FAIRshake.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     } if os.environ.get('MYSQL_CONFIG', None) is None else {
         'ENGINE': 'django.db.backends.pymysql',
