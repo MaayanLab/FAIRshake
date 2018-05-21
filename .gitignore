@@ -1,2 +1,4 @@
 __pycache__
 *.pyc
+my.cnf
+db.sqlite3

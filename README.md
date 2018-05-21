@@ -17,3 +17,10 @@ Available at http://fairshake.cloud/
 ipython is recommended: `pip install ipython`
 
 `./manage.py shell`
+
+## Environment variables
+
+```
+MYSQL_CONFIG=/path/to/my.cnf
+SECRET_KEY=custom_generated_secret_key
+```

@@ -4,3 +4,4 @@ django-rest-swagger
 djangorestframework
 dynamic-rest
 Pillow
+pymysql
