@@ -21,7 +21,7 @@
             <div class="navbar-header">
                 <a id="navbar-logo" class="navbar-brand" href="/" style="display: table;">
                     <img src="{% static 'image/icon-32.png' %}" style="display: table-cell; vertical-align: middle; margin-right: 10px;">
-                    <div style="display: table-cell; vertical-align: middle;">FAIRShake</div>
+                    <div style="display: table-cell; vertical-align: middle;">FAIRshake</div>
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-left">
@@ -32,10 +32,10 @@
                     <a href="/start_project" class="headx">Start a Project</a>
                 </li>
                 <li{% if active_page == "chrome_extension" %} class="active"{% endif %}>
-                    <a href="/chrome_extension" class="headx">Download Chrome Extension</a>
+                    <a href="/chrome_extension" class="headx">Install Chrome Extension</a>
                 </li>
                 <li{% if active_page == "bookmarklet" %} class="active"{% endif %}>
-                    <a href="/bookmarklet" class="headx">Download Bookmarklet</a>
+                    <a href="/bookmarklet" class="headx">Install Bookmarklet</a>
                 </li>
                 {% if current_user.is_authenticated %}
                     <li{% if active_page == "evaluatedprojects" %} class="active"{% endif %}>
@@ -55,7 +55,7 @@
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle headx" data-toggle="dropdown" role="button"
                             aria-haspopup="true"
-                            aria-expanded="false">{{ current_user.first_name }}</a>
+                            aria-expanded="false">{{ current_user.first_name }} {{ current_user.last_name }}</a>
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="/evaluated_projects">Evaluated Projects</a>
