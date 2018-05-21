@@ -1,0 +1,25 @@
+table {
+    table-layout:fixed;
+}
+
+h2 {
+    padding-bottom: 10px;
+}
+
+#bottom-heading {
+    padding-bottom: 20px;
+}
+
+.textfield {
+    width: 90%;
+    resize: none;
+    overflow: auto;
+}
+
+.othercommentbox{
+    margin-top:10px;
+}
+
+.cancelBtn{
+    padding-top:20px;
+}

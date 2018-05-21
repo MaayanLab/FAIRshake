@@ -1,0 +1,39 @@
+.footerLink {
+    color: #666666;
+}
+
+.headx {
+    font-size: 14px;
+    padding: 22px 12px !important;
+}
+
+.container-fluid {
+    width: 992px !important;
+    padding-bottom: 100px;
+}
+
+html {
+    min-height: 100%;
+    position: relative;
+}
+
+body {
+    margin-bottom: 60px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+#footer {
+    bottom: 0;
+    width: 100%;
+    position: absolute;
+    height: 140px;
+    background-color: #f7f7f7;
+}
+
+.navbar-right {
+    padding-right: 20px;
+}
+
+.footer-block {
+    margin: 20px;
+}

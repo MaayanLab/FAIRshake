@@ -1,0 +1,1 @@
+(function(){if (document.getElementById("fairshakeBkletScript") == null){var a = document.createElement("script"); a.setAttribute("src","https://cdn.rawgit.com/lw453/fairshake/27a0535/bookmarklet.js"); a.id="fairshakeBkletScript"; document.body.appendChild(a);}})();

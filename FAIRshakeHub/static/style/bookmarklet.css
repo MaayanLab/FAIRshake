@@ -1,0 +1,66 @@
+.bookmarklet-btn {
+    padding-left: 50px;
+}
+
+.project-head {
+    padding: 30px;
+}
+
+.project-img-container {
+    height: 530px;
+    position: relative;
+}
+
+.install-instructions {
+    padding: 30px 0px 50px 50px;
+}
+
+.install-instructions ol {
+    padding-left: 20px;
+}
+
+.carousel-head {
+    padding-left: 50px;
+}
+
+.carousel {
+    margin-top: 0px;
+    width: 900px;
+    margin: 0 auto;
+}
+
+.carousel-control.left {
+    background: none !important;
+}
+
+.carousel-control.right {
+    background: none !important;
+}
+
+.carousel .item {
+    min-height: 550px; /* Prevent carousel from being distorted if for some reason image doesn't load */
+}
+
+.carousel .item img {
+    width: auto;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    position: absolute;
+}
+
+.carousel-container {
+    margin: 20px;
+}
+
+.glyphicon-chevron-left {
+    color: dimgray;
+}
+
+.glyphicon-chevron-right {
+    color: dimgray;
+}
+

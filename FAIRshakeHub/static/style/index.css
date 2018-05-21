@@ -1,0 +1,57 @@
+.container-fluid {
+    text-align: center;
+}
+
+.start {
+    padding-top: 15px;
+}
+
+.btngroup {
+    padding: 10px;
+    display: inline-block;
+}
+
+.caption {
+    padding-left: 30px;
+}
+
+.project-title {
+    font-size: 18px;
+    color: black;
+}
+
+.project-desc{
+    font-size:15px;
+    color:darkgray;
+}
+
+.project-head {
+    padding: 30px;
+}
+
+.project-img {
+    max-width: 100%;
+    max-height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    position: absolute;
+}
+
+#xyz2 {
+    position: absolute;
+    right: 30px;
+    bottom: 38px;
+}
+
+.project-img-container {
+    height: 230px;
+    position: relative;
+    opacity: 1;
+}
+
+.project-img-container:hover {
+    opacity: 0.7;
+}
