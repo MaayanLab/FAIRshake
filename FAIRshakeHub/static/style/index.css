@@ -29,7 +29,7 @@
     padding: 30px;
 }
 
-.project-img {
+.project-image {
     max-width: 100%;
     max-height: 100%;
     top: 0;
@@ -46,12 +46,12 @@
     bottom: 38px;
 }
 
-.project-img-container {
+.project-image-container {
     height: 230px;
     position: relative;
     opacity: 1;
 }
 
-.project-img-container:hover {
+.project-image-container:hover {
     opacity: 0.7;
 }

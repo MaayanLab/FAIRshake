@@ -37,25 +37,25 @@
                 <li{% if active_page == "bookmarklet" %} class="active"{% endif %}>
                     <a href="/bookmarklet" class="headx">Install Bookmarklet</a>
                 </li>
-                {% if current_user.is_authenticated %}
+                {% if current_user %}
                     <li{% if active_page == "evaluatedprojects" %} class="active"{% endif %}>
                         <a href="/evaluated_projects" class="headx">Evaluated Projects</a>
                     </li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                {% if not current_user.is_authenticated %}
+                {% if not current_user %}
                     <li{% if active_page == "login" %} class="active"{% endif %}>
                         <a href="/login" class="headx">Login</a>
                     </li>
-                    <li{% if active_page == "register" %} class="active"{% endif %}>
+                    <!-- <li{% if active_page == "register" %} class="active"{% endif %}>
                         <a href="/register" class="headx">Sign up</a>
-                    </li>
+                    </li> -->
                 {% else %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle headx" data-toggle="dropdown" role="button"
                             aria-haspopup="true"
-                            aria-expanded="false">{{ current_user.first_name }} {{ current_user.last_name }}</a>
+                            aria-expanded="false">{{ current_user.email }} ({{ current_user.username }})</a>
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="/evaluated_projects">Evaluated Projects</a>

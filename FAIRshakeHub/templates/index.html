@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block style %}
-{{ block.super }}
-<link rel="stylesheet" href="{% static 'style/index.css' %}" />
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'style/index.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -13,23 +13,23 @@
     <div class="subtitle"><h4>A System to Evaluate Digital Objects</h4></div>
     <div class="start">
         <div class="btngroup">
-            {% if current_user.is_authenticated %}
-                <form action="/projects" method="get">
+            {% if current_user %}
+                <form action="/projects/" method="get">
                     <button type="submit" class="btn btn-default">Evaluate a Project</button>
                 </form>
             {% else %}
-                <form action="/register" method="get">
+                <form action="/register/" method="get">
                     <button type="submit" class="btn btn-default">Evaluate a Project</button>
                 </form>
             {% endif %}
         </div>
         <div class="btngroup">
-            {% if current_user.is_authenticated %}
-                <form action="/startproject" method="get">
+            {% if current_user %}
+                <form action="/start_project/" method="get">
                     <button type="submit" class="btn btn-default">Start a Project</button>
                 </form>
             {% else %}
-                <form action="/register" method="get">
+                <form action="/register/" method="get">
                     <button type="submit" class="btn btn-default">Start a Project</button>
                 </form>
             {% endif %}
@@ -41,9 +41,9 @@
         <div class="col-xs-6">
             <div class="panel panel-default">
                 <div class="panel-body text-center">
-                    <a href="/project/{{ project.id }}/resources">
-                        <div class="project-img-container">
-                            <img class="project-img" src="{{ project.img }}">
+                    <a href="/project/{{ project.id }}/resources/">
+                        <div class="project-image-container">
+                            <img class="project-image" src="{{ project.image }}">
                         </div>
                     </a>
                     <div class="caption text-left">
@@ -52,7 +52,7 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                    <form action="/project/{{ project.id }}/resources" method="get">
+                    <form action="/project/{{ project.id }}/resources/" method="get">
                         <button type="submit" class="btn btn-default btn-sm">Evaluate</button>
                     </form>
                 </div>

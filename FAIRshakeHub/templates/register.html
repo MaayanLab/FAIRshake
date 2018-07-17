@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 
 {% block header %}
-    {% with active_page="register" %}
-        {{ block.super }}
-    {% endwith %}
+    {{ block.super }}
 
     {% block style %}
         {{ block.super }}
@@ -17,7 +15,8 @@
 
     <p>&nbsp;</p>
 
-    <form class="form-horizontal" action="/register" method="POST">
+    <form class="form-horizontal" action="/register/" method="POST">
+        {% csrf_token %}
         <div class="form-section">
             <h4>Sign up as:</h4>
         </div>

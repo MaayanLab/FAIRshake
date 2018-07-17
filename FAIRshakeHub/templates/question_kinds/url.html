@@ -1,0 +1,7 @@
+<div class="form-group">
+    <label for="{{ criterion.id }}" class="col-2 col-form-label">{{ criterion.name }}</label>
+    <div class="col-10">
+        <input type="url" class="form-control" id="{{ criterion.id }}" name="{{ criterion.id }}"
+               value="{{ answer.value if answer }}" required>
+    </div>
+</div>

@@ -8,7 +8,7 @@
     padding: 30px;
 }
 
-.project-img {
+.project-image {
     max-width: 100%;
     max-height: 100%;
     top: 0;
@@ -28,7 +28,7 @@ p {
     color: gray;
 }
 
-.project-img-container {
+.project-image-container {
     height: 150px;
     position: relative;
 }
