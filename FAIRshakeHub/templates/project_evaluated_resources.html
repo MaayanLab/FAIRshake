@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load filters %}
 
 {% block header %}
     {{ block.super }}
@@ -63,17 +64,17 @@
                         </td>
                         <td>
                             <div class="radiotext">
-                                <label for="resource_id">{{ assessment_count[resource.id] }}</label>
+                                <label for="resource_id">{{ assessment_count|return_item:resource.id }}</label>
                             </div>
                         </td>
                         <td class="tdinsig">
                             <div class="insignia{{ resource.id }}">
-                                {{ aggregate_scores[resource.id]|safe }}
+                                {{ aggregate_scores|return_item:resource.id|safe }}
                             </div>
                         </td>
                         <td class="tdmyinsig">
                             <div class="myinsignia{{ resource.id }}">
-                                {{ current_user_scores[resource.id]|safe }}
+                                {{ current_user_scores|return_item:resource.id|safe }}
                             </div>
                         </td>
                     </tr>
