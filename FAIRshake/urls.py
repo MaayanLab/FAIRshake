@@ -15,12 +15,11 @@ Including another URLconf
 """
 from django.urls import include, path
 from django.contrib import admin
+from rest_framework_swagger.views import get_swagger_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('assessmemt/', include('FAIRshakeAssessment.urls')),
-    path('insignia/', include('FAIRshakeInsignia.urls')),
-    path('rubric/', include('FAIRshakeRubric.urls')),
-    path('api/', include('FAIRshakeAPI.urls')),
     path('', include('FAIRshakeHub.urls')),
+    path('admin/', admin.site.urls),
+    path('api/', include('FAIRshakeAPI.urls')),
+    path('ui/', get_swagger_view(title='FAIRshake')),
 ]

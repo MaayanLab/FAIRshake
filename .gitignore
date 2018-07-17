@@ -1,4 +1,5 @@
 __pycache__
+.DS_Store
 *.pyc
-my.cnf
 db.sqlite3
+my.cnf

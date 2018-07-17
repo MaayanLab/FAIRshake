@@ -37,13 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'rest_framework',
     'rest_framework_swagger',
-    'FAIRshakeAPI',
-    'FAIRshakeAssessment',
     'FAIRshakeHub',
-    'FAIRshakeInsignia',
-    'FAIRshakeRubric',
+    'FAIRshakeAPI',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +53,27 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+}
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'mozilla_django_oidc': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
 
 ROOT_URLCONF = 'FAIRshake.urls'
 
@@ -88,7 +107,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     } if os.environ.get('MYSQL_CONFIG', None) is None else {
-        'ENGINE': 'django.db.backends.pymysql',
+        'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
             'read_default_file': os.environ['MYSQL_CONFIG'],
         },
@@ -114,7 +133,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -127,7 +145,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/

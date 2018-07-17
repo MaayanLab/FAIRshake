@@ -1,23 +1,52 @@
 from rest_framework import serializers
-from .models import API, APIDependency
+from .models import (
+  Answer,
+  Assessment,
+  Author,
+  DigitalObject,
+  IdentifiableModelMixin,
+  Metric,
+  Project,
+  Rubric,
+)
 
-class APISimpleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = API
-        fields = ('name', 'url', 'type')
-        read_only_fields = ('updated',)
+class IdentifiableModelMixinSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = IdentifiableModelMixin
+    fields = '__all__'
+    abstract = True
 
-class APIDependencySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = APIDependency
-        fields = ('dependency',)
+class AuthorSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Author
+    fields = '__all__'
 
-    dependency = APISimpleSerializer()
+class DigitalObjectSerializer(IdentifiableModelMixinSerializer):
+  class Meta:
+    model = DigitalObject
+    fields = '__all__'
 
-class APISerializer(serializers.ModelSerializer):
-    class Meta:
-        model = API
-        fields = ('name', 'url', 'type', 'dependencies')
-        read_only_fields = ('updated',)
+class ProjectSerializer(IdentifiableModelMixinSerializer):
+  class Meta:
+    model = Project
+    fields = '__all__'
 
-    dependencies = APIDependencySerializer(many=True)
+class MetricSerializer(IdentifiableModelMixinSerializer):
+  class Meta:
+    model = Metric
+    fields = '__all__'
+
+class RubricSerializer(IdentifiableModelMixinSerializer):
+  class Meta:
+    model = Rubric
+    fields = '__all__'
+
+class AssessmentSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Assessment
+    fields = '__all__'
+
+class AnswerSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Answer
+    fields = '__all__'

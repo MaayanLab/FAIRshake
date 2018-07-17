@@ -1,5 +1,4 @@
 from django.apps import AppConfig
 
-
-class FairshakeapiConfig(AppConfig):
+class FairshakeConfig(AppConfig):
     name = 'FAIRshakeAPI'

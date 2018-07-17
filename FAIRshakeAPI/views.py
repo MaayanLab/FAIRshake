@@ -1,18 +1,71 @@
 from rest_framework import viewsets, permissions
-from rest_framework_swagger.views import get_swagger_view
-from .serializers import APISerializer
-from .models import API
 
-docs = get_swagger_view(title='FAIRshakeAPI')
+from .serializers import (
+  AnswerSerializer,
+  AssessmentSerializer,
+  AuthorSerializer,
+  DigitalObjectSerializer,
+  MetricSerializer,
+  ProjectSerializer,
+  RubricSerializer,
+)
+from .filters import (
+  AnswerFilterSet,
+  AssessmentFilterSet,
+  AuthorFilterSet,
+  DigitalObjectFilterSet,
+  MetricFilterSet,
+  ProjectFilterSet,
+  RubricFilterSet,
+)
+from .models import (
+  Answer,
+  Assessment,
+  Author,
+  DigitalObject,
+  Metric,
+  Project,
+  Rubric,
+)
 
-class APIViewSet(viewsets.ModelViewSet):
-    ''' API Model interaction
+class AnswerViewSet(viewsets.ModelViewSet):
+  queryset = Answer.objects.all()
+  serializer_class = AnswerSerializer
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  filter_class = AnswerFilterSet
 
-    Authenticated users can:
-        Register APIs
-    Anonymous users can:
-        Query APIS
-    '''
-    permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,)
-    queryset = API.objects.all().order_by('-updated')
-    serializer_class = APISerializer
+class AssessmentViewSet(viewsets.ModelViewSet):
+  queryset = Assessment.objects.all()
+  serializer_class = AssessmentSerializer
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  filter_class = AssessmentFilterSet
+
+class AuthorViewSet(viewsets.ModelViewSet):
+  queryset = Author.objects.all()
+  serializer_class = AuthorSerializer
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  filter_class = AuthorFilterSet
+
+class DigitalObjectViewSet(viewsets.ModelViewSet):
+  queryset = DigitalObject.objects.all()
+  serializer_class = DigitalObjectSerializer
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  filter_class = DigitalObjectFilterSet
+
+class MetricViewSet(viewsets.ModelViewSet):
+  queryset = Metric.objects.all()
+  serializer_class = MetricSerializer
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  filter_class = MetricFilterSet
+
+class ProjectViewSet(viewsets.ModelViewSet):
+  queryset = Project.objects.all()
+  serializer_class = ProjectSerializer
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  filter_class = ProjectFilterSet
+
+class RubricViewSet(viewsets.ModelViewSet):
+  queryset = Rubric.objects.all()
+  serializer_class = RubricSerializer
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  filter_class = RubricFilterSet

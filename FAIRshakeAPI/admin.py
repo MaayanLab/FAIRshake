@@ -1,15 +1,18 @@
 from django.contrib import admin
-from .models import API, APIDependency
+from .models import (
+  Author,
+  DigitalObject,
+  Project,
+  Metric,
+  Rubric,
+  Assessment,
+  Answer,
+)
 
-class APIDependencyAdmin(admin.TabularInline):
-    ''' Select new dependencies in Django Admin interface '''
-    model = APIDependency
-    fk_name = 'api'
-    raw_id_fields = ('dependency',)
-
-class APIAdmin(admin.ModelAdmin):
-    ''' Update API model via Django Admin '''
-    fields = ('name', 'url', 'type', )
-    inlines = [APIDependencyAdmin,]
-
-admin.site.register(API, APIAdmin)
+admin.site.register(Author)
+admin.site.register(DigitalObject)
+admin.site.register(Project)
+admin.site.register(Metric)
+admin.site.register(Rubric)
+admin.site.register(Assessment)
+admin.site.register(Answer)
