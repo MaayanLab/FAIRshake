@@ -10,6 +10,7 @@ router.register(r'digital_object', views.DigitalObjectViewSet)
 router.register(r'metric', views.MetricViewSet)
 router.register(r'project', views.ProjectViewSet)
 router.register(r'rubric', views.RubricViewSet)
+router.register(r'score', views.ScoreViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

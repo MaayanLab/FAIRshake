@@ -13,7 +13,7 @@ class User(models.Model):
 class Author(models.Model):
   id = models.AutoField(primary_key=True)
   orcid = models.TextField(blank=False, null=True)
-  # user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+  # user = models.ForeignKey('User', on_delete=models.DO_NOTHING)
 
 class IdentifiableModelMixin(models.Model):
   id = models.AutoField(primary_key=True)
@@ -21,56 +21,79 @@ class IdentifiableModelMixin(models.Model):
   uri = models.TextField(blank=False, null=True)
   minid = models.TextField(blank=False, null=True)
 
-  title = models.TextField(blank=False, null=False, default='null')
+  title = models.TextField(blank=False, null=False)
 
-  description = models.TextField(blank=True, null=True, default='')
-  image = models.TextField(blank=True, null=True, default='')
-  tags = models.TextField(blank=True, null=True, default='')
+  description = models.TextField(blank=True, null=True)
+  image = models.TextField(blank=True, null=True)
+  tags = models.TextField(blank=True, null=True)
 
   authors = models.ManyToManyField(Author)
 
   class Meta:
     abstract = True
 
-class DigitalObject(IdentifiableModelMixin):
-  url = models.URLField(blank=False, null=False, default='null')
-  type = models.TextField(blank=False, null=False, default='null')
-
-class Project(IdentifiableModelMixin):
-  url = models.URLField(blank=True, null=True, default='')
-
-  digital_objects = models.ManyToManyField(DigitalObject, related_name='projects')
-
 class Metric(IdentifiableModelMixin):
-  type = models.TextField(blank=False, null=False, default='null')
-  license = models.TextField(blank=False, null=False, default='null')
+  type = models.TextField(blank=False, null=False)
+  license = models.TextField(blank=False, null=False)
 
   # TODO: Take all of these out of metrics
-  rationale = models.URLField(blank=False, null=False, default='null')
-  principle = models.URLField(blank=False, null=False, default='null')
-  metrics = models.URLField(blank=True, null=True, default='')
-  fairsharing = models.URLField(blank=True, null=True, default='')
+  rationale = models.URLField(blank=False, null=False)
+  principle = models.URLField(blank=False, null=False)
+  fairmetrics = models.URLField(blank=True, null=True)
+  fairsharing = models.URLField(blank=True, null=True)
 
 class Rubric(IdentifiableModelMixin):
-  type = models.TextField(blank=False, null=False, default='null')
-  license = models.TextField(blank=False, null=False, default='null')
+  type = models.TextField(blank=False, null=False)
+  license = models.TextField(blank=False, null=False)
 
   metrics = models.ManyToManyField(Metric, related_name='rubrics')
 
+class Project(IdentifiableModelMixin):
+  url = models.URLField(blank=True, null=True)
+
+  digital_objects = models.ManyToManyField('DigitalObject', related_name='projects')
+
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
-  project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name='+', default=0)
-  rubric = models.ForeignKey(Rubric, on_delete=models.DO_NOTHING, related_name='+', default=0)
-  target = models.ForeignKey(DigitalObject, on_delete=models.DO_NOTHING, related_name='+', default=0)
-  methodology = models.TextField(blank=False, null=False, default='null')
-  requestor = models.TextField(blank=False, null=False, default='null')
-  assessor = models.TextField(blank=False, null=False, default='null')
+  project = models.ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='+')
+  rubric = models.ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='+')
+  target = models.ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='+')
+  methodology = models.TextField(blank=False, null=False)
+  requestor = models.TextField(blank=False, null=False)
+  assessor = models.TextField(blank=False, null=False)
   timestamp = models.DateTimeField(auto_now_add=True)
 
 class Answer(models.Model):
   id = models.AutoField(primary_key=True)
-  assessment = models.ForeignKey(Assessment, on_delete=models.DO_NOTHING, related_name='answers', default=0)
-  metric = models.ForeignKey(Metric, on_delete=models.DO_NOTHING, related_name='+', default=0)
-  answer = models.TextField(blank=False, null=False, default='null')
-  comment = models.TextField(blank=True, null=True, default='')
-  url_comment = models.TextField(blank=True, null=True, default='')
+  assessment = models.ForeignKey('Assessment', on_delete=models.DO_NOTHING, related_name='answers')
+  metric = models.ForeignKey('Metric', on_delete=models.DO_NOTHING, related_name='+')
+  answer = models.TextField(blank=True, null=False)
+  comment = models.TextField(blank=True, null=True)
+  url_comment = models.TextField(blank=True, null=True)
+
+  def value(self):
+    if self.answer != '':
+      if self.comment == '':
+        return 0
+      return 1
+    return -1
+
+class DigitalObject(IdentifiableModelMixin):
+  url = models.URLField(blank=False, null=False)
+  type = models.TextField(blank=False, null=False)
+
+  rubrics = models.ManyToManyField('Rubric', related_name='digital_objects')
+
+class Score(DigitalObject):
+  def score(self):
+    score = {}
+    for assessment in Assessment.objects.filter(target=self.id):
+      for answer in Answer.objects.filter(assessment=assessment.id):
+        score[answer.metric.id] = score.get(answer.metric, []) + [answer.value()]
+    return {
+      key: float(sum(value))/len(value)
+      for key, value in score.items()
+    }
+
+  class Meta:
+    proxy = True

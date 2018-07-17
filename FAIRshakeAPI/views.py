@@ -8,6 +8,7 @@ from .serializers import (
   MetricSerializer,
   ProjectSerializer,
   RubricSerializer,
+  ScoreSerializer,
 )
 from .filters import (
   AnswerFilterSet,
@@ -17,6 +18,7 @@ from .filters import (
   MetricFilterSet,
   ProjectFilterSet,
   RubricFilterSet,
+  ScoreFilterSet,
 )
 from .models import (
   Answer,
@@ -26,6 +28,7 @@ from .models import (
   Metric,
   Project,
   Rubric,
+  Score,
 )
 
 class AnswerViewSet(viewsets.ModelViewSet):
@@ -69,3 +72,9 @@ class RubricViewSet(viewsets.ModelViewSet):
   serializer_class = RubricSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
   filter_class = RubricFilterSet
+
+class ScoreViewSet(viewsets.ModelViewSet):
+  queryset = Score.objects.all()
+  serializer_class = ScoreSerializer
+  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  filter_class = ScoreFilterSet

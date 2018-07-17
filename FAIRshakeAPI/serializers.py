@@ -8,6 +8,7 @@ from .models import (
   Metric,
   Project,
   Rubric,
+  Score,
 )
 
 class IdentifiableModelMixinSerializer(serializers.ModelSerializer):
@@ -50,3 +51,8 @@ class AnswerSerializer(serializers.ModelSerializer):
   class Meta:
     model = Answer
     fields = '__all__'
+
+class ScoreSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Score
+    fields = ['score']

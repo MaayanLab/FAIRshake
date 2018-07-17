@@ -7,6 +7,7 @@ from .models import (
   Metric,
   Project,
   Rubric,
+  Score,
 )
 
 class AnswerFilterSet(filters.FilterSet):
@@ -42,4 +43,9 @@ class ProjectFilterSet(filters.FilterSet):
 class RubricFilterSet(filters.FilterSet):
   class Meta:
     model = Rubric
+    fields = '__all__'
+
+class ScoreFilterSet(filters.FilterSet):
+  class Meta:
+    model = Score
     fields = '__all__'
