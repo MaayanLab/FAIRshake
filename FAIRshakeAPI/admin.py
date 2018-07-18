@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
-  User,
+  CustomUser,
   Author,
   DigitalObject,
   Project,
@@ -11,7 +11,7 @@ from .models import (
   Answer,
 )
 
-admin.site.register(User, UserAdmin)
+admin.site.register(CustomUser, UserAdmin)
 admin.site.register(Author)
 admin.site.register(DigitalObject)
 admin.site.register(Project)

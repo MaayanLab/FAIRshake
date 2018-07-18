@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-class User(AbstractUser):
+class CustomUser(AbstractUser):
   pass
 
 class Author(models.Model):
   id = models.AutoField(primary_key=True)
   orcid = models.TextField(blank=False, null=True)
-  # user = models.ForeignKey('User', on_delete=models.DO_NOTHING)
+  user = models.ForeignKey('CustomUser', on_delete=models.DO_NOTHING)
 
 class IdentifiableModelMixin(models.Model):
   id = models.AutoField(primary_key=True)

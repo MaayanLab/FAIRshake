@@ -111,7 +111,7 @@ ROOT_URLCONF = 'FAIRshake.urls'
 
 WSGI_APPLICATION = 'FAIRshake.wsgi.application'
 
-AUTH_USER_MODEL = 'FAIRshakeAPI.User'
+AUTH_USER_MODEL = 'FAIRshakeAPI.CustomUser'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
