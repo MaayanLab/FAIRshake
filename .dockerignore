@@ -5,3 +5,4 @@ Dockerfile
 fairshake.sql
 README.md
 run.py
+ssl/
