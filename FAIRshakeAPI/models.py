@@ -55,9 +55,9 @@ class Project(IdentifiableModelMixin):
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
-  project = models.ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='+')
-  rubric = models.ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='+')
-  target = models.ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='+')
+  project = models.ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='assessments')
+  rubric = models.ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='assessments')
+  target = models.ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='assessments')
   methodology = models.TextField(blank=False, null=False)
   requestor = models.TextField(blank=False, null=False)
   assessor = models.TextField(blank=False, null=False)
@@ -66,7 +66,7 @@ class Assessment(models.Model):
 class Answer(models.Model):
   id = models.AutoField(primary_key=True)
   assessment = models.ForeignKey('Assessment', on_delete=models.DO_NOTHING, related_name='answers')
-  metric = models.ForeignKey('Metric', on_delete=models.DO_NOTHING, related_name='+')
+  metric = models.ForeignKey('Metric', on_delete=models.DO_NOTHING, related_name='answers')
   answer = models.TextField(blank=True, null=False)
   comment = models.TextField(blank=True, null=True)
   url_comment = models.TextField(blank=True, null=True)
