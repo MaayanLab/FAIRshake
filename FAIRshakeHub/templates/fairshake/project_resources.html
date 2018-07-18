@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "fairshake/base.html" %}
 {% load filters %}
 
 {% block header %}
@@ -17,7 +17,7 @@
                 <h2>{{ project.name }}<small> - Resources List</small></h2>
                 <h4>{{ project.description }} </h4>
             </div>
-{#            {% if current_user %}#}
+{#            {% if current_user.is_authenticated %}#}
                 <div class="btn-group" id="listgrpbtns">
                     <a class="btn btn-default listgrpbtn active">Resources List</a>
                     <a class="btn btn-default listgrpbtn" href="/project/{{ project.id }}/my_evaluations">My Evaluations</a>
@@ -27,7 +27,7 @@
         <table class="table table-responsive table-hover">
             <thead>
             <tr>
-{#                {% if current_user %}#}
+{#                {% if current_user.is_authenticated %}#}
                     <th>Select</th>
 {#                {% endif %}#}
                 <th>Name</th>
@@ -41,7 +41,7 @@
             <form action="/evaluation/" method="GET" id="select-resource-form">
                 {% for resource in resources %}
                     <tr class="tablerow">
-{#                        {% if current_user %}#}
+{#                        {% if current_user.is_authenticated %}#}
                             <td>
                                 <div class="radio">
                                     {% if resource in user_resources %}
@@ -84,7 +84,7 @@
             </form>
             </tbody>
         </table>
-{#        {% if current_user %}#}
+{#        {% if current_user.is_authenticated %}#}
             <div class="form-actions">
                 <button type="submit" class="btn btn-default btn-left" value="Submit" form="select-resource-form">Evaluate</button>
             </div>

@@ -37,20 +37,20 @@
                 <li{% if active_page == "bookmarklet" %} class="active"{% endif %}>
                     <a href="/bookmarklet" class="headx">Install Bookmarklet</a>
                 </li>
-                {% if current_user %}
+                {% if current_user.is_authenticated %}
                     <li{% if active_page == "evaluatedprojects" %} class="active"{% endif %}>
                         <a href="/evaluated_projects" class="headx">Evaluated Projects</a>
                     </li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                {% if not current_user %}
+                {% if not current_user.is_authenticated %}
                     <li{% if active_page == "login" %} class="active"{% endif %}>
-                        <a href="/login" class="headx">Login</a>
+                        <a href="/accounts/login/" class="headx">Login</a>
                     </li>
-                    <!-- <li{% if active_page == "register" %} class="active"{% endif %}>
-                        <a href="/register" class="headx">Sign up</a>
-                    </li> -->
+                    <li{% if active_page == "register" %} class="active"{% endif %}>
+                        <a href="/accounts/signup/" class="headx">Sign up</a>
+                    </li>
                 {% else %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle headx" data-toggle="dropdown" role="button"
@@ -65,7 +65,7 @@
                             </li>
                             <li role="separator" class="divider" />
                             <li>
-                                <a href="/logout">Logout</a>
+                                <a href="/accounts/logout/">Logout</a>
                             </li>
                         </ul>
                     </li>

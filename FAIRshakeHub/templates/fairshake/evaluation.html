@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "fairshake/base.html" %}
 
 {% block header %}
     {{ block.super }}
@@ -23,7 +23,7 @@
             <fieldset class="form-group"><legend>{{ rubric.name }}</legend>
                 {% for metric in rubric.metrics.all %}
                     {% with answer=metric.answers.first %}
-                        {% include "question_kinds/"|add:metric.type|add:".html" %}
+                        {% include "fairshake/question_kinds/"|add:metric.type|add:".html" %}
                     {% endwith %}
                 {% endfor %}
             </fieldset>

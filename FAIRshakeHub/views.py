@@ -17,33 +17,33 @@ top_projects = Project.objects.annotate(n_objs=models.Count('digital_objects')).
 def index(request):
   ''' FAIRshakeHub Home Page
   '''
-  return render(request, 'index.html', dict(
+  return render(request, 'fairshake/index.html', dict(
     top_projects=top_projects[:4],
     active_page='index',
     current_user=request.user,
   ))
 
 def projects(request):
-  return render(request, 'projects.html', dict(
+  return render(request, 'fairshake/projects.html', dict(
     projects=top_projects,
     active_page='projects',
     current_user=request.user,
   ))
 
 def start_project(request):
-  return render(request, 'start_project.html', dict(
+  return render(request, 'fairshake/start_project.html', dict(
     active_page='start_project',
     current_user=request.user,
   ))
 
 def bookmarklet(request):
-  return render(request, 'bookmarklet.html', dict(
+  return render(request, 'fairshake/bookmarklet.html', dict(
     active_page='bookmarklet',
     current_user=request.user,
   ))
 
 def chrome_extension(request):
-  return render(request, 'chrome_extension.html', dict(
+  return render(request, 'fairshake/chrome_extension.html', dict(
     active_page='chrome_extension',
     current_user=request.user,
   ))
@@ -61,7 +61,7 @@ def resources(request, project):
     assessments__assessor=request.user.id,
   ).values('id')]
   # TODO: project_resources and project_evaluated_resources are similar enough to be merged.
-  return render(request, 'project_resources.html', dict(
+  return render(request, 'fairshake/project_resources.html', dict(
     project=project,
     resources=resources,
     user_resources=user_resources,
@@ -82,7 +82,7 @@ def my_evaluations(request, project):
   )
 
   # TODO: project_resources and project_evaluated_resources are similar enough to be merged.
-  return render(request, 'project_evaluated_resources.html', dict(
+  return render(request, 'fairshake/project_evaluated_resources.html', dict(
     project=project,
     resources=resources,
     current_user=request.user,
@@ -99,7 +99,7 @@ def evaluation(request):
 
   if request.method == 'GET':
     rubrics = Rubric.objects.all()
-    return render(request, 'evaluation.html', dict(
+    return render(request, 'fairshake/evaluation.html', dict(
       resource=DigitalObject.objects.get(id=resource_id),
       rubrics=rubrics,
       rubric_ids=[rubric.id for rubric in rubrics],
@@ -157,56 +157,7 @@ def evaluated_projects(request):
     assessments__assessor=request.user.id,
   ).distinct()
 
-  return render(request, 'evaluated_projects.html', dict(
+  return render(request, 'fairshake/evaluated_projects.html', dict(
     evaluated_projects=projects,
     current_user=request.user,
   ))
-
-def register(request):
-  # TODO
-  username = request.POST.get('username')
-  email = request.POST.get('email')
-  password = request.POST.get('password')
-  if all(
-    element is not None
-    for element in [
-      username,
-      email,
-      password,
-     ]
-   ):
-    try:
-      user = User.objects.create_user(
-        username,
-        email,
-        password,
-      )
-      user.save()
-    except Exception as e:
-      raise forms.ValidationError(e)
-  return render(request, 'register.html', dict(
-    current_user=request.user,
-    active_page='register',
-  ))
-
-def login(request):
-  # TODO
-  # return render(request, 'oidc_authentication_init')
-  username = request.POST.get('username')
-  password = request.POST.get('password')
-  if username is not None and password is not None:
-    auth = authenticate(request,
-      username=username,
-      password=password,
-    )
-    if auth is not None:
-      login(request, auth)
-      return redirect('/', code=302)
-  return render(request, 'login.html', dict(
-    active_page='login',
-  ))
-
-def logout(request):
-  # TODO
-  logout(request)
-  return redirect('/', code=302)

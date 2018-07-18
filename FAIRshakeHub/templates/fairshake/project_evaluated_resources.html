@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "fairshake/base.html" %}
 {% load filters %}
 
 {% block header %}
@@ -17,7 +17,7 @@
                 <h2>{{ project.name }}<small> - Resources List</small></h2>
                 <h4>{{ project.description }} </h4>
             </div>
-{#            {% if current_user %}#}
+{#            {% if current_user.is_authenticated %}#}
                 <div class="btn-group" id="listgrpbtns">
                     <a class="btn btn-default listgrpbtn" href="/project/{{ project.id }}/resources">Resources List</a>
                     <a class="btn btn-default listgrpbtn active">My Evaluations</a>

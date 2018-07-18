@@ -1,9 +1,10 @@
 coreapi
 django
+django-allauth
+django-extensions
 django-filter
 django-rest-swagger
 djangorestframework
 dynamic-rest
 mysqlclient
 Pillow
-pymysql

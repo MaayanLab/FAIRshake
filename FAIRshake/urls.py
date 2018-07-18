@@ -20,6 +20,7 @@ from rest_framework_swagger.views import get_swagger_view
 urlpatterns = [
     path('', include('FAIRshakeHub.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
     path('api/', include('FAIRshakeAPI.urls')),
     path('ui/', get_swagger_view(title='FAIRshake')),
 ]

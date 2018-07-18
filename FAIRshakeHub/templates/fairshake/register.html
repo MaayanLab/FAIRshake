@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "fairshake/base.html" %}
 
 {% block header %}
     {{ block.super }}
 
     {% block style %}
         {{ block.super }}
-        <link rel="stylesheet" href="{% static 'style/register.css' %}" />
+        <link rel="stylesheet" href="{% static 'style/accounts/signup.css' %}" />
     {% endblock %}
 {% endblock %}
 
@@ -15,7 +15,7 @@
 
     <p>&nbsp;</p>
 
-    <form class="form-horizontal" action="/register/" method="POST">
+    <form class="form-horizontal" action="/accounts/signup/" method="POST">
         {% csrf_token %}
         <div class="form-section">
             <h4>Sign up as:</h4>

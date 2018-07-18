@@ -11,7 +11,4 @@ urlpatterns = [
     path('project/<str:project>/my_evaluations/', views.my_evaluations, name='my_evaluations'),
     path('evaluation/', views.evaluation, name='evaluation'),
     path('evaluated_projects/', views.evaluated_projects, name='evaluated_projects'),
-    path('register/', views.register, name='register'),
-    path('login/', views.login, name='login'),
-    path('logout/', views.logout, name='login'),
 ]
