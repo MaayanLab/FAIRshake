@@ -111,6 +111,7 @@ ROOT_URLCONF = 'FAIRshake.urls'
 
 WSGI_APPLICATION = 'FAIRshake.wsgi.application'
 
+AUTH_USER_MODEL = 'FAIRshakeAPI.User'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -164,7 +165,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'github': {

@@ -1,14 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-class User(models.Model):
-  user_id = models.AutoField(primary_key=True)
-  username = models.TextField(blank=True, null=True)
-  password = models.TextField(blank=True, null=True)
-  first_name = models.TextField(blank=True, null=True)
-  last_name = models.TextField(blank=True, null=True)
-  role_evaluator = models.TextField(blank=True, null=True)
-  role_starter = models.TextField(blank=True, null=True)
-  test = models.CharField(max_length=10)
+class User(AbstractUser):
+  pass
 
 class Author(models.Model):
   id = models.AutoField(primary_key=True)
