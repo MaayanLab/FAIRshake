@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
-root=/fairshake
-webroot=/fairshake
 user=r
-log=$root/error.log
+
+diskroot=/fairshake
+sslroot=$diskroot/ssl
+log=$diskroot/error.log
+
+servername=fairshake.cloud
+webroot=
 
 function setup {
 
@@ -11,7 +15,7 @@ echo "Creating user..." >> $log
 adduser --disabled-password --gecos '' $user >> $log
 
 echo "Writing wsgi.ini..." >> $log
-cat << EOF | tee -a $root/wsgi.ini >> $log
+cat << EOF | tee -a $diskroot/wsgi.ini >> $log
 [uwsgi]
 uid = $user
 gid = $user
@@ -19,15 +23,15 @@ gid = $user
 master = true
 processes = 5
 
-chdir = $root
-wsgi-file = $root/wsgi.py
+chdir = $diskroot
+wsgi-file = $diskroot/wsgi.py
 
 socket = 127.0.0.1:8080
 daemonize = $log
 EOF
 
 echo "Writing nginx.conf..." >> $log
-cat << EOF | tee -a $root/nginx.conf >> $log
+cat << EOF | tee -a $diskroot/nginx.conf >> $log
 user $user $user;
 
 worker_processes 1;
@@ -52,7 +56,15 @@ http {
 					  application/atom+xml;
 
     server {
-        listen 80;
+        listen          80;
+        server_name     $servername;
+        rewrite ^/(.*)  https://\$host/\$1 permanent;
+    }
+    server {
+        listen 443 ssl;
+        server_name $servername;
+        ssl_certificate $sslroot/cert.crt;
+        ssl_certificate_key $sslroot/cert.key;
         charset utf-8;
         client_max_body_size 20M;
         sendfile on;
@@ -60,7 +72,7 @@ http {
         large_client_header_buffers 8 32k;
 
         location $webroot/static  {
-            alias $root/app/static;
+            alias $diskroot/app/static;
         }
 
         location / {
@@ -77,10 +89,10 @@ http {
 EOF
 
 echo "Starting uwsgi..." >> $log
-uwsgi --ini $root/wsgi.ini >> $log
+uwsgi --ini $diskroot/wsgi.ini >> $log
 
 echo "Starting nginx..." >> $log
-nginx -c $root/nginx.conf >> $log
+nginx -c $diskroot/nginx.conf >> $log
 
 }
 

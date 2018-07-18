@@ -19,6 +19,14 @@ Requirements:
 * MySQL for database management
     * Download at https://dev.mysql.com/downloads/mysql/
 
+Docker
+---------
+
+```
+docker build -t fairshake .
+docker run -p 443:443 -v ./ssl:/fairshake/ssl -it fairshake
+```
+
 Components
 --------
 
