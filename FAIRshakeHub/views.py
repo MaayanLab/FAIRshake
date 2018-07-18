@@ -1,6 +1,6 @@
 import json
 from django.shortcuts import render, redirect, HttpResponse
-from django.db.models import Count, F
+from django.db import models
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from FAIRshakeAPI.models import (
@@ -12,60 +12,37 @@ from FAIRshakeAPI.models import (
   Metric,
 )
 
-def top_projects():
-  ''' Top Projects, projects with the largest number of digital objects '''
-  return Project \
-    .objects \
-    .annotate(n_objs=Count('digital_objects')) \
-    .order_by('-n_objs') \
-    .all()
+top_projects = Project.objects.annotate(n_objs=models.Count('digital_objects')).order_by('-n_objs').all()
 
 def index(request):
   ''' FAIRshakeHub Home Page
   '''
-#   return render(request, 'index.html', dict(
-#   top_projects=repository.get(limit=4),
-#   current_user=request.user,
-#   )
   return render(request, 'index.html', dict(
-    top_projects=top_projects()[:4],
+    top_projects=top_projects[:4],
     active_page='index',
     current_user=request.user,
   ))
 
 def projects(request):
-#   return render(request, 'projects.html', dict(
-#     projects=repository.get(tags=['project']),
-#     current_user=request.user,
-#   )
   return render(request, 'projects.html', dict(
-    projects=top_projects(),
+    projects=top_projects,
     active_page='projects',
     current_user=request.user,
   ))
 
 def start_project(request):
-#   return render(request, 'start_project.html', dict(
-#     current_user=request.user,
-#   )
   return render(request, 'start_project.html', dict(
     active_page='start_project',
     current_user=request.user,
   ))
 
 def bookmarklet(request):
-#   return render(request, 'bookmarklet.html', dict(
-#   current_user=request.user,
-#   )
   return render(request, 'bookmarklet.html', dict(
     active_page='bookmarklet',
     current_user=request.user,
   ))
 
 def chrome_extension(request):
-#   return render(request, 'chrome_extension.html', dict(
-#   current_user=request.user,
-#   )
   return render(request, 'chrome_extension.html', dict(
     active_page='chrome_extension',
     current_user=request.user,
@@ -73,68 +50,47 @@ def chrome_extension(request):
 
 @login_required
 def resources(request, project):
-  resources = Project.objects.get(id=project).digital_objects.all()
-  # resources = repository.get(tags=['project:{:s}'.format(project)])
-  current_user_assessed_resources = [
-    resource.id for resource in resources
-    if Assessment.objects.filter(target=resource.id, assessor=request.user.id)
-    # if assessment.get(object=resource.id, user=current_user()['sub']) != []
-  ]
-  assessment_count = {
-    resource.id: len(Assessment.objects.filter(target=resource.id))
-    # resource.id: len(assessment.get(object=resource.id))
-    for resource in resources
-  }
-  aggregate_scores = {
-    resource.id: 0
-    # resource.id: score.get(object=resource.id, kind='text/html')
-    for resource in resources
-  }
+  project = Project.objects.get(id=project)
+  resources = project.digital_objects.filter(
+    assessments__isnull=False,
+  ).annotate(
+    n_assessments=models.Count('id'),
+  )
+  # TODO: there should be ab etter way
+  user_resources = [v['id'] for v in resources.filter(
+    assessments__assessor=request.user.id,
+  ).values('id')]
+  # TODO: project_resources and project_evaluated_resources are similar enough to be merged.
   return render(request, 'project_resources.html', dict(
-    project=Project.objects.get(id=project),
-    # project=first(repository.get(id='{:s}'.format(project), limit=1)),
+    project=project,
     resources=resources,
-    aggregate_scores=aggregate_scores,
-    assessment_count=assessment_count,
-    current_user_assessed_resources=current_user_assessed_resources,
+    user_resources=user_resources,
     current_user=request.user,
   ))
 
 @login_required
 def my_evaluations(request, project):
-  current_user_assessed_resources = [
-    resource for resource in Project.objects.get(id=project).digital_objects.all()
-    # resource for resource in repository.get(tags=['project:{:s}'.format(project)])
-    if Assessment.objects.filter(target=resource.id, assessor=request.user.id)
-    # if assessment.get(object=resource.id, user=current_user()['sub']) != []
-  ]
-  assessment_count = {
-    resource.id: Assessment.objects.filter(target=resource.id).count()
-    # resource.id: len(assessment.get(object=resource.id))
-    for resource in current_user_assessed_resources
-  }
-  aggregate_scores = {
-    resource.id: 0
-    # resource.id: score.get(object=resource.id, kind='text/html')
-    for resource in current_user_assessed_resources
-  }
-  current_user_scores = {
-    resource.id: 0
-    # resource.id: score.get(object=resource.id, user=current_user()['sub'], kind='text/html')
-    for resource in current_user_assessed_resources
-  }
+  project = Project.objects.get(id=project)
+  # TODO: rename resources
+  # Fetch all user-assessed digital objects and count the number of assessments.
+  resources = project.digital_objects.filter(
+    assessments__assessor=request.user.id,
+    assessments__isnull=False,
+  ).annotate(
+    # NOTE: this count is for the number of user assessments
+    n_assessments=models.Count('id'),
+  )
+
+  # TODO: project_resources and project_evaluated_resources are similar enough to be merged.
   return render(request, 'project_evaluated_resources.html', dict(
-    project=Project.objects.get(id=project),
-    # project=first(repository.get(id='{:s}'.format(project), limit=1)),
-    aggregate_scores=aggregate_scores,
-    current_user_scores=current_user_scores,
-    assessment_count=assessment_count,
-    current_user_assessed_resources=current_user_assessed_resources,
+    project=project,
+    resources=resources,
     current_user=request.user,
   ))
 
 @login_required
 def evaluation(request):
+  # TODO: this function is a mess and hard to follow
   resource_id = request.GET.get('resource_id', request.POST.get('resource_id'))
   obj = DigitalObject.objects.get(id=resource_id)
   # TODO: this won't work when multiple projects have the same object
@@ -145,13 +101,9 @@ def evaluation(request):
     rubrics = Rubric.objects.all()
     return render(request, 'evaluation.html', dict(
       resource=DigitalObject.objects.get(id=resource_id),
-      # resource=first(repository.get(id=resource_id, limit=1)),
       rubrics=rubrics,
-      # rubrics=rubric.get(),
       rubric_ids=[rubric.id for rubric in rubrics],
-      # rubric_ids=[rubric.id for rubric in rubric.get()],
       current_user_assessment=Assessment.objects.filter(target=resource_id, assessor=request.user.id),
-      # current_user_assessment=assessment.get(object=resource_id, user=current_user()['sub']),
       current_user=request.user,
     ))
   else:
@@ -199,31 +151,19 @@ def evaluation(request):
 
 @login_required
 def evaluated_projects(request):
-  evaluated_projects_id_list = {
-    Project.objects.filter(digital_objects__has=assessment_each.object)
-    # first(
-    #   repository.get(
-    #     id=get_project_id(
-    #       first(
-    #         repository.get(id=assessment_each.object)
-    #       )
-    #     )
-    #   )
-    # ).id
-    # for assessment_each in assessment.get(user=current_user()['sub'])
-    for assessment_each in Assessment.objects.filter(assessor=request.user.id)
-  }
-  evaluated_projects = [
-    DigitalObject.object.get(id=id_each)
-    # first(repository.get(id=id_each))
-    for id_each in evaluated_projects_id_list
-  ]
+  # Fetch all projects for which this user has assessments for
+  projects = Project.objects.filter(
+    assessments__isnull=False,
+    assessments__assessor=request.user.id,
+  ).distinct()
+
   return render(request, 'evaluated_projects.html', dict(
-    evaluated_projects=evaluated_projects,
+    evaluated_projects=projects,
     current_user=request.user,
   ))
 
 def register(request):
+  # TODO
   username = request.POST.get('username')
   email = request.POST.get('email')
   password = request.POST.get('password')

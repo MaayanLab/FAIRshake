@@ -44,7 +44,7 @@
 {#                        {% if current_user %}#}
                             <td>
                                 <div class="radio">
-                                    {% if resource.id in current_user_assessed_resources %}
+                                    {% if resource in user_resources %}
                                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                     {% else %}
                                         <label><input type="radio" id="resource_id" name="resource_id"
@@ -71,12 +71,12 @@
                         </td>
                         <td>
                             <div class="radiotext">
-                                <label for="resource_id">{{ assessment_count|return_item:resource.id }}</label>
+                                <label for="resource_id">{{ resource.n_assessments }}</label>
                             </div>
                         </td>
                         <td class="tdinsig">
                             <div class="insignia{{ resource.id }}">
-                                {{ aggregate_scores|return_item:resource.id|safe }}
+                                TODO
                             </div>
                         </td>
                     </tr>

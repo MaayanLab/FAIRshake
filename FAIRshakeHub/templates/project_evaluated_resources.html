@@ -38,7 +38,7 @@
             </thead>
             <tbody>
             <form action="/evaluation/" method="GET" id="select-resource-form">
-                {% for resource in current_user_assessed_resources %}
+                {% for resource in resources %}
                     <tr class="tablerow">
                         <td>
                             <div class="radio">
@@ -64,17 +64,17 @@
                         </td>
                         <td>
                             <div class="radiotext">
-                                <label for="resource_id">{{ assessment_count|return_item:resource.id }}</label>
+                                <label for="resource_id">{{ resource.n_assessments }}</label>
                             </div>
                         </td>
                         <td class="tdinsig">
                             <div class="insignia{{ resource.id }}">
-                                {{ aggregate_scores|return_item:resource.id|safe }}
+                                TODO
                             </div>
                         </td>
                         <td class="tdmyinsig">
                             <div class="myinsignia{{ resource.id }}">
-                                {{ current_user_scores|return_item:resource.id|safe }}
+                                TODO
                             </div>
                         </td>
                     </tr>
