@@ -1,0 +1,48 @@
+<div class="form-group">
+  <label for="{{ metric.id }}" class="col-2 col-form-label">{{ metric.name }}</label>
+  <div class="radio">
+    <label>
+      <input
+        type="radio"
+        name="{{ metric.id }}"
+        {% if answer and answer.value == "yes" %}checked{% endif %}
+        value="yes"
+        required
+      >
+        Yes
+    </label>
+  </div>
+  <div class="radio">
+    <label>
+      <input
+        type="radio"
+        name="{{ metric.id }}"
+        {% if answer and answer.value == "yesbut" %}checked{% endif %}
+        value="no"
+      >
+        Yes, but
+    </label>
+  </div>
+  <div class="radio">
+    <label>
+      <input
+        type="radio"
+        name="{{ metric.id }}"
+        {% if answer and answer.value == "no" %}checked{% endif %}
+        value="no"
+      >
+        No
+    </label>
+  </div>
+  <div class="radio">
+    <label>
+      <input
+        type="radio"
+        name="{{ metric.id }}"
+        {% if answer and answer.value == "nobut" %}checked{% endif %}
+        value="no"
+      >
+        No, but
+    </label>
+  </div>
+</div>

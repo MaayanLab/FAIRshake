@@ -1,0 +1,56 @@
+.nav-tabs {
+    padding-top: 30px;
+    padding-left: 50px;
+}
+
+.tab-pane {
+    padding-top: 40px;
+    padding-left: 40px;
+}
+
+.gencontent {
+    padding: 15px;
+    padding-left: 15px;
+    padding-right: 50px;
+}
+
+#qnumbuttons {
+    padding-left: 30px;
+    padding-top: 10px;
+}
+
+h4 {
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
+.resinfo {
+    padding: 15px;
+    padding-left: 15px;
+}
+
+h5 {
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
+.input-group {
+    padding-top: 15px;
+}
+
+.qgroup {
+    padding: 15px;
+    padding-left: 15px;
+}
+
+.gentable {
+    padding-left: 20px;
+}
+
+.gencontentgrp {
+    padding-bottom: 20px;
+}
+
+#enterq {
+    padding-left: 0px;
+}

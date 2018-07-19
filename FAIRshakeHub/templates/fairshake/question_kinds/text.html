@@ -1,0 +1,6 @@
+<div class="form-group">
+    <label for="{{ metric.id }}" class="col-2 col-form-label">{{ metric.name }}</label>
+    <div class="col-10">
+        <textarea class="form-control textfield" id="{{ metric.id }}" name="{{ metric.id }}" required>{{ answer.value if answer }}</textarea>
+    </div>
+</div>

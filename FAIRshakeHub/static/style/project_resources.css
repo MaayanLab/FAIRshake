@@ -1,0 +1,43 @@
+.heading {
+    text-align: center;
+}
+
+h2 {
+    padding-bottom: 10px;
+}
+
+h4 {
+    padding-bottom: 20px;
+}
+
+.btn-left {
+    text-align: left;
+}
+
+.glyphicon {
+    font-size: 10px;
+}
+
+.form-actions {
+    padding-bottom: 10px;
+}
+
+.tdinsig {
+    width: 12%;
+}
+
+div.tooltip {
+    position: absolute;
+    padding: 2px;
+    font: 13px sans-serif;
+    background: black;
+    color: white;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.tablerow {
+    font-size: 13px;
+    font-weight: 100;
+
+}

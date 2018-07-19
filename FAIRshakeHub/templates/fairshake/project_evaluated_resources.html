@@ -1,0 +1,101 @@
+{% extends "fairshake/base.html" %}
+{% load filters %}
+
+{% block header %}
+    {{ block.super }}
+
+    {% block style %}
+        {{ block.super }}
+        <link rel="stylesheet" href="{% static 'style/project_resources.css' %}" />
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="heading">
+            <div class="title">
+                <h2>{{ project.name }}<small> - Resources List</small></h2>
+                <h4>{{ project.description }} </h4>
+            </div>
+{#            {% if current_user.is_authenticated %}#}
+                <div class="btn-group" id="listgrpbtns">
+                    <a class="btn btn-default listgrpbtn" href="/project/{{ project.id }}/resources">Resources List</a>
+                    <a class="btn btn-default listgrpbtn active">My Evaluations</a>
+                </div>
+{#            {% endif %}#}
+        </div>
+        <table class="table table-responsive table-hover">
+            <thead>
+            <tr>
+                <th>Select</th>
+                <th>Name</th>
+                <th>ID</th>
+                <th>Description</th>
+                <th># of Evaluations</th>
+                <th>All Evaluations</th>
+                <th>My Evaluation</th>
+            </tr>
+            </thead>
+            <tbody>
+            <form action="/evaluation/" method="GET" id="select-resource-form">
+                {% for resource in resources %}
+                    <tr class="tablerow">
+                        <td>
+                            <div class="radio">
+                                    <label><input type="radio" id="resource_id" name="resource_id"
+                                                  value={{ resource.id }} required></label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for="resource_id">
+                                    <a href={{ resource.url }} target="_blank">{{ resource.name }}</a></label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for="resource_id">{{ resource.id }}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for="resource_id"><p>{{ resource.description }}</p></label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="radiotext">
+                                <label for="resource_id">{{ resource.n_assessments }}</label>
+                            </div>
+                        </td>
+                        <td class="tdinsig">
+                            <div class="insignia{{ resource.id }}">
+                                TODO
+                            </div>
+                        </td>
+                        <td class="tdmyinsig">
+                            <div class="myinsignia{{ resource.id }}">
+                                TODO
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </form>
+            </tbody>
+        </table>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-default btn-left" value="Submit" form="select-resource-form">Modify Evaluation</button>
+        </div>
+
+{#        <div class="form-actions">#}
+{#            <form action="/project/{{ project }}/resources/page/{{ page-1 }}/" method="get">#}
+{#                <button type="submit" class="btn btn-default btn-left" value="Back" id="back">Back</button>#}
+{#            </form>#}
+{#        </div>#}
+{##}
+{#        <div class="form-actions">#}
+{#            <form action="/project/{{ project }}/resources/page/{{ page+1}}/" method="get">#}
+{#                <button type="submit" class="btn btn-default btn-left" value="Next" id="next">Next</button>#}
+{#            </form>#}
+{#        </div>#}
+    </div>
+{% endblock %}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>FAIRshake</title>
+    {% block head %}
+        <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+
+        <title>{% block title %}{% endblock %}</title>
+
+        {% block style %}
+            <link rel="stylesheet" href="{% static 'style/base.css' %}" />
+        {% endblock %}
+    {% endblock %}
+</head>
+<body>
+<div id="header">
+    {% block header %}
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="navbar-header">
+                <a id="navbar-logo" class="navbar-brand" href="/" style="display: table;">
+                    <img src="{% static 'image/icon-32.png' %}" style="display: table-cell; vertical-align: middle; margin-right: 10px;">
+                    <div style="display: table-cell; vertical-align: middle;">FAIRshake</div>
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-left">
+                <li{% if active_page == "projects" %} class="active"{% endif %}>
+                    <a href="/projects" class="headx">Projects</a>
+                </li>
+                <li{% if active_page == "start_project" %} class="active"{% endif %}>
+                    <a href="/start_project" class="headx">Start a Project</a>
+                </li>
+                <li{% if active_page == "chrome_extension" %} class="active"{% endif %}>
+                    <a href="/chrome_extension" class="headx">Install Chrome Extension</a>
+                </li>
+                <li{% if active_page == "bookmarklet" %} class="active"{% endif %}>
+                    <a href="/bookmarklet" class="headx">Install Bookmarklet</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                    <li{% if active_page == "evaluatedprojects" %} class="active"{% endif %}>
+                        <a href="/evaluated_projects" class="headx">Evaluated Projects</a>
+                    </li>
+                {% endif %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if not current_user.is_authenticated %}
+                    <li{% if active_page == "login" %} class="active"{% endif %}>
+                        <a href="/accounts/login/" class="headx">Login</a>
+                    </li>
+                    <li{% if active_page == "register" %} class="active"{% endif %}>
+                        <a href="/accounts/signup/" class="headx">Sign up</a>
+                    </li>
+                {% else %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle headx" data-toggle="dropdown" role="button"
+                            aria-haspopup="true"
+                            aria-expanded="false">{{ current_user.email }} ({{ current_user.username }})</a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="/evaluated_projects">Evaluated Projects</a>
+                            </li>
+                            <li>
+                                <a href="/settings">Settings</a>
+                            </li>
+                            <li role="separator" class="divider" />
+                            <li>
+                                <a href="/accounts/logout/">Logout</a>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endblock %}
+</div>
+<div id="content">{% block content %}{% endblock %}</div>
+<div id="footer">
+    {% block footer %}
+        <ul class="footer-block">
+            <div><a class="footerLink" href="http://icahn.mssm.edu/research/labs/maayan-laboratory" target="_blank">Ma'ayan Laboratory of
+                Computational Systems
+                Biology</a></div>
+            <div><a class="footerLink"href="http://www.lincs-dcic.org/" target="_blank">BD2K-LINCS Data Coordination and
+                Integration Center (DCIC)</a></div>
+            <div><a class="footerLink"href="http://www.lincsproject.org/">NIH LINCS program</a></div>
+            <div><a class="footerLink"href="http://bd2k.nih.gov/" target="_blank">NIH Big Data to Knowledge (BD2K)</a></div>
+            <div><a class="footerLink"href="http://icahn.mssm.edu/" target="_blank">Icahn School of Medicine at Mount Sinai</a>
+            </div>
+        </ul>
+    {% endblock %}
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+{% block script %}
+    <script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
+{% endblock %}
+</body>
+</html>

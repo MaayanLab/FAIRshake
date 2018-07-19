@@ -1,0 +1,63 @@
+{% extends "fairshake/base.html" %}
+
+{% block header %}
+    {{ block.super }}
+
+    {% block style %}
+        {{ block.super }}
+        <link rel="stylesheet" href="{% static 'style/bookmarklet.css' %}" />
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h3 class="project-head text-left">FAIRshake Bookmarklet</h3>
+    <div class="bookmarklet-btn">
+        <a class="btn btn-lg btn-info" href="javascript:{% include 'fairshake/bookmarklet.js' %}">FAIRshake it!</a>
+    </div>
+    <div class="install-instructions">
+        <h4>How to install:</h4>
+        <ol>
+            <li>Click and drag the FAIRshake it! button to your Bookmarks bar.</li>
+            <li>Visit the website of a digital object you are interested in.</li>
+            <li>Click the button in your Bookmarks bar.</li>
+        </ol>
+    </div>
+    <h4 class="carousel-head text-left">Examples:</h4>
+    <div class="carousel-container">
+        <div id="examples-carousel" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#examples-carousel" data-slide-to="0" class="active"></li>
+                <li data-target="#examples-carousel" data-slide-to="1"></li>
+                <li data-target="#examples-carousel" data-slide-to="2"></li>
+                <li data-target="#examples-carousel" data-slide-to="3"></li>
+                <li data-target="#examples-carousel" data-slide-to="4"></li>
+                <li data-target="#examples-carousel" data-slide-to="5"></li>
+            </ol>
+            <div class="carousel-inner">
+                <div class="item active">
+                    <div id="project-image-container">
+                        <img src="{% static 'image/example/bookmarklet1.png' %}" alt="First Slide">
+                    </div>
+                </div>
+                <div class="item">
+                    <div id="project-image-container">
+                        <img src="{% static 'image/example/bookmarklet2.png' %}" alt="Second Slide">
+                    </div>
+                </div>
+                <div class="item">
+                    <div id="project-image-container">
+                        <img src="{% static 'image/example/bookmarklet3.png' %}" alt="Third Slide">
+                    </div>
+                </div>
+            </div>
+            <a class="carousel-control left" href="#examples-carousel" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="carousel-control right" href="#examples-carousel" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

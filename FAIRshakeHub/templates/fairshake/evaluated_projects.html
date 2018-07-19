@@ -1,0 +1,41 @@
+{% extends "fairshake/base.html" %}
+
+{% block header %}
+    {{ block.super }}
+
+    {% block style %}
+        {{ block.super }}
+        <link rel="stylesheet" href="{% static 'style/projects.css' %}" />
+    {% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h3 class="project-head text-left">Evaluated Projects</h3>
+
+    <div class="row">
+        {% for project in evaluated_projects %}
+            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <a href="/project/{{ project.id }}/resources">
+                            <div class="project-image-container">
+                                <img class="project-image" src="{{ project.image }}">
+                            </div>
+                        </a>
+                        <div class="caption text-left">
+                            <h5 class="projecttitle">{{ project.name }}</h5>
+                            <p>{{ project.description }}</p>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <form action="/project/{{ project.id }}/resources/" method="get">
+                            <button type="submit" class="btn btn-default btn-sm evaluate-button">Evaluate</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
