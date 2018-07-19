@@ -90,4 +90,4 @@ class CustomUser(AbstractUser):
 class Author(models.Model):
   id = models.AutoField(primary_key=True)
   orcid = models.TextField(blank=False, null=True)
-  user = models.ForeignKey('CustomUser', on_delete=models.DO_NOTHING)
+  user = models.ForeignKey('CustomUser', on_delete=models.DO_NOTHING, null=True)

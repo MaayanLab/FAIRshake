@@ -48,12 +48,6 @@ class AssessmentViewSet(viewsets.ModelViewSet):
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
   filter_class = filters.AssessmentFilterSet
 
-class AuthorViewSet(viewsets.ModelViewSet):
-  queryset = models.Author.objects.all()
-  serializer_class = serializers.AuthorSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = filters.AuthorFilterSet
-
 class DigitalObjectViewSet(viewsets.ModelViewSet):
   queryset = models.DigitalObject.objects.all()
   serializer_class = serializers.DigitalObjectSerializer

@@ -7,11 +7,6 @@ class IdentifiableModelMixinSerializer(serializers.ModelSerializer):
     fields = '__all__'
     abstract = True
 
-class AuthorSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Author
-    fields = '__all__'
-
 class DigitalObjectSerializer(IdentifiableModelMixinSerializer):
   class Meta:
     model = models.DigitalObject

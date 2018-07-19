@@ -8,7 +8,6 @@ from . import views
 router = routers.SimpleRouter()
 router.register(r'answer', views.AnswerViewSet, base_name='answer')
 router.register(r'assessment', views.AssessmentViewSet, base_name='assessment')
-router.register(r'author', views.AuthorViewSet, base_name='author')
 router.register(r'digital_object', views.DigitalObjectViewSet, base_name='digital_object')
 router.register(r'metric', views.MetricViewSet, base_name='metric')
 router.register(r'project', views.ProjectViewSet, base_name='project')
