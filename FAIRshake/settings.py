@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_filters',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_swagger',
+    'rest_auth',
+    'rest_auth.registration',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -165,7 +168,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-LOGIN_REDIRECT_URL = '/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'github': {
@@ -174,3 +176,10 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
     }
 }
+
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = '/accounts/logout/'
+
+LOGIN_REDIRECT_URL = '/'
+
+LOGOUT_ON_PASSWORD_CHANGE = False

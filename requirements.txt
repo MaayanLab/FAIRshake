@@ -3,6 +3,7 @@ django
 django-allauth
 django-extensions
 django-filter
+django-rest-auth
 django-rest-swagger
 djangorestframework
 dynamic-rest

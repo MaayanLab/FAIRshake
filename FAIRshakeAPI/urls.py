@@ -21,4 +21,6 @@ urlpatterns = [
     path('', get_swagger_view(title='FAIRshake')),
     path('coreapi/', include_docs_urls(title='FAIRshake')),
     path('schema/', get_schema_view(title='FAIRshake')),
+    path('auth/', include('rest_auth.urls')),
+    path('auth/registration/', include('rest_auth.registration.urls')),
 ]
