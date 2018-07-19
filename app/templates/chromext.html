@@ -24,7 +24,7 @@
             margin: 0 auto;
         }
 
-        .downloadbtn .bookmarkletbtn {
+        .downloadbtn{
             padding-left: 50px;
         }
 
@@ -43,8 +43,8 @@
         }
 
         .carousel .item img {
-            width: auto;
-            height: 100%;
+            width: 100%;
+            height: auto;
             top: 0;
             bottom: 0;
             left: 0;
@@ -77,45 +77,45 @@
     <!-- Change active tab -->
     <nav class="navbar navbar-default navbar-static-top">
         <div class="navbar-header">
-            <a id="navbar-logo" class="navbar-brand" href="/fairshake" style="display: table;">
-                <img src="https://cdn.rawgit.com/lw453/fairshake/d67c9cf/icon-32.png"
+            <a id="navbar-logo" class="navbar-brand" href="/" style="display: table;">
+                <img src="/static/img/icon-32.png"
                      style="display: table-cell; vertical-align: middle; margin-right: 10px;">
-                <div style="display: table-cell; vertical-align: middle;">FAIRShake</div>
+                <div style="display: table-cell; vertical-align: middle;">FAIRshake</div>
             </a>
         </div>
         <ul class="nav navbar-nav navbar-left">
             <li>
-                <a href="/fairshake/projects" class="headx">Projects</a></li>
+                <a href="/projects" class="headx">Projects</a></li>
             <li>
-                <a href="/fairshake/startproject" class="headx">Start a Project</a></li>
+                <a href="/startproject" class="headx">Start a Project</a></li>
             <li class="active">
-                <a href="/fairshake/chromeextension" class="headx">Download Chrome Extension</a></li>
+                <a href="/chromeextension" class="headx">Download Chrome Extension</a></li>
             <li>
-                    <a href="/fairshake/bookmarklet" class="headx">Download Bookmarklet</a></li>
+                    <a href="/bookmarklet" class="headx">Download Bookmarklet</a></li>
             {% if current_user.is_authenticated %}
                 <li>
-                    <a href="/fairshake/evaluatedprojects" class="headx">Evaluated Projects</a></li>
+                    <a href="/evaluatedprojects" class="headx">Evaluated Projects</a></li>
             {% endif %}
 
         </ul>
         <ul class="nav navbar-nav navbar-right">
             {% if not current_user.is_authenticated %}
                 <li>
-                    <a href="/fairshake/login" class="headx">Login</a></li>
+                    <a href="/login" class="headx">Login</a></li>
                 <li>
-                    <a href="/fairshake/register" class="headx">Sign up</a></li>
+                    <a href="/register" class="headx">Sign up</a></li>
             {% else %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle headx" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">{{ current_user.first_name }}</a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="/fairshake/evaluatedprojects">Evaluated Projects</a></li>
+                            <a href="/evaluatedprojects">Evaluated Projects</a></li>
                         <li>
-                            <a href="/fairshake/settings">Settings</a></li>
+                            <a href="/settings">Settings</a></li>
                         <li role="separator" class="divider"></li>
                         <li>
-                            <a href="/fairshake/logout">Logout</a></li>
+                            <a href="/logout">Logout</a></li>
                     </ul>
                 </li>
 
@@ -125,9 +125,9 @@
 {% endblock %}
 {% block content %}
     <div class="container-fluid">
-        <h3 class="projecthead text-left">FAIRShake Chrome Extension</h3>
+        <h3 class="projecthead text-left">FAIRshake Chrome Extension</h3>
         <div class="downloadbtn">
-            <a href="https://cdn.rawgit.com/lw453/fairshake/1492706/FAIRShake_chrext.zip" download="FAIRShake_chrome_extension.zip">
+            <a href="/static/FAIRshake.zip" download="FAIRshake.zip">
                 <button type="button" class="btn btn-success btn-lg">Download&nbsp;&nbsp;<span
                         class="glyphicon glyphicon-download" aria-hidden="true"></span></button>
             </a>
@@ -138,7 +138,7 @@
                 <br>2. Open Google Chrome and go to "chrome://extensions".
                 <br>3. Enable Developer mode at the top right.
                 <br>4. Click "Load unpacked extension..." and choose the folder containing the downloaded files.
-                <br>5. Enable the FAIRShake extension in the Chrome extension list.</p>
+                <br>5. Enable the FAIRshake extension in the Chrome extension list.</p>
         </div>
         <h4 class="carouselhead text-left">Examples:</h4>
         <div class="bs-example">
@@ -148,37 +148,23 @@
                     <li data-target="#myCarousel" data-slide-to="1"></li>
                     <li data-target="#myCarousel" data-slide-to="2"></li>
                     <li data-target="#myCarousel" data-slide-to="3"></li>
-                    <li data-target="#myCarousel" data-slide-to="4"></li>
-                    <li data-target="#myCarousel" data-slide-to="5"></li>
                 </ol>
                 <div class="carousel-inner">
                     <div class="item active">
                         <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension1.png" alt="First Slide">
+                            <img src="/static/img/chrome_extension1.png" alt="First Slide">
                         </div>
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension2.png"
+                            <img src="/static/img/chrome_extension2.png"
                                  alt="Second Slide">
                         </div>
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension3.png"
+                            <img src="/static/img/chrome_extension3.png"
                                  alt="Third Slide">
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension4.png"
-                                 alt="Fourth Slide">
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div id="picContainer">
-                            <img src="https://cdn.rawgit.com/lw453/fairshake/1a78f5d/chrome_extension5.png"
-                                 alt="Fifth Slide">
                         </div>
                     </div>
                 </div>

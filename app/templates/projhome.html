@@ -31,20 +31,11 @@
             width: 12%;
         }
 
-        div.tooltip {
-            position: absolute;
-            padding: 2px;
-            font: 13px sans-serif;
-            background: black;
-            color: white;
-            border-radius: 2px;
-            pointer-events: none;
-        }
+        .tooltip-inner {text-align:left;}
 
         .tablerow {
             font-size: 13px;
-            font-weight: 100;
-
+            font-weight: bold;
         }
 
     </style>
@@ -76,31 +67,14 @@
 
         function opac(d) {
             d3.select(this).style("fill-opacity", .3);
-            var div = d3.select(this.parentNode.parentNode).append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0);
-
-            div.transition().style("opacity", .8);
-            div.html("Score: " + roundTwo(d.numdata) + "<br/>" + d.qdata)
-                .style("left", (d3.event.pageX + 10) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
         }
 
         function opacBlank(d) {
             d3.select(this).style("fill-opacity", .3);
-            var div = d3.select(this.parentNode.parentNode).append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0);
-
-            div.transition().style("opacity", .8);
-            div.html("Score: " + "N/A" + "<br>" + d.qdata)
-                .style("left", (d3.event.pageX + 10) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
         }
 
         function bopac() {
             d3.select(this).style("fill-opacity", 1);
-            d3.selectAll(".tooltip").remove();
         }
 
         function rectAttr(sqnum){
@@ -288,7 +262,10 @@
                 return d.posx;
             }).attr("y", function (d) {
                 return d.posy;
-            }).style(rectStyle)
+            }).attr("data-toggle","tooltip").attr("data-placement","right").attr("data-container","body").attr("data-original-title",function(d){
+            return ("Score: " + roundTwo(d.numdata) + "<br>" + d.qdata);
+            }).attr("data-html","true")
+            .style(rectStyle)
                 .on("mouseover", opac)
                 .on("mouseout", bopac);
         }
@@ -302,7 +279,10 @@
                 return d.posx;
             }).attr("y", function (d) {
                 return d.posy;
-            }).style(blankStyle)
+            }).attr("data-toggle","tooltip").attr("data-placement","right").attr("data-container","body").attr("data-original-title",function(d){
+            return ("Score: N/A" + "<br>" + d.qdata);
+            }).attr("data-html","true")
+            .style(blankStyle)
                 .on("mouseover", opacBlank)
                 .on("mouseout", bopac);
         }
@@ -332,7 +312,7 @@
 
                 </div>
 
-                <form action="/fairshake/project/{{ projinfo[0] }}/myevaluations" class="form-horizontal"
+                <form action="/project/{{ projinfo[0] }}/myevaluations" class="form-horizontal"
                       method='GET' id="toggleForm">
                 </form>
             {% endif %}
@@ -340,11 +320,8 @@
         <table class="table table-responsive table-hover">
             <thead>
             <tr>
-                {% if current_user.is_authenticated %}
-                    <th>Select</th>
-                {% endif %}
+                <th style="width:5%"></th>
                 <th>Name</th>
-                <th>ID</th>
                 <th>Type</th>
                 <th>Description</th>
                 <th># of Evaluations</th>
@@ -352,128 +329,69 @@
             </tr>
             </thead>
             <tbody>
-
-            <form action="/fairshake/newevaluation" method="GET" id="form1">
-                {% for i in range(pagecount-per_page,showlast) %}
-                    <tr class="tablerow">
-                        {% if current_user.is_authenticated %}
-                            <td>
-                                <div class="radio">
-                                    {% if resources[i][0] in userres %}
-                                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                                    {% else: %}
-                                        <label><input type="radio" id='res1' name="resourceid"
-                                                      value={{ resources[i][0] }} required></label>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        {% endif %}
-                        <td>
-                            <div class="radiotext">
-                                <label for='res1'>
-                                    <a href={{ resources[i][2] }} target="_blank">{{ resources[i][1] }}</a></label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="radiotext">
-                                <label for='res1'>{{ resources[i][0] }}</label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="radiotext">
-                                <label for='res1'>{{ resources[i][3] }}</label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="radiotext">
-                                <label for='res1'><p>{{ resources[i][4] }}</p></label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="radiotext">
-                                <label for='res1'>{{ listeval[i] }}</label>
-                            </div>
-                        </td>
-                        <td class="tdinsig">
-                            <div class="insignia{{ i }}">
-                                {% if not avginfo[i][1]=='None' %}
-                                    <script>
-                                        insig({{ i }}, {{ resources[i][6] }});
-                                    </script>
-                                {% else %}
-                                    <script>
-                                        blankinsig({{ i }}, {{ resources[i][6] }});
-                                    </script>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </form>
+            {% for i in range(pagecount-per_page,showlast) %}
+                <tr class="tablerow">
+                    <td>
+                        <div>
+                            {% if resources[i][0] in userres %}
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <a href={{ resources[i][2] }} target="_blank">
+                                <span class="glyphicon glyphicon-search" aria-hidden="true" style="color:purple; font-weight:bold;"></span></a>
+                            {% if resources[i][0] not in userres %}
+                                <a href="/newevaluation?resourceid={{ resources[i][0] }}" target="_blank">{{ resources[i][1] }}</a>
+                            {% else %}
+                                <a href="/modifyevaluation?resourceid={{ resources[i][0] }}" target="_blank">{{ resources[i][1] }}</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            {{ resources[i][3] }}
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <p>{{ resources[i][4] }}</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            {{ listeval[i] }}
+                        </div>
+                    </td>
+                    <td class="tdinsig">
+                        <div class="insignia{{ i }}">
+                            {% if not avginfo[i][1]=='None' %}
+                                <script>
+                                    insig({{ i }}, {{ resources[i][5] }});
+                                </script>
+                            {% else %}
+                                <script>
+                                    blankinsig({{ i }}, {{ resources[i][5] }});
+                                </script>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
 
-        {% if current_user.is_authenticated %}
-            <div class="form-actions">
-                <button type="submit" class="btn btn-default btn-left" value="Submit" form="form1">Evaluate</button>
-            </div>
-        {% endif %}
-
         <div class="form-actions">
-            <form action='/fairshake/project/{{ proj }}/resources/page/{{ page-1 }}' method='get'>
+            <form action='/project/{{ proj }}/resources/page/{{ page-1 }}' method='get'>
                 <button type="submit" class="btn btn-default btn-left" value="Back" id="back">Back</button>
             </form>
         </div>
 
         <div class="form-actions">
-            <form action='/fairshake/project/{{ proj }}/resources/page/{{ page+1}}' method='get'>
+            <form action='/project/{{ proj }}/resources/page/{{ page+1}}' method='get'>
                 <button type="submit" class="btn btn-default btn-left" value="Next" id="next">Next</button>
             </form>
         </div>
-
-
-{#        <nav aria-label="Page navigation example">#}
-{#            <ul class="pagination">#}
-{#            </ul>#}
-{#        </nav>#}
-
-    </div>
-
-{#    <script>#}
-{##}
-{#        var $pagination = $('.pagination');#}
-{#        var defaultOpts = {#}
-{#            initiateStartPageClick: false,#}
-{#            totalPages: lastpage,#}
-{#            visiblePages: 5,#}
-{#            prev: "&lt",#}
-{#            next: "&gt",#}
-{#            first: "&laquo",#}
-{#            last: "&raquo",#}
-{#            href: true#}
-{#            ,#}
-{#            onPageClick: function (event, page) { // works in terms of redirecting but needs also have same button function as before#}
-{#                window.location.href = "/fairshake/project/1/resources/page/" + page;#}
-{#            }#}
-{#        };#}
-{#        $pagination.twbsPagination(defaultOpts);#}
-{#        $.ajax({#}
-{#            success: function (data) {#}
-{#                var totalPages = data.newTotalPages;#}
-{#                var currentPage = $pagination.twbsPagination('getCurrentPage');#}
-{#                $pagination.twbsPagination('destroy');#}
-{#                $pagination.twbsPagination($.extend({}, defaultOpts, {#}
-{#                    startPage: currentPage,#}
-{#                    totalPages: totalPages#}
-{#                }));#}
-{#            }#}
-{#        })#}
-{#        ;#}
-{##}
-{#        $(document).ready(function () {#}
-{#            $(".pagination").rPage();#}
-{#        });#}
-{#    </script>#}
-
     </div>
 {% endblock %}

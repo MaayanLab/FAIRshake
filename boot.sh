@@ -19,7 +19,6 @@ cat << EOF | tee -a $diskroot/wsgi.ini >> $log
 [uwsgi]
 uid = $user
 gid = $user
-
 master = true
 processes = 5
 
@@ -33,17 +32,13 @@ EOF
 echo "Writing nginx.conf..." >> $log
 cat << EOF | tee -a $diskroot/nginx.conf >> $log
 user $user $user;
-
 worker_processes 1;
-
 events {
 	worker_connections 1024;
 }
-
 http {
     access_log $log;
 	error_log $log;
-
 	gzip              on;
 	gzip_http_version 1.0;
 	gzip_proxied      any;
@@ -54,7 +49,6 @@ http {
 					  text/javascript
 					  application/x-javascript
 					  application/atom+xml;
-
     server {
         listen          80;
         server_name     $servername;
@@ -77,11 +71,9 @@ http {
         sendfile on;
         keepalive_timeout 0;
         large_client_header_buffers 8 32k;
-
         location $webroot/static  {
             alias $diskroot/app/static;
         }
-
         location / {
             include            /etc/nginx/uwsgi_params;
             uwsgi_pass         127.0.0.1:8080;

@@ -1,10 +1,10 @@
-FAIRShake
+FAIRshake
 ========
 
 A web interface for the scoring of biomedical digital objects by user evaluation
 according to the FAIR data principles: Findability, Accessibility, Interoperability, and Reusability.
 
-Prototype currently available at: http://fairshake.cloud/
+Prototype currently available at: https://fairshake.cloud
 
 Setup
 ---------
