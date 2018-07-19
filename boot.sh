@@ -3,7 +3,7 @@
 user=r
 
 diskroot=/fairshake
-sslroot=$diskroot/ssl
+sslroot=/ssl
 log=$diskroot/error.log
 
 servername=fairshake.cloud
@@ -71,9 +71,11 @@ http {
         sendfile on;
         keepalive_timeout 0;
         large_client_header_buffers 8 32k;
+
         location $webroot/static  {
             alias $diskroot/app/static;
         }
+
         location / {
             include            /etc/nginx/uwsgi_params;
             uwsgi_pass         127.0.0.1:8080;

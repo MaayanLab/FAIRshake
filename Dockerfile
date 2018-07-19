@@ -13,7 +13,7 @@ RUN apt-get update && \
 ADD requirements.txt /requirements.txt
 RUN pip install -Ivr /requirements.txt
 
-ADD ./ssl /fairshake/ssl
+VOLUME /ssl
 EXPOSE 8080
 
 ADD . /fairshake

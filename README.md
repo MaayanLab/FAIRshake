@@ -24,7 +24,7 @@ Docker
 
 ```
 docker build -t fairshake .
-docker run -p 443:443 -v ssl:/fairshake/ssl -it fairshake
+docker run -p 443:443 -v ssl:/ssl -it fairshake
 ```
 
 Components
