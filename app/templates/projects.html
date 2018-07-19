@@ -45,44 +45,44 @@
     <!-- Change active tab -->
     <nav class="navbar navbar-default navbar-static-top">
         <div class="navbar-header">
-            <a id="navbar-logo" class="navbar-brand" href="/fairshake" style="display: table;">
-                <img src="https://cdn.rawgit.com/lw453/fairshake/d67c9cf/icon-32.png"
+            <a id="navbar-logo" class="navbar-brand" href="/" style="display: table;">
+                <img src="/static/img/icon-32.png"
                      style="display: table-cell; vertical-align: middle; margin-right: 10px;">
-                <div style="display: table-cell; vertical-align: middle;">FAIRShake</div>
+                <div style="display: table-cell; vertical-align: middle;">FAIRshake</div>
             </a>
         </div>
         <ul class="nav navbar-nav navbar-left">
             <li class="active">
-                <a href="/fairshake/projects" class="headx">Projects</a></li>
+                <a href="/projects" class="headx">Projects</a></li>
             <li>
-                <a href="/fairshake/startproject" class="headx">Start a Project</a></li>
+                <a href="/startproject" class="headx">Start a Project</a></li>
             <li>
-                <a href="/fairshake/chromeextension" class="headx">Download Chrome Extension</a></li>
+                <a href="/chromeextension" class="headx">Download Chrome Extension</a></li>
             <li>
-                    <a href="/fairshake/bookmarklet" class="headx">Download Bookmarklet</a></li>
+                    <a href="/bookmarklet" class="headx">Download Bookmarklet</a></li>
             {% if current_user.is_authenticated %}
                 <li>
-                    <a href="/fairshake/evaluatedprojects" class="headx">Evaluated Projects</a></li>
+                    <a href="/evaluatedprojects" class="headx">Evaluated Projects</a></li>
             {% endif %}
         </ul>
         <ul class="nav navbar-nav navbar-right">
             {% if not current_user.is_authenticated %}
                 <li>
-                    <a href="/fairshake/login" class="headx">Login</a></li>
+                    <a href="/login" class="headx">Login</a></li>
                 <li>
-                    <a href="/fairshake/register" class="headx">Sign up</a></li>
+                    <a href="/register" class="headx">Sign up</a></li>
             {% else %}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle headx" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">{{ current_user.first_name }}</a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="/fairshake/evaluatedprojects">Evaluated Projects</a></li>
+                            <a href="/evaluatedprojects">Evaluated Projects</a></li>
                         <li>
-                            <a href="/fairshake/settings">Settings</a></li>
+                            <a href="/settings">Settings</a></li>
                         <li role="separator" class="divider"></li>
                         <li>
-                            <a href="/fairshake/logout">Logout</a></li>
+                            <a href="/logout">Logout</a></li>
                     </ul>
                 </li>
             {% endif %}
@@ -100,7 +100,7 @@
                 <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
                     <div class="panel panel-default">
                         <div class="panel-body text-center">
-                            <a href="/fairshake/project/{{ projectlist[i][0] }}/resources">
+                            <a href="/project/{{ projectlist[i][0] }}/resources">
                                 <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
                                     <img class="projectimg" src="{{ projectlist[i][3] }}">
                                 </div>
@@ -111,7 +111,7 @@
                             </div>
 
                         </div>
-                        <form action="/fairshake/project/{{ projectlist[i][0] }}/resources" method="get" id="xyz1">
+                        <form action="/project/{{ projectlist[i][0] }}/resources" method="get" id="xyz1">
                             <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
                         </form>
                     </div>

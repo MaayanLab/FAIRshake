@@ -29,18 +29,6 @@
 {% endblock %}
 {% block content %}
     <script type="text/javascript">
-        function clickAffirmative(obj) {
-            if (!(obj.checked == "checked")) {
-                document.getElementById(obj.name + 'urlcomment').style.display = 'inline';
-                document.getElementById(obj.name + 'comment').style.display = 'inline';
-            }
-        }
-
-        function clickNo(obj) {
-            document.getElementById(obj.name + 'urlcomment').style.display = 'none';
-            document.getElementById(obj.name + 'comment').style.display = 'none';
-        }
-
         function loadAnswer(obj) {
             document.getElementById(obj).checked = true;
         }
@@ -68,7 +56,7 @@
                     thisUrlComment = thisUrlComment.split(/\s/);
                     temp=true;
                     for (var a=0;a<thisUrlComment.length;a++){
-                        if (!(/^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/.test(thisUrlComment[a]))){
+                        if (!(/^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/.test(thisUrlComment[a]))){
                             bool=false;
                             temp=false;
                         }
@@ -100,9 +88,10 @@
             <th>Yes</th>
             <th>No</th>
             <th>Yes, but:</th>
-            <th style="width:35%">Comments</th>
+            <th>No, but:</th>
+            <th style="width:30%">Comments</th>
             {% if exampleArr %}
-                <th style="width:35%">Example answers for
+                <th style="width:30%">Example answers for
                     {% if resource_type == 'Tool' %}
                         <a href="http://amp.pharm.mssm.edu/Harmonizome/">Harmonizome</a> tool</th>
                     {% elif resource_type == 'Dataset' %}
@@ -113,7 +102,7 @@
             {% endif %}
             </thead>
 
-            <form action="/fairshake/modifysubmitted" id="evalForm" method="post">
+            <form action="/modifysubmitted" id="evalForm" method="post">
                 <input type="hidden" name="resource_id" value={{ resource_id }}>
                 <input type="hidden" name="formType" value="evalForm">
                 <tbody>
@@ -123,15 +112,16 @@
                             {{ w+1}}. {{ setq[w][2] }}
                         </td>
                         <td>
-                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yes" value="yes"
-                                   onclick="clickAffirmative(this)" required>
+                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yes" value="yes" required>
                         </td>
                         <td>
-                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}no" value="no" onclick="clickNo(this)">
+                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}no" value="no">
                         </td>
                         <td>
-                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yesbut" value="yesbut"
-                                    onclick="clickAffirmative(this)">
+                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}yesbut" value="yesbut">
+                        </td>
+                        <td>
+                            <input type="radio" name="q{{ w+1}}" id="q{{ w+1}}nobut" value="nobut">
                         </td>
                         <td>
                             <textarea name="q{{w+1}}urlcomment" id="q{{w+1}}urlcomment" class="textfield urlcommentbox"
@@ -157,7 +147,7 @@
                 <button class="btn btn-default" type="submit" form="evalForm" value="Update"
                         onclick="return validateURL();">Submit</button>
             </div>
-            <form action="/fairshake/modifysubmitted" id="deleteEval" method="post">
+            <form action="/modifysubmitted" id="deleteEval" method="post">
                 <input type="hidden" name="resource_id" value={{ resource_id }}>
                 <input type="hidden" name="formType" value="deleteEval">
             </form>
@@ -166,7 +156,7 @@
                         onclick="return confirm('Are you sure you want to delete this evaluation?');">Delete Evaluation</button>
             </div>
         </div>
-        <form action="/fairshake/modifysubmitted" id="cancelForm" method="post">
+        <form action="/modifysubmitted" id="cancelForm" method="post">
             <input type="hidden" name="resource_id" value={{ resource_id }}>
             <input type="hidden" name="formType" value="cancelForm">
         </form>
@@ -191,16 +181,4 @@
             }
         </script>
     {% endif %}
-    <script>
-        function hideBoxes(a){
-            var commentBoxes = document.getElementsByClassName(a);
-            for (var i = 0; i < commentBoxes.length; i++) {
-                if (document.getElementById('q'+(i+1)+'no').checked==true){
-                    commentBoxes[i].style.display = 'none';
-                }
-            }
-        }
-        hideBoxes('urlcommentbox');
-        hideBoxes('othercommentbox');
-    </script>
 {% endblock %}

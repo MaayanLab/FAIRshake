@@ -1,13 +1,20 @@
 FROM debian:stable
 
-RUN apt-get update
-RUN apt-get -y install vim
-RUN apt-get -y install python python-dev python-pip python-setuptools
-RUN apt-get -y install nginx uwsgi-core
+RUN apt-get update && \
+    apt-get -y install \
+        vim \
+        python \
+        python-dev \
+        python-pip \
+        python-setuptools \
+        nginx \
+        uwsgi-core
 
-RUN pip install -Iv Flask flask-cors requests uwsgi flask-login flask-mysql
+RUN pip install -Iv Flask flask-cors requests uwsgi flask-login flask-mysql validators
 
-EXPOSE 80
+#VOLUME /fairshake/ssl
+ADD ./ssl /fairshake/ssl
+EXPOSE 8080
 
 ADD . /fairshake
 RUN chmod -R 777 /fairshake
