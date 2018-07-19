@@ -1,58 +1,52 @@
 from rest_framework import serializers
-from .models import (
-  Answer,
-  Assessment,
-  Author,
-  DigitalObject,
-  IdentifiableModelMixin,
-  Metric,
-  Project,
-  Rubric,
-  Score,
-)
+from . import models
 
 class IdentifiableModelMixinSerializer(serializers.ModelSerializer):
   class Meta:
-    model = IdentifiableModelMixin
+    model = models.IdentifiableModelMixin
     fields = '__all__'
     abstract = True
 
 class AuthorSerializer(serializers.ModelSerializer):
   class Meta:
-    model = Author
+    model = models.Author
     fields = '__all__'
 
 class DigitalObjectSerializer(IdentifiableModelMixinSerializer):
   class Meta:
-    model = DigitalObject
+    model = models.DigitalObject
     fields = '__all__'
 
 class ProjectSerializer(IdentifiableModelMixinSerializer):
   class Meta:
-    model = Project
+    model = models.Project
     fields = '__all__'
 
 class MetricSerializer(IdentifiableModelMixinSerializer):
   class Meta:
-    model = Metric
+    model = models.Metric
     fields = '__all__'
 
 class RubricSerializer(IdentifiableModelMixinSerializer):
   class Meta:
-    model = Rubric
+    model = models.Rubric
     fields = '__all__'
 
 class AssessmentSerializer(serializers.ModelSerializer):
   class Meta:
-    model = Assessment
+    model = models.Assessment
     fields = '__all__'
 
 class AnswerSerializer(serializers.ModelSerializer):
   class Meta:
-    model = Answer
+    model = models.Answer
     fields = '__all__'
 
-class ScoreSerializer(serializers.ModelSerializer):
+class ScoreSerializer(serializers.BaseSerializer):
+  def to_representation(self, obj):
+    return obj.score()
+
+class DigitalObjectsToRubricsSerializer(serializers.ModelSerializer):
   class Meta:
-    model = Score
-    fields = ['score']
+    model = models.DigitalObject
+    fields = ('rubrics',)

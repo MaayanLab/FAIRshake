@@ -1,80 +1,89 @@
-from rest_framework import viewsets, permissions
+# TODO: split up into abstract API implementations
 
-from .serializers import (
-  AnswerSerializer,
-  AssessmentSerializer,
-  AuthorSerializer,
-  DigitalObjectSerializer,
-  MetricSerializer,
-  ProjectSerializer,
-  RubricSerializer,
-  ScoreSerializer,
-)
-from .filters import (
-  AnswerFilterSet,
-  AssessmentFilterSet,
-  AuthorFilterSet,
-  DigitalObjectFilterSet,
-  MetricFilterSet,
-  ProjectFilterSet,
-  RubricFilterSet,
-  ScoreFilterSet,
-)
-from .models import (
-  Answer,
-  Assessment,
-  Author,
-  DigitalObject,
-  Metric,
-  Project,
-  Rubric,
-  Score,
-)
+import coreapi
+import coreschema
+from rest_framework import views, viewsets, permissions, schemas, response
+from . import serializers, filters, models
+
+class RequestAssessmentViewSet(viewsets.ViewSet):
+  ''' Request an assessment for a digital resource
+  '''
+  queryset = models.DigitalObject.objects.all()
+  schema = schemas.AutoSchema(manual_fields=[
+    coreapi.Field(
+      'rubric',
+      required=False,
+      description='Specific rubric to use for the assessment, default will be internal associations',
+      location='query',
+      schema=coreschema.String(),
+    ),
+    coreapi.Field(
+      'methodology',
+      required=False,
+      description='Type of assessment requested, default is FAIRshake manual assessment',
+      location='query',
+      schema=coreschema.String(),
+    ),
+    coreapi.Field(
+      'callback',
+      required=False,
+      description='Where to send the results when they are ready, default is FAIRshake itself',
+      location='query',
+    ),
+  ])
+
+  def retrieve(self, request, pk=None, format=None):
+    # TODO: perform assessment
+    return response.Response({})
 
 class AnswerViewSet(viewsets.ModelViewSet):
-  queryset = Answer.objects.all()
-  serializer_class = AnswerSerializer
+  queryset = models.Answer.objects.all()
+  serializer_class = serializers.AnswerSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = AnswerFilterSet
+  filter_class = filters.AnswerFilterSet
 
 class AssessmentViewSet(viewsets.ModelViewSet):
-  queryset = Assessment.objects.all()
-  serializer_class = AssessmentSerializer
+  queryset = models.Assessment.objects.all()
+  serializer_class = serializers.AssessmentSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = AssessmentFilterSet
+  filter_class = filters.AssessmentFilterSet
 
 class AuthorViewSet(viewsets.ModelViewSet):
-  queryset = Author.objects.all()
-  serializer_class = AuthorSerializer
+  queryset = models.Author.objects.all()
+  serializer_class = serializers.AuthorSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = AuthorFilterSet
+  filter_class = filters.AuthorFilterSet
 
 class DigitalObjectViewSet(viewsets.ModelViewSet):
-  queryset = DigitalObject.objects.all()
-  serializer_class = DigitalObjectSerializer
+  queryset = models.DigitalObject.objects.all()
+  serializer_class = serializers.DigitalObjectSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = DigitalObjectFilterSet
+  filter_class = filters.DigitalObjectFilterSet
 
 class MetricViewSet(viewsets.ModelViewSet):
-  queryset = Metric.objects.all()
-  serializer_class = MetricSerializer
+  queryset = models.Metric.objects.all()
+  serializer_class = serializers.MetricSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = MetricFilterSet
+  filter_class = filters.MetricFilterSet
 
 class ProjectViewSet(viewsets.ModelViewSet):
-  queryset = Project.objects.all()
-  serializer_class = ProjectSerializer
+  queryset = models.Project.objects.all()
+  serializer_class = serializers.ProjectSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = ProjectFilterSet
+  filter_class = filters.ProjectFilterSet
 
 class RubricViewSet(viewsets.ModelViewSet):
-  queryset = Rubric.objects.all()
-  serializer_class = RubricSerializer
+  queryset = models.Rubric.objects.all()
+  serializer_class = serializers.RubricSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = RubricFilterSet
+  filter_class = filters.RubricFilterSet
 
-class ScoreViewSet(viewsets.ModelViewSet):
-  queryset = Score.objects.all()
-  serializer_class = ScoreSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
-  filter_class = ScoreFilterSet
+class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
+  queryset = models.Score.objects.all()
+  serializer_class = serializers.ScoreSerializer
+  filter_class = filters.ScoreFilterSet
+
+class DigitalObjectsToRubricsViewSet(viewsets.ModelViewSet):
+  queryset = models.DigitalObject.objects.all()
+  serializer_class = serializers.DigitalObjectsToRubricsSerializer
+  filter_class = filters.DigitalObjectsToRubricsFilterSet

@@ -5,19 +5,21 @@ from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
 from . import views
 
-router = routers.DefaultRouter()
-router.register(r'answer', views.AnswerViewSet)
-router.register(r'assessment', views.AssessmentViewSet)
-router.register(r'author', views.AuthorViewSet)
-router.register(r'digital_object', views.DigitalObjectViewSet)
-router.register(r'metric', views.MetricViewSet)
-router.register(r'project', views.ProjectViewSet)
-router.register(r'rubric', views.RubricViewSet)
-router.register(r'score', views.ScoreViewSet)
+router = routers.SimpleRouter()
+router.register(r'answer', views.AnswerViewSet, base_name='answer')
+router.register(r'assessment', views.AssessmentViewSet, base_name='assessment')
+router.register(r'author', views.AuthorViewSet, base_name='author')
+router.register(r'digital_object', views.DigitalObjectViewSet, base_name='digital_object')
+router.register(r'metric', views.MetricViewSet, base_name='metric')
+router.register(r'project', views.ProjectViewSet, base_name='project')
+router.register(r'rubric', views.RubricViewSet, base_name='rubric')
+router.register(r'score', views.ScoreViewSet, base_name='score')
+router.register(r'digital_objects_to_rubrics', views.DigitalObjectsToRubricsViewSet, base_name='digital_objects_to_rubrics')
+router.register(r'request_assessment', views.RequestAssessmentViewSet, base_name='request_assessment')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('', get_swagger_view(title='FAIRshake')),
     path('coreapi/', include_docs_urls(title='FAIRshake')),
-    path('openapi/', get_swagger_view(title='FAIRshake')),
     path('schema/', get_schema_view(title='FAIRshake')),
 ]
