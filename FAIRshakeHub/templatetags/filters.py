@@ -1,3 +1,4 @@
+import json
 from django import template
 
 register = template.Library()
@@ -8,3 +9,7 @@ def return_item(l, i):
     return l[i]
   except:
     return None
+
+@register.filter
+def jsonify(d):
+  return json.dumps(d)

@@ -11,7 +11,7 @@
 
 {% block content %}
 <div class="container-fluid">
-    <h2 style="text-align: center;"><b>Evaluation:</b> <a href="{{ resource.url }}" target="_blank">{{ resource.name }}</a></h2>
+    <h2 style="text-align: center;"><b>Evaluation:</b> <a href="{{ resource.url }}" target="_blank">{{ resource.title }}</a></h2>
     <h4 style="text-align:center;"><b>ID:</b> {{ resource.id }} &nbsp; <b>Type:</b> {{ resource.type }}</h4>
     <h4 id="bottom-heading" style="text-align:center;"><b>Description:</b> {{ resource.description }}</h4>
     <form action="/evaluation/" id="evaluation-form" method="POST">
@@ -20,11 +20,9 @@
         <input type="hidden" name="rubric_ids" id="rubric_ids">
         <script>document.getElementById("rubric_ids").value=JSON.stringify({{ rubric_ids|safe }});</script>
         {% for rubric in rubrics %}
-            <fieldset class="form-group"><legend>{{ rubric.name }}</legend>
+            <fieldset class="form-group"><legend>{{ rubric.title }}</legend>
                 {% for metric in rubric.metrics.all %}
-                    {% with answer=metric.answers.first %}
-                        {% include "fairshake/question_kinds/"|add:metric.type|add:".html" %}
-                    {% endwith %}
+                    {% include "fairshake/question_kinds/"|add:metric.type|add:".html" with metric=metric answer=metric.answers.first %}
                 {% endfor %}
             </fieldset>
         {% endfor %}

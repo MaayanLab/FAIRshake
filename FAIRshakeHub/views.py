@@ -7,20 +7,21 @@ from FAIRshakeAPI import models
 
 # TODO: Use Coreapi instead of django models and/or find a coreapi -> django model converter?
 
-top_projects = models.Project.objects.annotate(n_objs=db.Count('digital_objects')).order_by('-n_objs').all()
+def top_projects():
+  return models.Project.objects.annotate(n_objs=db.Count('digital_objects')).order_by('-n_objs').all()
 
 def index(request):
   ''' FAIRshakeHub Home Page
   '''
   return render(request, 'fairshake/index.html', dict(
-    top_projects=top_projects[:4],
+    top_projects=top_projects()[:4],
     active_page='index',
     current_user=request.user,
   ))
 
 def projects(request):
   return render(request, 'fairshake/projects.html', dict(
-    projects=top_projects,
+    projects=top_projects(),
     active_page='projects',
     current_user=request.user,
   ))
@@ -46,12 +47,10 @@ def chrome_extension(request):
 @login_required
 def resources(request, project):
   project = models.Project.objects.get(id=project)
-  resources = project.digital_objects.filter(
-    assessments__isnull=False,
-  ).annotate(
+  resources = project.digital_objects.annotate(
     n_assessments=db.Count('id'),
   )
-  # TODO: there should be ab etter way
+  # TODO: there should be a better way
   user_resources = [v['id'] for v in resources.filter(
     assessments__assessor=request.user.id,
   ).values('id')]
@@ -117,8 +116,8 @@ def evaluation(request):
         # for criterion in rubric.criteria
         for metric in rubric.metrics.all()
       ]
-      assessment = Assessment(
-        project=project, # TODO
+      assessment = models.Assessment(
+        project=project,
         target=models.DigitalObject.objects.get(id=resource_id),
         assessor=request.user.id,
         rubric=rubric,
@@ -126,22 +125,14 @@ def evaluation(request):
       assessment.save()
       
       for metric in rubric.metrics.all():
-        Answer(
+        models.Answer(
           assessment=assessment,
           metric=metric,
           answer=request.POST.get(metric.id, ''),
-          # comment=
-          # url_comment=
+          # comment=,
+          # url_comment=,
         ).save()
-      # assessment.post(
-      #   Assessment(
-      #     target=resource_id,
-      #     assessor=request.user.id,
-      #     rubric=rubric.id,
-      #     answers=answers,
-      #   )
-      # )
-    # project = get_project_id(first(repository.get(resource_id)))
+    # TODO: redirect somewhere else if we don't have access to the project
     return redirect('/project/{:d}/resources'.format(project.id))
 
 @login_required

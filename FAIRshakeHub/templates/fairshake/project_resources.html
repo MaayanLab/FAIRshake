@@ -14,7 +14,7 @@
     <div class="container-fluid">
         <div class="heading">
             <div class="title">
-                <h2>{{ project.name }}<small> - Resources List</small></h2>
+                <h2>{{ project.title }}<small> - Resources List</small></h2>
                 <h4>{{ project.description }} </h4>
             </div>
 {#            {% if current_user.is_authenticated %}#}
@@ -56,7 +56,7 @@
                         <td>
                             <div class="radiotext">
                                 <label for="resource_id">
-                                    <a href={{ resource.url }} target="_blank">{{ resource.name }}</a></label>
+                                    <a href={{ resource.url }} target="_blank">{{ resource.title }}</a></label>
                             </div>
                         </td>
                         <td>
@@ -75,8 +75,8 @@
                             </div>
                         </td>
                         <td class="tdinsig">
-                            <div class="insignia{{ resource.id }}">
-                                TODO
+                            <div class="insignia">
+                                {{ resource.score|jsonify|safe }}
                             </div>
                         </td>
                     </tr>
