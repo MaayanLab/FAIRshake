@@ -26,11 +26,27 @@ class DigitalObject(IdentifiableModelMixin):
   url = models.URLField(blank=False, null=False)
   type = models.TextField(blank=False, null=False)
 
+  def score(self):
+    '''
+    Generate aggregate scores on a per-rubric and per-metric basis.
+    '''
+    s = {}
+    for rubric in self.rubrics.all():
+      score = {}
+      for assessment in Assessment.objects.filter(target=self.id, rubric=rubric.id):
+        for answer in Answer.objects.filter(assessment=assessment.id):
+          score[answer.metric.id] = score.get(answer.metric, []) + [answer.value()]
+      s[rubric.id] = {
+        k: sum(v)/len(v)
+        for k, v in score.items()
+      }
+    return s
+
   rubrics = models.ManyToManyField('Rubric', related_name='digital_objects')
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
-  # project = models.ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='assessments')
+  project = models.ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='assessments')
   target = models.ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='assessments')
   rubric = models.ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='assessments')
   methodology = models.TextField(blank=False, null=False)
@@ -71,16 +87,6 @@ class Rubric(IdentifiableModelMixin):
   metrics = models.ManyToManyField('Metric', related_name='rubrics')
 
 class Score(DigitalObject):
-  def score(self):
-    score = {}
-    for assessment in Assessment.objects.filter(target=self.id):
-      for answer in Answer.objects.filter(assessment=assessment.id):
-        score[answer.metric.id] = score.get(answer.metric, []) + [answer.value()]
-    return {
-      key: float(sum(value))/len(value)
-      for key, value in score.items()
-    }
-
   class Meta:
     proxy = True
 

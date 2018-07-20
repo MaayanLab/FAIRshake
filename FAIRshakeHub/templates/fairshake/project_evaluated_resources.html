@@ -99,3 +99,17 @@
 {#        </div>#}
     </div>
 {% endblock %}
+
+{% block script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
+<script src="{% static 'scripts/insignia.js' %}"></script>
+<script>
+$('.insignia').each(function(ind, el) {
+    var $el = $(el)
+    var scores = JSON.parse($el.text())
+    $el.empty()
+    build_insignia_svg(el, scores)
+})
+$('[data-toggle="tooltip"]').tooltip()
+</script>
+{% endblock %}

@@ -1,4 +1,4 @@
-var d3 = require('d3')
+// var d3 = require('d3')
 
 function build_insignia_svg(container, scores) {
   // Construct the insignia with arbitrary scores and summaries
@@ -28,7 +28,7 @@ function build_insignia_svg(container, scores) {
   // Color is linarly chosen between Red (0) and Blue (1).
 
   var color =
-    d3.scale.linear()
+    d3.scaleLinear()
     .domain([-1, 1])
     .interpolate(d3.interpolateRgb)
     .range([
@@ -48,23 +48,36 @@ function build_insignia_svg(container, scores) {
     // Find the nearest square to build the insignia
     return Math.ceil(Math.sqrt(n))
   }
-      
-  var scores_sq = nearest_sq(scores.length)
-  score.forEach(function(score, i) {
-    var summary_sq = nearest_sq(score.summaries.length)
-    score.summaries.forEach(function(summary, j) {
+
+  var scores_sq = nearest_sq(Object.keys(scores).length)
+  var abs_unit = 1 / scores_sq
+  Object.keys(scores).forEach(function(rubric, i) {
+    var score = scores[rubric]
+    var summary_sq = nearest_sq(Object.keys(score).length)
+    var abs_x = (i % scores_sq) * abs_unit
+    var abs_y = Math.floor(i / scores_sq) * abs_unit
+    var local_unit = 1 / (scores_sq * summary_sq)
+
+    Object.keys(score).forEach(function(summary, j) {
+      var average = score[summary]
+      var description = summary // TODO
+      var local_x = (j % summary_sq) * local_unit
+      var local_y = Math.floor(j / summary_sq) * local_unit
+
       svg
         .append('rect')
-        .attr('x', (i % (scores_sq * summary_sq)) / (scores_sq * summary_sq))
-        .attr('y', Math.ceil(i % (scores_sq * summary_sq)) / (scores_sq * summary_sq))
-        .attr('width', 1 / (scores_sq * summary_sq))
-        .attr('height', 1 / (scores_sq * summary_sq))
-        .attr('fill', color(score.average))
+        .attr('x', abs_x + local_x)
+        .attr('y', abs_y + local_y)
+        .attr('width', local_unit)
+        .attr('height', local_unit)
+        .attr('stroke', '#ffffff')
+        .attr('stroke-width', abs_unit / 10)
+        .attr('fill', color(average))
         .attr('data-toggle', 'tooltip')
         .attr('data-placement', 'right')
         .attr('data-container', 'body')
         .attr('data-original-title', function(d) {
-          return 'Score (' + score.average + '): ' + score.metric.description
+          return 'Score (' + average + '): ' + description
         })
         .attr('data-html', 'true')
     })
