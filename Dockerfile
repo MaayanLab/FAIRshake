@@ -14,7 +14,7 @@ RUN apt-get update && \
 ADD requirements.txt /requirements.txt
 RUN pip3 install -Ivr /requirements.txt
 
-ENV MYSQL_CONFIG /my.cnf
+VOLuME /my.cnf
 VOLUME /ssl
 EXPOSE 8080
 

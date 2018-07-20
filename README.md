@@ -32,8 +32,8 @@ SECRET_KEY=custom_generated_secret_key
 docker run \
   -p 80:80 \
   -p 443:443 \
-  -v my.cnf:/my.cnf \
-  -v ssl:/ssl \
+  -v $(pwd)/my.cnf:/my.cnf \
+  -v $(pwd)/ssl:/ssl \
   -it fairshake
 ```
 
