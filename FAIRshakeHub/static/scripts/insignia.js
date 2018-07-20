@@ -62,7 +62,7 @@ function build_insignia_svg(container, scores, metrics) {
 
     Object.keys(score).forEach(function(summary, j) {
       var average = score[summary]
-      var description = metrics[summary].description
+      var description = ''// TODO: metrics[summary].description
       var local_x = (j % summary_sq) * local_unit
       var local_y = Math.floor(j / summary_sq) * local_unit
 
