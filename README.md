@@ -8,9 +8,6 @@ Available at http://fairshake.cloud/
 - FAIRshake: The django project settings
 - FAIRshakeHub: The website itself, gets all of its information from FAIRshakeAPI
 - FAIRshakeAPI: The primary API facilitator, is enabled with the other API components
-- FAIRshakeInsignia: A score display API
-- FAIRshakeAssessment: A manual assessment API
-- FAIRshakeRubric: A rubric provider
 
 ## Development
 ### Django Shell
@@ -18,9 +15,27 @@ ipython is recommended: `pip install ipython`
 
 `./manage.py shell`
 
-## Environment variables
-
+### Build Docker
+```bash
+docker build -t fairshake .
 ```
+
+## Production
+### Environment variables
+
+```bash
 MYSQL_CONFIG=/path/to/my.cnf
 SECRET_KEY=custom_generated_secret_key
 ```
+### Docker deployment
+```bash
+docker run \
+  -p 80:80 \
+  -p 443:443 \
+  -v my.cnf:/my.cnf \
+  -v ssl:/ssl \
+  -it fairshake
+```
+
+- `my.cnf` should be a mysql configuration to connect to the database
+- `ssl` should be a directory with `cert.key` and `cert.crt` ssl certificates.

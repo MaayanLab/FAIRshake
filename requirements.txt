@@ -7,5 +7,5 @@ django-rest-auth
 django-rest-swagger
 djangorestframework
 dynamic-rest
-mysqlclient
 Pillow
+uwsgi

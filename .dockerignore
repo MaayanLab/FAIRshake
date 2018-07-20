@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 Dockerfile
 fairshake.sql
+my.cnf
 README.md
 run.py
 ssl/

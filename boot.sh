@@ -21,9 +21,15 @@ uid = $user
 gid = $user
 master = true
 processes = 5
+harakiri = 20
+max-requests = 5000
+vacuum = true
 
 chdir = $diskroot
-wsgi-file = $diskroot/wsgi.py
+
+module = FAIRshake.wsgi:application
+env = DJANGO_SETTINGS_MODULE=FAIRshake.settings
+env = MYSQL_CONFIG=$MYSQL_CONFIG
 
 socket = 127.0.0.1:8080
 daemonize = $log
