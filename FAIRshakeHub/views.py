@@ -16,32 +16,27 @@ def index(request):
   return render(request, 'fairshake/index.html', dict(
     top_projects=top_projects()[:4],
     active_page='index',
-    current_user=request.user,
   ))
 
 def projects(request):
   return render(request, 'fairshake/projects.html', dict(
     projects=top_projects(),
     active_page='projects',
-    current_user=request.user,
   ))
 
 def start_project(request):
   return render(request, 'fairshake/start_project.html', dict(
     active_page='start_project',
-    current_user=request.user,
   ))
 
 def bookmarklet(request):
   return render(request, 'fairshake/bookmarklet.html', dict(
     active_page='bookmarklet',
-    current_user=request.user,
   ))
 
 def chrome_extension(request):
   return render(request, 'fairshake/chrome_extension.html', dict(
     active_page='chrome_extension',
-    current_user=request.user,
   ))
 
 @login_required
@@ -59,7 +54,6 @@ def resources(request, project):
     project=project,
     resources=resources,
     user_resources=user_resources,
-    current_user=request.user,
   ))
 
 @login_required
@@ -79,7 +73,6 @@ def my_evaluations(request, project):
   return render(request, 'fairshake/project_evaluated_resources.html', dict(
     project=project,
     resources=resources,
-    current_user=request.user,
   ))
 
 @login_required
@@ -145,5 +138,4 @@ def evaluated_projects(request):
 
   return render(request, 'fairshake/evaluated_projects.html', dict(
     evaluated_projects=projects,
-    current_user=request.user,
   ))

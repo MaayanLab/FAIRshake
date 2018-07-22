@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'rest_auth',
     'rest_auth.registration',
+    'bootstrapform',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -89,7 +90,10 @@ LOGGING = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'FAIRshakeHub', 'templates', ),
+            os.path.join(BASE_DIR, 'FAIRshakeHub', 'templates', 'allauth',),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
