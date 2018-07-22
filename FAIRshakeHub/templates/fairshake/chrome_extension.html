@@ -1,12 +1,14 @@
 {% extends "fairshake/base.html" %}
 
-{% block header %}
+{% block style %}
     {{ block.super }}
+    <link rel="stylesheet" href="{% static 'style/bookmarklet.css' %}" />
+{% endblock %}
 
-    {% block style %}
+{% block header %}
+    {% with active_page="chrome_extension" %}
         {{ block.super }}
-        <link rel="stylesheet" href="{% static 'style/bookmarklet.css' %}" />
-    {% endblock %}
+    {% endwith %}
 {% endblock %}
 
 {% block content %}

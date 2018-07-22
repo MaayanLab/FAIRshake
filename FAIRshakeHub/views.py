@@ -15,29 +15,21 @@ def index(request):
   '''
   return render(request, 'fairshake/index.html', dict(
     top_projects=top_projects()[:4],
-    active_page='index',
   ))
 
 def projects(request):
   return render(request, 'fairshake/projects.html', dict(
     projects=top_projects(),
-    active_page='projects',
   ))
 
 def start_project(request):
-  return render(request, 'fairshake/start_project.html', dict(
-    active_page='start_project',
-  ))
+  return render(request, 'fairshake/start_project.html')
 
 def bookmarklet(request):
-  return render(request, 'fairshake/bookmarklet.html', dict(
-    active_page='bookmarklet',
-  ))
+  return render(request, 'fairshake/bookmarklet.html')
 
 def chrome_extension(request):
-  return render(request, 'fairshake/chrome_extension.html', dict(
-    active_page='chrome_extension',
-  ))
+  return render(request, 'fairshake/chrome_extension.html')
 
 @login_required
 def resources(request, project):

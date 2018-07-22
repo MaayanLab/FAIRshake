@@ -1,12 +1,14 @@
 {% extends "fairshake/base.html" %}
 
-{% block header %}
+{% block style %}
     {{ block.super }}
+    <link rel="stylesheet" href="{% static 'style/start_project.css' %}" />
+{% endblock %}
 
-    {% block style %}
-        {{ block.super }}
-        <link rel="stylesheet" href="{% static 'style/start_project.css' %}" />
-    {% endblock %}
+{% block header %}
+  {% with active_page="start_project" %}
+    {{ block.super }}
+  {% endwith %}
 {% endblock %}
 
 {% block content %}

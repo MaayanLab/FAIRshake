@@ -1,7 +1,9 @@
 {% extends "fairshake/base.html" %}
 
 {% block header %}
-    {{ block.super }}
+    {% with active_page="bookmarklet" %}
+        {{ block.super }}
+    {% endwith %}
 
     {% block style %}
         {{ block.super }}

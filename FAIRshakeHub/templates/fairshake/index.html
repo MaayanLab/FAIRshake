@@ -5,6 +5,12 @@
     <link rel="stylesheet" href="{% static 'style/index.css' %}" />
 {% endblock %}
 
+{% block header %}
+  {% with active_page="index" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="title">
