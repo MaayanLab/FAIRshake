@@ -23,7 +23,6 @@ class Project(IdentifiableModelMixin):
   digital_objects = models.ManyToManyField('DigitalObject', related_name='projects')
 
 class DigitalObject(IdentifiableModelMixin):
-  url = models.URLField(blank=False, null=False)
   type = models.TextField(blank=False, null=False)
 
   def score(self):
