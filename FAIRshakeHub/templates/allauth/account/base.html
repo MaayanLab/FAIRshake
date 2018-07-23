@@ -2,6 +2,11 @@
 
 {% load i18n %}
 
+{% block style %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'style/providers.css' %}" />
+{% endblock %}
+
 {% block content %}
 <div class="container">
 <h1>{% trans 'My Account' %}</h1>
