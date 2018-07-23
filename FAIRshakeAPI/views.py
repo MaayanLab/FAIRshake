@@ -3,7 +3,16 @@
 import coreapi
 import coreschema
 from rest_framework import views, viewsets, permissions, schemas, response
+from rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from . import serializers, filters, models
+
+class GithubLogin(SocialLoginView):
+  adapter_class = GitHubOAuth2Adapter
+
+class OrcidLogin(SocialLoginView):
+  adapter_class = OrcidOAuth2Adapter
 
 class RequestAssessmentViewSet(viewsets.ViewSet):
   ''' Request an assessment for a digital resource

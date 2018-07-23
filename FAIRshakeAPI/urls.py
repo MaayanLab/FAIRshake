@@ -23,4 +23,6 @@ urlpatterns = [
     path('schema/', get_schema_view(title='FAIRshake')),
     path('auth/', include('rest_auth.urls')),
     path('auth/registration/', include('rest_auth.registration.urls')),
+    path('auth/github/', views.GithubLogin.as_view(), name='github_auth'),
+    path('auth/orcid/', views.OrcidLogin.as_view(), name='orcid_auth'),
 ]
