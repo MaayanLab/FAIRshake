@@ -39,7 +39,10 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class ScoreSerializer(serializers.BaseSerializer):
   def to_representation(self, obj):
-    return obj.score()
+    return {
+      'id': obj.id,
+      'score': obj.score(),
+    }
 
 class DigitalObjectsToRubricsSerializer(serializers.ModelSerializer):
   class Meta:
