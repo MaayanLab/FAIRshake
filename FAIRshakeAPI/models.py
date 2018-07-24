@@ -14,13 +14,13 @@ class IdentifiableModelMixin(models.Model):
   image = models.TextField(blank=True, null=True)
   tags = models.TextField(blank=True, null=True)
 
-  authors = models.ManyToManyField('Author')
+  authors = models.ManyToManyField('Author', blank=True)
 
   class Meta:
     abstract = True
 
 class Project(IdentifiableModelMixin):
-  digital_objects = models.ManyToManyField('DigitalObject', related_name='projects')
+  digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
 
 class DigitalObject(IdentifiableModelMixin):
   type = models.TextField(blank=False, null=False)
@@ -41,7 +41,7 @@ class DigitalObject(IdentifiableModelMixin):
       }
     return s
 
-  rubrics = models.ManyToManyField('Rubric', related_name='digital_objects')
+  rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
@@ -83,16 +83,11 @@ class Rubric(IdentifiableModelMixin):
   type = models.TextField(blank=False, null=False)
   license = models.TextField(blank=False, null=False)
 
-  metrics = models.ManyToManyField('Metric', related_name='rubrics')
+  metrics = models.ManyToManyField('Metric', blank=True, related_name='rubrics')
 
 class Score(DigitalObject):
   class Meta:
     proxy = True
 
-class CustomUser(AbstractUser):
+class Author(AbstractUser):
   pass
-
-class Author(models.Model):
-  id = models.AutoField(primary_key=True)
-  orcid = models.TextField(blank=False, null=True)
-  user = models.ForeignKey('CustomUser', on_delete=models.DO_NOTHING, null=True)
