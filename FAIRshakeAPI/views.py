@@ -2,7 +2,7 @@
 
 import coreapi
 import coreschema
-from rest_framework import views, viewsets, permissions, schemas, response
+from rest_framework import views, viewsets, permissions, schemas, response, mixins
 from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
@@ -81,8 +81,33 @@ class RubricViewSet(viewsets.ModelViewSet):
   permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
   filter_class = filters.RubricFilterSet
 
-class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
+class ScoreViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+  ''' Request an score for a digital resource
+  '''
   queryset = models.Assessment.objects.all()
-  serializer_class = serializers.ScoreSerializer
   filter_class = filters.ScoreFilterSet
   pagination_class = None
+
+  def list(self, request):
+    '''
+    Generate aggregate scores on a per-rubric and per-metric basis.
+    '''
+    scores = {}
+
+    for assessment in self.filter_queryset(self.get_queryset()):
+      if scores.get(assessment.rubric.id) is None:
+        scores[assessment.rubric.id] = {}
+      for answer in models.Answer.objects.filter(
+        assessment=assessment.id,
+      ):
+        if scores[assessment.rubric.id].get(answer.metric.id) is None:
+          scores[assessment.rubric.id][answer.metric.id] = []
+        scores[assessment.rubric.id][answer.metric.id].append(answer.value())
+
+    return response.Response({
+      rubric: {
+        metric: sum(value)/len(value)
+        for metric, value in score.items()
+      }
+      for rubric, score in scores.items()
+    })

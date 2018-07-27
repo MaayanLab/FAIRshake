@@ -66,7 +66,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
     user = self.context.get('request').user
     answers_data = validated_data.pop('answers')
     assessment = models.Assessment.objects.create(**validated_data, assessor=user)
-    for answer_data in answeDigitalObjectsToRubricsSerializerrs_data:
+    for answer_data in answers_data:
       models.Answer.objects.create(assessment=assessment, **answer_data)
     return assessment
 
@@ -89,31 +89,3 @@ class AnswerSerializer(serializers.ModelSerializer):
       'id',
       'assessment',
     )
-
-class ScoreSerializer(serializers.BaseSerializer):
-  def to_representation(self, assessments):
-    '''
-    Generate aggregate scores on a per-rubric and per-metric basis.
-    '''
-    scores = {}
-
-    for assessment in assessments:
-      if scores.get(assessment.rubric.id) is None:
-        scores[assessment.rubric.id] = {}
-      for answer in Answer.objects.filter(
-        assessment=assessment.id,
-      ):
-        if scores[assessment.rubric.id].get(answer.metric.id) is None:
-          scores[assessment.rubric.id][answer.metric.id] = []
-        scores[assessment.rubric.id][answer.metric.id].append(answer.value())
-
-    return {
-      rubric: {
-        metric: sum(value)/len(value)
-        for metric, value in score.items()
-      }
-      for rubric, score in scores.items()
-    }
-  
-  class Meta:
-    read_only = True
