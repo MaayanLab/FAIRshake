@@ -132,7 +132,7 @@ AUTH_USER_MODEL = 'FAIRshakeAPI.Author'
 
 MYSQL_CONFIG = os.environ.get(
     'MYSQL_CONFIG',
-    '/my.cnf' if os.path.isfile('/my.cnf') else None
+    '/ssl/my.cnf' if os.path.isfile('/ssl/my.cnf') else None
 )
 
 DATABASES = {
@@ -142,7 +142,7 @@ DATABASES = {
     } if MYSQL_CONFIG is None else {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': 'MYSQL_CONFIG',
+            'read_default_file': MYSQL_CONFIG,
         },
     }
 }

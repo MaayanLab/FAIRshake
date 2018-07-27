@@ -29,7 +29,6 @@ chdir = $diskroot
 
 module = FAIRshake.wsgi:application
 env = DJANGO_SETTINGS_MODULE=FAIRshake.settings
-env = MYSQL_CONFIG=$MYSQL_CONFIG
 
 socket = 0.0.0.0:8080
 daemonize = $log
