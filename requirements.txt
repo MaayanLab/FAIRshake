@@ -1,6 +1,7 @@
 coreapi
 django
 django-allauth
+django-bootstrap-form
 django-extensions
 django-filter
 django-rest-auth

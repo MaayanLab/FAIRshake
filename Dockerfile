@@ -14,9 +14,9 @@ RUN apt-get update && \
 ADD requirements.txt /requirements.txt
 RUN pip3 install -Ivr /requirements.txt
 
-VOLUME /my.cnf
 VOLUME /ssl
-EXPOSE 8080
+EXPOSE 80
+EXPOSE 443
 
 ADD . /fairshake
 RUN chmod -R 777 /fairshake

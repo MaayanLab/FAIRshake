@@ -31,7 +31,7 @@ module = FAIRshake.wsgi:application
 env = DJANGO_SETTINGS_MODULE=FAIRshake.settings
 env = MYSQL_CONFIG=$MYSQL_CONFIG
 
-socket = 127.0.0.1:8080
+socket = 0.0.0.0:8080
 daemonize = $log
 EOF
 
@@ -77,10 +77,6 @@ http {
         sendfile on;
         keepalive_timeout 0;
         large_client_header_buffers 8 32k;
-
-        location $webroot/static  {
-            alias $diskroot/app/static;
-        }
 
         location / {
             include            /etc/nginx/uwsgi_params;

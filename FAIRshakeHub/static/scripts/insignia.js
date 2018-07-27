@@ -3,7 +3,7 @@ var url = 'http://fairshake.cloud'
 require.config({
   paths: {
     d3: 'https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min',
-    coreapi: url + '/static/rest_framework/js/coreapi-0.1.1',
+    coreapi: url + '/api/static/rest_framework/js/coreapi-0.1.1',
     schema: url + '/api/coreapi/schema',
   },
   shims: {
