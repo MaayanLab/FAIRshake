@@ -1,12 +1,27 @@
 var url = 'http://fairshake.cloud'
 
-define(function (require) {
+require.config({
+  paths: {
+    d3: 'https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min',
+    coreapi: url + '/static/rest_framework/js/coreapi-0.1.1',
+    schema: url + '/api/coreapi/schema',
+  },
+  shims: {
+    schema: {
+      deps: ['coreapi'],
+      exports: 'window.schema',
+      init: function(coreapi) {
+        window.coreapi = this.window.coreapi = coreapi
+        return this
+      }
+    }
+  }
+})
+
+define(function(require) {
   return {
     build_svg: function (container, scores, metrics) {
-      require([
-        'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js'
-      ], function($, d3) {
+      require(['d3'], function(d3) {
         // Construct the insignia with arbitrary scores and summaries
         //
         // params:
@@ -123,21 +138,16 @@ define(function (require) {
       })
     },
     build_svg_from_score: function (container, params) {
-      require([
-        url + '/static/rest_framework/js/coreapi-0.1.1.js',
-        url + '/api/coreapi/schema.js'
-      ], function(coreapi, schema) {
+      require(['coreapi', 'schema'], function(coreapi, schema) {
         var client = new coreapi.Client()
         client
-          .action(schema, ['score', 'read'], params)
-          .then(function (data) {
-            data.forEach(function (score) {
-              build_svg(
-                container,
-                data
-              )
-            })
-          })
+          .action(schema, ['score', 'list'], params)
+          .then(function (score) {
+            build_svg(
+              container,
+              score,
+            )
+        })
       })
     }
   }
