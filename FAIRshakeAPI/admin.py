@@ -1,19 +1,17 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import (
-  Author,
-  DigitalObject,
-  Project,
-  Metric,
-  Rubric,
-  Assessment,
-  Answer,
-)
+from . import models
 
-admin.site.register(Author, UserAdmin)
-admin.site.register(DigitalObject)
-admin.site.register(Project)
-admin.site.register(Metric)
-admin.site.register(Rubric)
-admin.site.register(Assessment)
-admin.site.register(Answer)
+class AnswerInline(admin.TabularInline):
+  model = models.Answer
+
+class AssessmentAdmin(admin.ModelAdmin):
+  inlines = (AnswerInline,)
+
+admin.site.register(models.Author, UserAdmin)
+admin.site.register(models.Project)
+admin.site.register(models.DigitalObject)
+admin.site.register(models.Rubric)
+admin.site.register(models.Metric)
+admin.site.register(models.Assessment, AssessmentAdmin)
+admin.site.register(models.Answer)
