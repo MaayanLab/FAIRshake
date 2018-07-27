@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.urls import include, path
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', include('FAIRshakeHub.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('api/', include('FAIRshakeAPI.urls')),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

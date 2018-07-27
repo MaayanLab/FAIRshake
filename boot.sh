@@ -91,6 +91,9 @@ http {
 }
 EOF
 
+echo "Preparing django..." >> $log
+python3 $diskroot/manage.py collectstatic
+
 echo "Starting uwsgi..." >> $log
 uwsgi --ini $diskroot/wsgi.ini >> $log
 
