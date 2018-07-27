@@ -38,10 +38,5 @@ class RubricFilterSet(filters.FilterSet):
 
 class ScoreFilterSet(filters.FilterSet):
   class Meta:
-    model = models.Score
-    fields = '__all__'
-
-class DigitalObjectsToRubricsFilterSet(filters.FilterSet):
-  class Meta:
-    model = models.DigitalObject
-    fields = '__all__'
+    model = models.Assessment
+    exclude = ('timestamp',)

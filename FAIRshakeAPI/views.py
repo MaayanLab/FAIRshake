@@ -82,11 +82,7 @@ class RubricViewSet(viewsets.ModelViewSet):
   filter_class = filters.RubricFilterSet
 
 class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
-  queryset = models.Score.objects.all()
+  queryset = models.Assessment.objects.all()
   serializer_class = serializers.ScoreSerializer
   filter_class = filters.ScoreFilterSet
-
-class DigitalObjectsToRubricsViewSet(viewsets.ModelViewSet):
-  queryset = models.DigitalObject.objects.all()
-  serializer_class = serializers.DigitalObjectsToRubricsSerializer
-  filter_class = filters.DigitalObjectsToRubricsFilterSet
+  pagination_class = None

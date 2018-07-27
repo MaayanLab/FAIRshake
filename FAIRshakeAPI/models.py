@@ -25,23 +25,35 @@ class Project(IdentifiableModelMixin):
 class DigitalObject(IdentifiableModelMixin):
   type = models.TextField(blank=False, null=False)
 
-  def score(self):
+  rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
+
+  def score(self, projects=None, rubrics=None):
     '''
     Generate aggregate scores on a per-rubric and per-metric basis.
     '''
-    s = {}
-    for rubric in self.rubrics.all():
-      score = {}
-      for assessment in Assessment.objects.filter(target=self.id, rubric=rubric.id):
-        for answer in Answer.objects.filter(assessment=assessment.id):
-          score[answer.metric.id] = score.get(answer.metric, []) + [answer.value()]
-      s[rubric.id] = {
-        k: sum(v)/len(v)
-        for k, v in score.items()
-      }
-    return s
+    scores = {}
 
-  rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
+    for assessment in Assessment.objects.filter(
+      target=self.id,
+      rubric__in=rubrics,
+      project__in=projects,
+    ):
+      if scores.get(assessment.rubric.id) is None:
+        scores[assessment.rubric.id] = {}
+      for answer in Answer.objects.filter(
+        assessment=assessment.id,
+      ):
+        if scores[assessment.rubric.id].get(answer.metric.id) is None:
+          scores[assessment.rubric.id][answer.metric.id] = []
+        scores[assessment.rubric.id][answer.metric.id].append(answer.value())
+
+    return {
+      rubric: {
+        metric: sum(value)/len(value)
+        for metric, value in score.items()
+      }
+      for rubric, score in scores.items()
+    }
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
@@ -49,7 +61,7 @@ class Assessment(models.Model):
   target = models.ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='assessments')
   rubric = models.ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='assessments')
   methodology = models.TextField(blank=False, null=False)
-  requestor = models.TextField(blank=False, null=False)
+  requestor = models.TextField(blank=False, null=True)
   assessor = models.TextField(blank=False, null=False)
   timestamp = models.DateTimeField(auto_now_add=True)
   # answers

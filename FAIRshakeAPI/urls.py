@@ -13,7 +13,6 @@ router.register(r'metric', views.MetricViewSet, base_name='metric')
 router.register(r'project', views.ProjectViewSet, base_name='project')
 router.register(r'rubric', views.RubricViewSet, base_name='rubric')
 router.register(r'score', views.ScoreViewSet, base_name='score')
-router.register(r'digital_objects_to_rubrics', views.DigitalObjectsToRubricsViewSet, base_name='digital_objects_to_rubrics')
 router.register(r'request_assessment', views.RequestAssessmentViewSet, base_name='request_assessment')
 
 urlpatterns = [

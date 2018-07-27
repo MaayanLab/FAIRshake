@@ -21,68 +21,99 @@ class IdentifiableModelMixinSerializer(serializers.ModelSerializer):
   class Meta:
     abstract = True
 
+    read_only_fields = (
+      'id',
+      'authors',
+    )
+
 class DigitalObjectSerializer(IdentifiableModelMixinSerializer):
   class Meta:
     model = models.DigitalObject
     fields = '__all__'
-    read_only_fields = (
-      'authors',
-    )
 
 class ProjectSerializer(IdentifiableModelMixinSerializer):
   class Meta:
     model = models.Project
-    exclude = (
-      'digital_objects',
-    )
-    read_only_fields = (
-      'authors',
-    )
+    fields = '__all__'
 
 class MetricSerializer(IdentifiableModelMixinSerializer):
   class Meta:
     model = models.Metric
     fields = '__all__'
-    read_only_fields = (
-      'authors',
-    )
 
 class RubricSerializer(IdentifiableModelMixinSerializer):
   class Meta:
     model = models.Rubric
     fields = '__all__'
-    read_only_fields = (
-      'authors',
-    )
-
-class AssessmentSerializer(serializers.ModelSerializer):
-  assessor = serializers.PrimaryKeyRelatedField(
-    read_only=True,
-    default=serializers.CurrentUserDefault(),
-  )
-
-  class Meta:
-    model = models.Assessment
-    fields = '__all__'
-    read_only_fields = (
-      'requestor',
-      'assessor',
-      'timestamp',
-    )
 
 class AnswerSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Answer
     fields = '__all__'
+    read_only_fields = (
+      'id',
+      'assessment',
+    )
+
+class AssessmentSerializer(serializers.ModelSerializer):
+  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.all())
+  target = serializers.PrimaryKeyRelatedField(queryset=models.DigitalObject.objects.all())
+  rubric = serializers.PrimaryKeyRelatedField(queryset=models.Rubric.objects.all())
+
+  answers = AnswerSerializer(many=True)
+
+  def create(self, validated_data):
+    user = self.context.get('request').user
+    answers_data = validated_data.pop('answers')
+    assessment = models.Assessment.objects.create(**validated_data, assessor=user)
+    for answer_data in answeDigitalObjectsToRubricsSerializerrs_data:
+      models.Answer.objects.create(assessment=assessment, **answer_data)
+    return assessment
+
+  class Meta:
+    model = models.Assessment
+    fields = '__all__'
+    read_only_fields = (
+      'id',
+      'requestor',
+      'assessor',
+      'timestamp',
+    )
+    depth = 1
+
+class AnswerSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = models.Answer
+    fields = '__all__'
+    read_only_fields = (
+      'id',
+      'assessment',
+    )
 
 class ScoreSerializer(serializers.BaseSerializer):
-  def to_representation(self, obj):
-    return {
-      'id': obj.id,
-      'score': obj.score(),
-    }
+  def to_representation(self, assessments):
+    '''
+    Generate aggregate scores on a per-rubric and per-metric basis.
+    '''
+    scores = {}
 
-class DigitalObjectsToRubricsSerializer(serializers.ModelSerializer):
+    for assessment in assessments:
+      if scores.get(assessment.rubric.id) is None:
+        scores[assessment.rubric.id] = {}
+      for answer in Answer.objects.filter(
+        assessment=assessment.id,
+      ):
+        if scores[assessment.rubric.id].get(answer.metric.id) is None:
+          scores[assessment.rubric.id][answer.metric.id] = []
+        scores[assessment.rubric.id][answer.metric.id].append(answer.value())
+
+    return {
+      rubric: {
+        metric: sum(value)/len(value)
+        for metric, value in score.items()
+      }
+      for rubric, score in scores.items()
+    }
+  
   class Meta:
-    model = models.DigitalObject
-    fields = ('id', 'rubrics',)
+    read_only = True
