@@ -25,7 +25,7 @@ processes = 5
 chdir = $diskroot
 wsgi-file = $diskroot/wsgi.py
 
-socket = 127.0.0.1:8080
+socket = 0.0.0.0:8080
 daemonize = $log
 EOF
 
