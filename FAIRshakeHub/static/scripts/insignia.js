@@ -94,7 +94,7 @@ define(function(require) {
               .attr('width', local_unit)
               .attr('height', local_unit)
               .attr('stroke', '#ffffff')
-              .attr('stroke-width', abs_unit / 10)
+              .attr('stroke-width', abs_unit / 40)
               .attr('fill', color(average))
               .attr('data-toggle', 'tooltip')
               .attr('data-placement', 'right')
