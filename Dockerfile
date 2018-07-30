@@ -10,10 +10,10 @@ RUN apt-get update && \
         nginx \
         uwsgi-core
 
-ADD requirements.txt /requirements.txt
-RUN pip install -Ivr /requirements.txt
+RUN pip install -Iv Flask flask-cors requests uwsgi flask-login flask-mysql validators
 
-VOLUME /ssl
+#VOLUME /fairshake/ssl
+ADD ./ssl /fairshake/ssl
 EXPOSE 8080
 
 ADD . /fairshake

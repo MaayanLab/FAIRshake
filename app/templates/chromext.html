@@ -7,7 +7,7 @@
         }
 
         .installinstr {
-            padding: 30px 0px 50px 50px;
+            padding: 0px 0px 30px 50px;
         }
 
         .installp {
@@ -24,8 +24,9 @@
             margin: 0 auto;
         }
 
-        .downloadbtn{
+        #downloadLink{
             padding-left: 50px;
+            padding-bottom: 30px;
         }
 
         .carousel-control.left {
@@ -89,9 +90,9 @@
             <li>
                 <a href="/startproject" class="headx">Start a Project</a></li>
             <li class="active">
-                <a href="/chromeextension" class="headx">Download Chrome Extension</a></li>
+                <a href="/chromeextension" class="headx">Install Chrome Extension</a></li>
             <li>
-                    <a href="/bookmarklet" class="headx">Download Bookmarklet</a></li>
+                    <a href="/bookmarklet" class="headx">Install Bookmarklet</a></li>
             {% if current_user.is_authenticated %}
                 <li>
                     <a href="/evaluatedprojects" class="headx">Evaluated Projects</a></li>
@@ -126,19 +127,15 @@
 {% block content %}
     <div class="container-fluid">
         <h3 class="projecthead text-left">FAIRshake Chrome Extension</h3>
-        <div class="downloadbtn">
-            <a href="/static/FAIRshake.zip" download="FAIRshake.zip">
-                <button type="button" class="btn btn-success btn-lg">Download&nbsp;&nbsp;<span
-                        class="glyphicon glyphicon-download" aria-hidden="true"></span></button>
-            </a>
-        </div>
+        <h4 id="downloadLink">
+            <a href="https://chrome.google.com/webstore/detail/fairshake/pihohcecpiomegpagadljmdifpbkhnjn">Install from the Chrome Web Store!</a>
+        </h4>
         <div class="installinstr">
-            <h4 class="installhead">How to install:</h4>
-            <p class="installp">1. Click "Download" button and unzip files.
-                <br>2. Open Google Chrome and go to "chrome://extensions".
-                <br>3. Enable Developer mode at the top right.
-                <br>4. Click "Load unpacked extension..." and choose the folder containing the downloaded files.
-                <br>5. Enable the FAIRshake extension in the Chrome extension list.</p>
+            <h4 class="installhead">How to use:</h4>
+            <p class="installp">
+                1. Navigate to the landing page of any biomedical digital object.
+                <br>2. Click on the FAIRshake icon in the Extensions bar to see the FAIR insignia and a link to the evaluation form for the digital object, where you can submit a FAIR assessment.
+                </p>
         </div>
         <h4 class="carouselhead text-left">Examples:</h4>
         <div class="bs-example">

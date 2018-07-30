@@ -3,7 +3,7 @@
 user=r
 
 diskroot=/fairshake
-sslroot=/ssl
+sslroot=$diskroot/ssl
 log=$diskroot/error.log
 
 servername=fairshake.cloud
@@ -21,11 +21,9 @@ uid = $user
 gid = $user
 master = true
 processes = 5
-
 chdir = $diskroot
 wsgi-file = $diskroot/wsgi.py
-
-socket = 127.0.0.1:8080
+socket = 0.0.0.0:8080
 daemonize = $log
 EOF
 
@@ -57,25 +55,20 @@ http {
     server {
         listen 443;
         server_name $servername;
-
         ssl on;
         ssl_certificate $sslroot/cert.crt;
         ssl_certificate_key $sslroot/cert.key;
-
         ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_prefer_server_ciphers on;
         ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
-
         charset utf-8;
         client_max_body_size 20M;
         sendfile on;
         keepalive_timeout 0;
         large_client_header_buffers 8 32k;
-
         location $webroot/static  {
             alias $diskroot/app/static;
         }
-
         location / {
             include            /etc/nginx/uwsgi_params;
             uwsgi_pass         127.0.0.1:8080;
