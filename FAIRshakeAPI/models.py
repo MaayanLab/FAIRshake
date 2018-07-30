@@ -4,15 +4,20 @@ from django.contrib.auth.models import AbstractUser
 class IdentifiableModelMixin(models.Model):
   id = models.AutoField(primary_key=True)
 
-  uri = models.TextField(blank=False, null=True)
-  minid = models.TextField(blank=False, null=True)
+  title = models.CharField(max_length=255, blank=False)
+  url = models.CharField(max_length=255, blank=True, default='')
+  description = models.TextField(blank=True, default='')
+  image = models.CharField(max_length=255, blank=True, default='')
+  tags = models.CharField(max_length=255, blank=True, default='')
 
-  url = models.URLField(blank=False, null=True)
-
-  title = models.TextField(blank=False, null=False)
-  description = models.TextField(blank=True, null=True)
-  image = models.TextField(blank=True, null=True)
-  tags = models.TextField(blank=True, null=True)
+  type = models.CharField(max_length=16, blank=True, default='', choices=(
+    ('', 'Other'),
+    ('any', 'Any Digital Object'),
+    ('data', 'Database'),
+    ('repo', 'Repository'),
+    ('test', 'Test Object'),
+    ('tool', 'Tool'),
+  ))
 
   authors = models.ManyToManyField('Author', blank=True)
 
@@ -23,7 +28,9 @@ class Project(IdentifiableModelMixin):
   digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
 
 class DigitalObject(IdentifiableModelMixin):
-  type = models.TextField(blank=False, null=False)
+  # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
+  title = models.CharField(max_length=255, blank=True, default='')
+  url = models.CharField(max_length=255, blank=False)
 
   rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
@@ -60,19 +67,23 @@ class Assessment(models.Model):
   project = models.ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='assessments')
   target = models.ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='assessments')
   rubric = models.ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='assessments')
-  methodology = models.TextField(blank=False, null=False)
-  requestor = models.TextField(blank=False, null=True)
-  assessor = models.TextField(blank=False, null=False)
+  methodology = models.TextField(max_length=16, blank=False, choices=(
+    ('self', 'Digital Object Creator Assessment'),
+    ('user', 'Independent User Assessment'),
+    ('auto', 'Automatic Assessment'),
+    ('test', 'Test Assessment'),
+  ))
+  requestor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=True, default='')
+  assessor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=False)
   timestamp = models.DateTimeField(auto_now_add=True)
-  # answers
 
 class Answer(models.Model):
   id = models.AutoField(primary_key=True)
   assessment = models.ForeignKey('Assessment', on_delete=models.DO_NOTHING, related_name='answers')
   metric = models.ForeignKey('Metric', on_delete=models.DO_NOTHING, related_name='answers')
-  answer = models.TextField(blank=True, null=False)
-  comment = models.TextField(blank=True, null=True)
-  url_comment = models.TextField(blank=True, null=True)
+  answer = models.TextField(blank=True, default='')
+  comment = models.TextField(blank=True, default='')
+  url_comment = models.TextField(blank=True, default='')
 
   def value(self):
     if self.answer != '':
@@ -82,24 +93,22 @@ class Answer(models.Model):
     return -1
 
 class Metric(IdentifiableModelMixin):
-  type = models.TextField(blank=False, null=False)
-  license = models.TextField(blank=False, null=False)
+  license = models.CharField(max_length=255, blank=True, default='')
 
-  # TODO: Take all of these out of metrics
-  rationale = models.URLField(blank=False, null=False)
-  principle = models.URLField(blank=False, null=False)
-  fairmetrics = models.URLField(blank=True, null=True)
-  fairsharing = models.URLField(blank=True, null=True)
+  rationale = models.TextField(blank=True, default='')
+  principle = models.CharField(max_length=16, blank=True, default='', choices=(
+    ('F', 'Findability',),
+    ('A', 'Accessibility',),
+    ('I', 'Interoperability',),
+    ('R', 'Reusability',),
+  ))
+  fairmetrics = models.CharField(max_length=255, blank=True, default='')
+  fairsharing = models.CharField(max_length=255, blank=True, default='')
 
 class Rubric(IdentifiableModelMixin):
-  type = models.TextField(blank=False, null=False)
-  license = models.TextField(blank=False, null=False)
+  license = models.CharField(max_length=255, blank=True, default='')
 
   metrics = models.ManyToManyField('Metric', blank=True, related_name='rubrics')
-
-class Score(DigitalObject):
-  class Meta:
-    proxy = True
 
 class Author(AbstractUser):
   pass
