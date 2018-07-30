@@ -7,7 +7,7 @@
         }
 
         .installinstr {
-            padding: 30px 0px 50px 50px;
+            padding: 30px 0px 30px 50px;
         }
 
         .installp {
@@ -89,9 +89,9 @@
             <li>
                 <a href="/startproject" class="headx">Start a Project</a></li>
             <li>
-                <a href="/chromeextension" class="headx">Download Chrome Extension</a></li>
+                <a href="/chromeextension" class="headx">Install Chrome Extension</a></li>
             <li class="active">
-                    <a href="/bookmarklet" class="headx">Download Bookmarklet</a></li>
+                    <a href="/bookmarklet" class="headx">Install Bookmarklet</a></li>
             {% if current_user.is_authenticated %}
                 <li>
                     <a href="/evaluatedprojects" class="headx">Evaluated Projects</a></li>
@@ -129,12 +129,12 @@
         <h3 class="projecthead text-left">FAIRshake Bookmarklet</h3>
         <div class="bookmarkletbtn">
             <a class="btn btn-lg btn-info" href=
-                    "javascript:(function(){var fairshakeJS='https://fairshake.cloud/static/js/bookmarklet.js';if(typeof require=='undefined'){var b=document.createElement('script');b.setAttribute('src','https://requirejs.org/docs/release/2.3.5/minified/require.js');document.body.appendChild(b);b.setAttribute('data-main',fairshakeJS)}else{var a=document.createElement('script');a.innerHTML('require([fairshakeJS])');document.body.appendChild(a)}})()"
+                    "javascript:(function(){var fairshakeJS='https://fairshake.cloud/static/js/bookmarklet.js';if(typeof require=='undefined'){var b=document.createElement('script');b.setAttribute('src','https://requirejs.org/docs/release/2.3.5/minified/require.js');document.body.appendChild(b);b.setAttribute('data-main',fairshakeJS)}else{if(document.getElementById('fairness-bklet-wrapper')==null){var c=document.createElement('script');c.setAttribute('src',fairshakeJS);document.body.appendChild(c)}}})()"
             >FAIRshake it!</a>
         </div>
         <div class="installinstr">
-            <h4 class="installhead">How to install:</h4>
-            <p class="installp">1. Click and drag the FAIRshake it! button to your Bookmarks bar.
+            <h4 class="installhead">How to use:</h4>
+            <p class="installp">1. Click and drag the FAIRshake it! button to your Bookmarks bar to install.
                 <br>2. Visit the website of a digital object you are interested in.
                 <br>3. Click the button in your Bookmarks bar.</p>
         </div>

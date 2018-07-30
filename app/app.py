@@ -1259,12 +1259,12 @@ def getQByTypeAPI():
     else:
         return jsonify(['None'])
 
-# Download Chrome extension page #
+# Install Chrome Extension page #
 @app.route(ENTRY_POINT + '/chromeextension')
 def chromeextension():
     return render_template('chromext.html')
 
-# Download Bookmarklet page #
+# Install Bookmarklet page #
 @app.route(ENTRY_POINT + '/bookmarklet')
 def bookmarklet():
     return render_template('bookmarklet.html')
