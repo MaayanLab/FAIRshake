@@ -12,8 +12,14 @@ Available at http://fairshake.cloud/
 ## Development
 ### Django Shell
 ipython is recommended: `pip install ipython`
-
 `./manage.py shell`
+
+### Django Live Reloading Server
+In separate terminals execute these commands and then navigate to <http://localhost:8000/>.
+```python
+./manage.py runserver
+./manage.py livereload
+```
 
 ### Build Docker
 ```bash
