@@ -1,6 +1,5 @@
 from django.urls import path, include
 from rest_framework import routers
-from rest_framework_swagger.views import get_swagger_view
 from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
 from . import views
@@ -17,7 +16,7 @@ router.register(r'request_assessment', views.RequestAssessmentViewSet, base_name
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', get_swagger_view(title='FAIRshake')),
+    path('', views.schema_view, name='Swagger UI',),
     path('coreapi/', include_docs_urls(title='FAIRshake')),
     path('schema/', get_schema_view(title='FAIRshake')),
     path('auth/', include('rest_auth.urls')),
