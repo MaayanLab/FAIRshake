@@ -1,0 +1,11 @@
+version: '2'
+services:
+  fairshake:
+    build: .
+    image: maayanlab/fairshake
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./ssl:/ssl
+
