@@ -48,6 +48,9 @@ define(function(require) {
         //
         // Color is linarly chosen between Red (0) and Blue (1).
 
+        if(metrics === undefined)
+          metrics = {}
+
         var color =
           d3.scaleLinear()
             .domain([-1, 1])
@@ -83,7 +86,7 @@ define(function(require) {
 
           Object.keys(score).forEach(function (summary, j) {
             var average = score[summary]
-            var description = ''// TODO: metrics[summary].description
+            var description = metrics[summary] === undefined ? '' : metrics[summary]
             var local_x = (j % summary_sq) * local_unit
             var local_y = Math.floor(j / summary_sq) * local_unit
 
@@ -95,7 +98,7 @@ define(function(require) {
               .attr('height', local_unit)
               .attr('stroke', '#ffffff')
               .attr('stroke-width', abs_unit / 40)
-              .attr('fill', color(average))
+              .attr('fill', isNaN(average) ? 'darkgray' : color(average))
               .attr('data-toggle', 'tooltip')
               .attr('data-placement', 'right')
               .attr('data-container', 'body')
