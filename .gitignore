@@ -2,3 +2,6 @@ __pycache__/
 *.DS_Store
 .gitignore
 .idea/
+config.py
+*.pyc
+ssl/

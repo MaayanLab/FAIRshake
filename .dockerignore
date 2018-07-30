@@ -1,0 +1,8 @@
+__pycache__/
+.git*
+*.pyc
+Dockerfile
+fairshake.sql
+README.md
+run.py
+ssl/

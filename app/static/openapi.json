@@ -1,0 +1,186 @@
+{
+  "openapi" : "3.0.0",
+  "servers" : [ {
+    "url" : "https://fairshake.cloud/api"
+  } ],
+  "info" : {
+    "version" : "1.0.0-oas3",
+    "title" : "FAIRshake",
+    "description" : "A web interface for the scoring of biomedical digital objects by user evaluation according to the FAIR data principles: Findability, Accessibility, Interoperability, and Reusability",
+    "contact" : {
+      "email" : "avi.maayan@mssm.edu",
+      "x-role" : "responsible organization"
+    },
+    "termsOfService" : ""
+  },
+  "tags" : [ {
+    "name" : "NIHdatacommons"
+  }, {
+    "name" : "Maayanlab"
+  } ],
+  "paths" : {
+    "/getQByType" : {
+      "get" : {
+        "parameters" : [ {
+          "description" : "Type of digital object",
+          "in" : "query",
+          "name" : "type",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "Dataset", "Tool", "Repository" ]
+          }
+        } ],
+        "description" : "",
+        "responses" : {
+          "200" : {
+            "description" : "Request processed. Returns 'None' if no questions assigned to this type. Returns questions if questions have been assigned",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary" : "Retrieve FAIR questions for a digital object type",
+        "operationId" : "getQByType"
+      }
+    },
+    "/getQ" : {
+      "get" : {
+        "parameters" : [ {
+          "required" : true,
+          "name" : "url",
+          "description" : "URL of digital object",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "description" : "",
+        "responses" : {
+          "200" : {
+            "description" : "Request processed. Returns 'None' if no questions assigned to this digital object. Returns questions if questions have been assigned",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary" : "Retrieve FAIR questions for a digital object",
+        "operationId" : "getQ"
+      }
+    },
+    "/evaluate" : {
+      "post" : {
+        "description" : "",
+        "responses" : {
+          "200" : {
+            "description" : "Evaluation processed. Returns '1' if evaluation successfully submitted to database. Returns '0' if evaluation rejected",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "summary" : "Submit a FAIR evaluation for a digital object catalogued in the FAIRshake database",
+        "operationId" : "evaluate",
+        "requestBody" : {
+          "content" : {
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "type" : "object",
+                "required" : [ "url", "qa" ],
+                "properties" : {
+                  "url" : {
+                    "description" : "URL of digital object",
+                    "type" : "string"
+                  },
+                  "qaList" : {
+                    "description" : "List of answers to questions",
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/QuestionAnswer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getAvg" : {
+      "get" : {
+        "parameters" : [ {
+          "required" : true,
+          "name" : "url",
+          "description" : "URL of digital object",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "description" : "",
+        "responses" : {
+          "200" : {
+            "description" : "Request processed. Returns 'None' if invalid object URL or no FAIR score",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary" : "Retrieve FAIR evaluation averages for a digital object",
+        "operationId" : "getAvg"
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "QuestionAnswer" : {
+        "type" : "object",
+        "required" : [ "question", "answer" ],
+        "properties" : {
+          "urlComment" : {
+            "type" : "string",
+            "description" : "URL comment to a question. Must be a valid URL"
+          },
+          "answer" : {
+            "description" : "Answer to question",
+            "type" : "string",
+            "enum" : [ "yes", "yesbut", "no" ]
+          },
+          "question" : {
+            "description" : "Number of question answered",
+            "type" : "integer"
+          },
+          "textComment" : {
+            "type" : "string",
+            "description" : "Text comment for question"
+          }
+        }
+      }
+    }
+  }
+}

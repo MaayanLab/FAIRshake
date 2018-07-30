@@ -86,9 +86,11 @@
 {% endblock %}
 {% block content %}
 
+
+
     <div class="container-fluid">
         <div class="title">
-            <h2>FAIRShake</h2>
+            <h2>FAIRshake</h2>
         </div>
 
         <div class="subtitle"><h4>A System to Evaluate Digital Objects</h4></div>
@@ -96,13 +98,11 @@
 
             <div class="btngroup">
                 {% if current_user.is_authenticated %}
-
-                    <form action="/fairshake/projects" method="get">
+                    <form action="/projects" method="get">
                         <button type="submit" class="btn btn-default">Evaluate a Project</button>
                     </form>
                 {% else %}
-
-                    <form action="/fairshake/register" method="get">
+                    <form action="/register" method="get">
                         <button type="submit" class="btn btn-default">Evaluate a Project</button>
                     </form>
                 {% endif %}
@@ -110,13 +110,11 @@
 
             <div class="btngroup">
                 {% if current_user.is_authenticated %}
-
-                    <form action="/fairshake/startproject" method="get">
+                    <form action="/startproject" method="get">
                         <button type="submit" class="btn btn-default">Start a Project</button>
                     </form>
                 {% else %}
-
-                    <form action="/fairshake/register" method="get">
+                    <form action="/register" method="get">
                         <button type="submit" class="btn btn-default">Start a Project</button>
                     </form>
                 {% endif %}
@@ -128,7 +126,7 @@
             <div class="col-xs-6">
                 <div class="panel panel-default">
                     <div class="panel-body text-center">
-                        <a href="/fairshake/project/{{ projectlist[0][0] }}/resources">
+                        <a href="/project/{{ projectlist[0][0] }}/resources">
                             <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
                                 <img class="projectimg" id="nihlincsimg" src="{{ projectlist[0][3] }}">
                             </div>
@@ -139,7 +137,7 @@
                         </div>
 
                     </div>
-                    <form action="/fairshake/project/{{ projectlist[0][0] }}/resources" method="get" id="xyz1">
+                    <form action="/project/{{ projectlist[0][0] }}/resources" method="get" id="xyz1">
                         <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
                     </form>
                 </div>
@@ -148,7 +146,7 @@
             <div class="col-xs-6">
                 <div class="panel panel-default">
                     <div class="panel-body text-center">
-                        <a href="/fairshake/project/{{ projectlist[1][0] }}/resources">
+                        <a href="/project/{{ projectlist[1][0] }}/resources">
                             <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
                                 <img class="projectimg" id="modimg" src="{{ projectlist[1][3] }}">
                             </div>
@@ -159,7 +157,7 @@
                         </div>
 
                     </div>
-                    <form action="/fairshake/project/{{ projectlist[1][0] }}/resources" method="get" id="xyz1">
+                    <form action="/project/{{ projectlist[1][0] }}/resources" method="get" id="xyz1">
                         <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
                     </form>
                 </div>
@@ -168,27 +166,7 @@
             <div class="col-xs-6">
                 <div class="panel panel-default">
                     <div class="panel-body text-center">
-                        <a href="/fairshake/project/{{ projectlist[2][0] }}/resources">
-                            <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
-                                <img class="projectimg" src="{{ projectlist[2][3] }}">
-                            </div>
-                        </a>
-                        <div class="caption text-left">
-                            <p class="projecttitle">{{ projectlist[2][1] }}</p>
-                            <p class="projectdesc">{{ projectlist[2][2] }}</p>
-                        </div>
-
-                    </div>
-                    <form action="/fairshake/project/{{ projectlist[2][0] }}/resources" method="get" id="xyz1">
-                        <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="col-xs-6">
-                <div class="panel panel-default">
-                    <div class="panel-body text-center">
-                        <a href="/fairshake/project/{{ projectlist[3][0] }}/resources">
+                        <a href="/project/{{ projectlist[3][0] }}/resources">
                             <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
                                 <img class="projectimg" src="{{ projectlist[3][3] }}">
                             </div>
@@ -199,7 +177,27 @@
                         </div>
 
                     </div>
-                    <form action="/fairshake/project/{{ projectlist[3][0] }}/resources" method="get" id="xyz1">
+                    <form action="/project/{{ projectlist[3][0] }}/resources" method="get" id="xyz1">
+                        <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-xs-6">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <a href="/project/{{ projectlist[4][0] }}/resources">
+                            <div onmouseover="overicon(this)" onmouseout="leaveicon(this)" id="picContainer">
+                                <img class="projectimg" src="{{ projectlist[4][3] }}">
+                            </div>
+                        </a>
+                        <div class="caption text-left">
+                            <p class="projecttitle">{{ projectlist[4][1] }}</p>
+                            <p class="projectdesc">{{ projectlist[4][2] }}</p>
+                        </div>
+
+                    </div>
+                    <form action="/project/{{ projectlist[4][0] }}/resources" method="get" id="xyz1">
                         <button type="submit" class="btn btn-default btn-sm" id="xyz2">Evaluate</button>
                     </form>
                 </div>

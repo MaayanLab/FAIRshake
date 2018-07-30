@@ -7,7 +7,7 @@
         }
 
         .installinstr {
-            padding: 0px 0px 30px 50px;
+            padding: 30px 0px 30px 50px;
         }
 
         .installp {
@@ -24,9 +24,8 @@
             margin: 0 auto;
         }
 
-        #downloadLink{
+        .bookmarkletbtn {
             padding-left: 50px;
-            padding-bottom: 30px;
         }
 
         .carousel-control.left {
@@ -89,9 +88,9 @@
                 <a href="/projects" class="headx">Projects</a></li>
             <li>
                 <a href="/startproject" class="headx">Start a Project</a></li>
-            <li class="active">
-                <a href="/chromeextension" class="headx">Install Chrome Extension</a></li>
             <li>
+                <a href="/chromeextension" class="headx">Install Chrome Extension</a></li>
+            <li class="active">
                     <a href="/bookmarklet" class="headx">Install Bookmarklet</a></li>
             {% if current_user.is_authenticated %}
                 <li>
@@ -125,17 +124,19 @@
     </nav>
 {% endblock %}
 {% block content %}
+
     <div class="container-fluid">
-        <h3 class="projecthead text-left">FAIRshake Chrome Extension</h3>
-        <h4 id="downloadLink">
-            <a href="https://chrome.google.com/webstore/detail/fairshake/pihohcecpiomegpagadljmdifpbkhnjn">Install from the Chrome Web Store!</a>
-        </h4>
+        <h3 class="projecthead text-left">FAIRshake Bookmarklet</h3>
+        <div class="bookmarkletbtn">
+            <a class="btn btn-lg btn-info" href=
+                    "javascript:(function(){var fairshakeJS='https://fairshake.cloud/static/js/bookmarklet.js';if(typeof require=='undefined'){var b=document.createElement('script');b.setAttribute('src','https://requirejs.org/docs/release/2.3.5/minified/require.js');document.body.appendChild(b);b.setAttribute('data-main',fairshakeJS)}else{if(document.getElementById('fairness-bklet-wrapper')==null){var c=document.createElement('script');c.setAttribute('src',fairshakeJS);document.body.appendChild(c)}}})()"
+            >FAIRshake it!</a>
+        </div>
         <div class="installinstr">
             <h4 class="installhead">How to use:</h4>
-            <p class="installp">
-                1. Navigate to the landing page of any biomedical digital object.
-                <br>2. Click on the FAIRshake icon in the Extensions bar to see the FAIR insignia and a link to the evaluation form for the digital object, where you can submit a FAIR assessment.
-                </p>
+            <p class="installp">1. Click and drag the FAIRshake it! button to your Bookmarks bar to install.
+                <br>2. Visit the website of a digital object you are interested in.
+                <br>3. Click the button in your Bookmarks bar.</p>
         </div>
         <h4 class="carouselhead text-left">Examples:</h4>
         <div class="bs-example">
@@ -149,18 +150,18 @@
                 <div class="carousel-inner">
                     <div class="item active">
                         <div id="picContainer">
-                            <img src="/static/img/chrome_extension1.png" alt="First Slide">
+                            <img src="/static/img/bookmarklet1.png" alt="First Slide">
                         </div>
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="/static/img/chrome_extension2.png"
+                            <img src="/static/img/bookmarklet2.png"
                                  alt="Second Slide">
                         </div>
                     </div>
                     <div class="item">
                         <div id="picContainer">
-                            <img src="/static/img/chrome_extension3.png"
+                            <img src="/static/img/bookmarklet3.png"
                                  alt="Third Slide">
                         </div>
                     </div>
@@ -174,6 +175,4 @@
             </div>
         </div>
     </div>
-
-
 {% endblock %}
