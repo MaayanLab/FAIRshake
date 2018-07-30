@@ -6,9 +6,9 @@
 }
 .socialaccount_provider.github::before {
   display: block;
-  content: url('/static/image/socialaccount/github.png');
+  content: url('/static/v2/image/socialaccount/github.png');
 }
 .socialaccount_provider.orcid::before {
   display: block;
-  content: url('/static/image/socialaccount/orcid.png');
+  content: url('/static/v2/image/socialaccount/orcid.png');
 }

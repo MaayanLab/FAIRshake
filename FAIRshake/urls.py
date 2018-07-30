@@ -22,5 +22,5 @@ urlpatterns = [
     path('', include('FAIRshakeHub.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('api/', include('FAIRshakeAPI.urls')),
+    path('api/v2/', include('FAIRshakeAPI.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
