@@ -7,13 +7,14 @@ from urlparse import urlparse
 import validators
 from flask.json import jsonify
 import json
+import os
 
 mysql = MySQL()
 
 app = Flask(__name__)
 CORS(app)
 
-app.config.from_pyfile('config.py')
+app.config.from_pyfile(os.environ.get('CONFIG', 'config.py'))
 mysql.init_app(app)
 ENTRY_POINT = app.config['ENTRY_POINT']
 
@@ -1039,6 +1040,21 @@ def findResource(url,cursor):
             result = cursor.fetchall()
             return result[0]
 
+# Redirects to new api
+@app.route(ENTRY_POINT + '/api')
+@app.route(ENTRY_POINT + '/api/')
+def getNewAPI():
+    return redirect('/api/v2/')
+
+@app.route(ENTRY_POINT + '/api/coreapi')
+@app.route(ENTRY_POINT + '/api/coreapi/')
+def getNewCoreAPI():
+    return redirect('/api/v2/coreapi')
+
+@app.route(ENTRY_POINT + '/api/static')
+@app.route(ENTRY_POINT + '/api/static/')
+def getNewStatic():
+    return redirect('/static/v2')
 
 # API to get this resource's questions for insignia #
 # returns ['None'] if invalid URL, 0 or more than 1 matches for URL, or no questions for this resource's type

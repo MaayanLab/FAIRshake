@@ -6,3 +6,4 @@ fairshake.sql
 README.md
 run.py
 ssl/
+app/config.py
