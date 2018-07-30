@@ -23,25 +23,17 @@ In separate terminals execute these commands and then navigate to <http://localh
 
 ### Build Docker
 ```bash
-docker build -t fairshake .
+docker-compose build
 ```
 
 ## Production
-### Environment variables
+### Secret values
+For the docker-compose to work properly in production, `/ssl/` should have the following files:
+- `cert.crt`
+- `my.cnf`
+- `cert.key`
 
-```bash
-MYSQL_CONFIG=/path/to/my.cnf
-SECRET_KEY=custom_generated_secret_key
-```
 ### Docker deployment
 ```bash
-docker run \
-  -p 80:80 \
-  -p 443:443 \
-  -v $(pwd)/my.cnf:/my.cnf \
-  -v $(pwd)/ssl:/ssl \
-  -it fairshake
-```
-
-- `my.cnf` should be a mysql configuration to connect to the database
-- `ssl` should be a directory with `cert.key` and `cert.crt` ssl certificates.
+docker-compose up
+````

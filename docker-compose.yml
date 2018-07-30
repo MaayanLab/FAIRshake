@@ -1,0 +1,7 @@
+version: '2'
+services:
+  django:
+    build: .
+    image: maayanlab/fairshake-django
+    volumes:
+      - ./ssl:/ssl
