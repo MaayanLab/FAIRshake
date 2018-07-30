@@ -1,7 +1,22 @@
 version: '2'
 services:
+  proxy:
+    build: proxy
+    image: maayanlab/fairshake-proxy
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - django:django
+      - fairshake:fairshake
+    volumes:
+      - ./ssl:/ssl
   django:
     build: .
     image: maayanlab/fairshake-django
+    volumes:
+      - ./ssl:/ssl
+  fairshake:
+    image: maayanlab/fairshake
     volumes:
       - ./ssl:/ssl
