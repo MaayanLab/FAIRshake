@@ -17,9 +17,8 @@ router.register(r'request_assessment', views.RequestAssessmentViewSet, base_name
 urlpatterns = [
     path('', include(router.urls)),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', views.schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('', views.schema_view.with_ui('swagger', cache_timeout=0), name='swagger-ui',),
+    path('swagger/', views.schema_view.with_ui('swagger', cache_timeout=0), name='swagger-ui',),
     path('coreapi/', include_docs_urls(title='FAIRshake')),
-    path('schema/', get_schema_view(title='FAIRshake')),
     path('auth/', include('rest_auth.urls')),
     path('auth/registration/', include('rest_auth.registration.urls')),
     path('auth/github/', views.GithubLogin.as_view(), name='github_auth'),

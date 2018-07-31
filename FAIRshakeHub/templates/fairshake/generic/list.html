@@ -1,0 +1,53 @@
+{% load filters %}
+<div class="row">
+  {% for item in items %}
+  <div class="col-xs-3">
+    <div class="panel panel-default" style="height: 340px">
+        <div class="panel-body text-center">
+          <a href="/{{ model }}/{{ item.id }}/">
+            <div class="image-container">
+              <img src="{{ item.image }}" />
+            </div>
+            <div
+              class="insignia embed-image"
+              data-target="{ {{ model }}: {{ item.id }} }"
+            />
+          </a>
+          <div class="caption text-left">
+            <h4><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h4>
+            <p>{{ item.description }}</p>
+            {% if item.type %}
+              <span class="badge badge-primary">
+                {{ item.type }}
+              </span>
+            {% endif %}
+            {% if item.tags %}
+              {% for tag in item.tags_as_list %}
+                <span class="chip">
+                  {{ tag }}
+                </span>
+              {% endfor %}
+            {% endif %}
+          </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="col-xs-3">
+    <div class="panel panel-default" style="height: 340px">
+        <div class="panel-body text-center">
+          <a href="/{{ model }}/create/">
+            <div class="image-container">
+              <span
+                style="font-size: 4em"
+                class="glyphicon glyphicon-plus"
+              ></span>
+            </div>
+          </a>
+          <div class="caption text-left">
+            <h4><a href="/{{ model }}/create/">Create New {{ model|unslugify }}</a></h4>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

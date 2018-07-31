@@ -1,0 +1,47 @@
+{% load filters %}
+<div class="row">
+  <div class="col-xs-12">
+    <div class="caption" align="center">
+      <div style="position: relative;">
+        <img
+          src="{{ item.image }}"
+          style="max-width: 400px; max-height: 400px;"
+        />
+        <div
+          class="insignia"
+          style="width: 60px; height: 60px;"
+          data-target="{ {{ model }}: {{ item.id }} }"
+        />
+      </div>
+      <h2><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h2>
+      <p>{{ item.description }}</p>
+      {% if item.type %}
+        <p>
+          <strong>Type:</strong>&nbsp;<span class="badge badge-primary">
+            {{ item.type }}
+          </span>
+        </p>
+      {% endif %}
+      {% if item.tags %}
+        <p>
+          <strong>Tags</strong>
+          {% for tag in item.tags_as_list %}
+            <span class="chip">
+              {{ tag }}
+            </span>
+          {% endfor %}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="container">
+    {% for model, items in children.items %}
+      <div class="col-xs-12">
+        <hr />
+        <h2>Associated {{ model|unslugify }}s</h2>
+        {% include "fairshake/generic/list.html" %}
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+{% extends "fairshake/base.html" %}
+
+{% block header %}
+  {% with active_page="projects" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% include "fairshake/generic/create.html" %}
+</div>
+{% endblock %}

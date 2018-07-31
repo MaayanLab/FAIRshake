@@ -1,0 +1,15 @@
+{% extends "fairshake/base.html" %}
+
+{% block header %}
+  {% with active_page="rubrics" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% with item=context model="rubric" %}
+    {% include "fairshake/generic/retrieve.html" %}
+  {% endwith %}
+</div>
+{% endblock %}

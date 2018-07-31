@@ -1,0 +1,16 @@
+{% extends "fairshake/base.html" %}
+{% load filters %}
+
+{% block header %}
+  {% with active_page="projects" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% with item=context model="project" %}
+    {% include "fairshake/generic/retrieve.html" %}
+  {% endwith %}
+</div>
+{% endblock %}

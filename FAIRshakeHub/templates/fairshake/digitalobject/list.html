@@ -1,0 +1,16 @@
+{% extends "fairshake/base.html" %}
+
+{% block header %}
+  {% with active_page="digital_objects" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="text-left">Digital Objects</h1>
+  {% with items=results model="digital_object" %}
+    {% include "fairshake/generic/list.html" %}
+  {% endwith %}
+</div>
+{% endblock %}

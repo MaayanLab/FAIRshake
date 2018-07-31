@@ -1,0 +1,16 @@
+{% extends "fairshake/base.html" %}
+
+{% block header %}
+  {% with active_page="rubrics" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="text-left">Metrics</h1>
+  {% with items=results model="metrics" %}
+    {% include "fairshake/generic/list.html" %}
+  {% endwith %}
+</div>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 import coreapi
 import coreschema
-from rest_framework import views, viewsets, permissions, schemas, response, mixins, decorators
+from rest_framework import views, viewsets, permissions, schemas, response, mixins, decorators, renderers
 from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
@@ -64,8 +64,29 @@ class RequestAssessmentViewSet(viewsets.ViewSet):
     # TODO: perform assessment
     return response.Response({})
 
-class AnswerViewSet(viewsets.ModelViewSet):
-  queryset = models.Answer.objects.all()
+class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
+  def get_template_context(self, data, renderer_context):
+    context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context)
+    return dict(context, context=context)
+
+class CustomModelViewSet(viewsets.ModelViewSet):
+  renderer_classes = [
+    CustomTemplateHTMLRenderer,
+    renderers.BrowsableAPIRenderer,
+    renderers.JSONRenderer,
+  ]
+
+  def get_model(self):
+    return self.model
+  
+  def get_queryset(self):
+    return getattr(self, 'queryset', self.get_model().objects.all())
+
+  def get_template_names(self):
+    return ['fairshake/' + self.get_model()._meta.model_name + '/' + self.action + '.html']
+
+class AnswerViewSet(CustomModelViewSet):
+  model = models.Answer
   serializer_class = serializers.AnswerSerializer
   permission_classes = (
     permissions.IsAuthenticatedOrReadOnly,
@@ -73,8 +94,8 @@ class AnswerViewSet(viewsets.ModelViewSet):
   )
   filter_class = filters.AnswerFilterSet
 
-class AssessmentViewSet(viewsets.ModelViewSet):
-  queryset = models.Assessment.objects.all()
+class AssessmentViewSet(CustomModelViewSet):
+  model = models.Assessment
   serializer_class = serializers.AssessmentSerializer
   permission_classes = (
     permissions.IsAuthenticatedOrReadOnly,
@@ -82,8 +103,8 @@ class AssessmentViewSet(viewsets.ModelViewSet):
   )
   filter_class = filters.AssessmentFilterSet
 
-class DigitalObjectViewSet(viewsets.ModelViewSet):
-  queryset = models.DigitalObject.objects.all()
+class DigitalObjectViewSet(CustomModelViewSet):
+  model = models.DigitalObject
   serializer_class = serializers.DigitalObjectSerializer
   permission_classes = (
     permissions.IsAuthenticatedOrReadOnly,
@@ -91,8 +112,8 @@ class DigitalObjectViewSet(viewsets.ModelViewSet):
   )
   filter_class = filters.DigitalObjectFilterSet
 
-class MetricViewSet(viewsets.ModelViewSet):
-  queryset = models.Metric.objects.all()
+class MetricViewSet(CustomModelViewSet):
+  model = models.Metric
   serializer_class = serializers.MetricSerializer
   permission_classes = (
     permissions.IsAuthenticatedOrReadOnly,
@@ -100,8 +121,8 @@ class MetricViewSet(viewsets.ModelViewSet):
   )
   filter_class = filters.MetricFilterSet
 
-class ProjectViewSet(viewsets.ModelViewSet):
-  queryset = models.Project.objects.all()
+class ProjectViewSet(CustomModelViewSet):
+  model = models.Project
   serializer_class = serializers.ProjectSerializer
   permission_classes = (
     permissions.IsAuthenticatedOrReadOnly,
@@ -109,8 +130,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
   )
   filter_class = filters.ProjectFilterSet
 
-class RubricViewSet(viewsets.ModelViewSet):
-  queryset = models.Rubric.objects.all()
+class RubricViewSet(CustomModelViewSet):
+  model = models.Rubric
   serializer_class = serializers.RubricSerializer
   permission_classes = (
     permissions.IsAuthenticatedOrReadOnly,
