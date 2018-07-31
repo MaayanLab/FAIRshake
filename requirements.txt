@@ -4,6 +4,7 @@ django-allauth
 django-bootstrap-form
 django-extensions
 django-filter
+django-livereload-server
 django-rest-auth
 django-rest-swagger
 djangorestframework
