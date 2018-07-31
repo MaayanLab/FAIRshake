@@ -21,6 +21,9 @@ class IdentifiableModelMixin(models.Model):
 
   authors = models.ManyToManyField('Author', blank=True)
 
+  def tags_as_list(self):
+    return self.tags.split()
+
   class Meta:
     abstract = True
 
