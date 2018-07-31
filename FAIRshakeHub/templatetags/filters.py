@@ -13,3 +13,7 @@ def return_item(l, i):
 @register.filter
 def jsonify(d):
   return json.dumps(d)
+
+@register.filter
+def unslugify(v):
+  return ' '.join(map(str.capitalize, v.split('_')))
