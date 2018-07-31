@@ -93,6 +93,12 @@ class Answer(models.Model):
     return -1
 
 class Metric(IdentifiableModelMixin):
+  type = models.CharField(max_length=16, blank=True, default='yesnobut', choices=(
+    ('yesnobut', 'Yes no or but question'),
+    ('text', 'Simple textbox input'),
+    ('url', 'A url input'),
+  ))
+
   license = models.CharField(max_length=255, blank=True, default='')
 
   rationale = models.TextField(blank=True, default='')
