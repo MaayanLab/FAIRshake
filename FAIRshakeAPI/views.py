@@ -8,6 +8,7 @@ from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from . import serializers, filters, models
+from .permissions import IsAuthorOrReadOnly
 
 class CustomOpenAPIRenderer(OpenAPIRenderer):
   def get_customizations(self):
@@ -72,37 +73,55 @@ class RequestAssessmentViewSet(viewsets.ViewSet):
 class AnswerViewSet(viewsets.ModelViewSet):
   queryset = models.Answer.objects.all()
   serializer_class = serializers.AnswerSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    IsAuthorOrReadOnly,
+  )
   filter_class = filters.AnswerFilterSet
 
 class AssessmentViewSet(viewsets.ModelViewSet):
   queryset = models.Assessment.objects.all()
   serializer_class = serializers.AssessmentSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    IsAuthorOrReadOnly,
+  )
   filter_class = filters.AssessmentFilterSet
 
 class DigitalObjectViewSet(viewsets.ModelViewSet):
   queryset = models.DigitalObject.objects.all()
   serializer_class = serializers.DigitalObjectSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    IsAuthorOrReadOnly,
+  )
   filter_class = filters.DigitalObjectFilterSet
 
 class MetricViewSet(viewsets.ModelViewSet):
   queryset = models.Metric.objects.all()
   serializer_class = serializers.MetricSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    IsAuthorOrReadOnly,
+  )
   filter_class = filters.MetricFilterSet
 
 class ProjectViewSet(viewsets.ModelViewSet):
   queryset = models.Project.objects.all()
   serializer_class = serializers.ProjectSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    IsAuthorOrReadOnly,
+  )
   filter_class = filters.ProjectFilterSet
 
 class RubricViewSet(viewsets.ModelViewSet):
   queryset = models.Rubric.objects.all()
   serializer_class = serializers.RubricSerializer
-  permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    IsAuthorOrReadOnly,
+  )
   filter_class = filters.RubricFilterSet
 
 class ScoreViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
