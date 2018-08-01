@@ -1,19 +1,19 @@
 {% load filters %}
 <div class="row">
   {% for item in items %}
-  <div class="col-xs-3">
-    <div class="panel panel-default" style="height: 340px">
+  <div class="col-md-3 col-sm-6">
+    <div class="panel panel-default" style="height: 300px">
         <div class="panel-body text-center">
           <a href="/{{ model }}/{{ item.id }}/">
             <div class="image-container">
               <img src="{{ item.image }}" />
             </div>
+        </a>
+        <div class="caption text-left">
             <div
               class="insignia embed-image"
               data-target="{ {{ model }}: {{ item.id }} }"
             />
-          </a>
-          <div class="caption text-left">
             <h4><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h4>
             <p>{{ item.description }}</p>
             {% if item.type %}
@@ -33,8 +33,8 @@
     </div>
   </div>
   {% endfor %}
-  <div class="col-xs-3">
-    <div class="panel panel-default" style="height: 340px">
+  <div class="col-md-3 col-sm-6">
+    <div class="panel panel-default" style="height: 300px">
         <div class="panel-body text-center">
           <a href="/{{ model }}/create/">
             <div class="image-container">
