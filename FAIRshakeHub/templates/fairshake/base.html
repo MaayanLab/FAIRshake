@@ -97,7 +97,7 @@
             require(['{% static "scripts/insignia.js" %}'], function (insignia) {
                 insignia.build_svg_from_score(
                     ele,
-                    eval($(ele).attr('data-target')),
+                    JSON.parse($(ele).attr('data-target')),
                 )
             })
         })
