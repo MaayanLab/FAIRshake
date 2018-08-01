@@ -96,8 +96,15 @@
 {% block script %}
     <script>
     $(document).ready(function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
+        $('.insignia').each(function (ind, ele) {
+            require(['{% static "scripts/insignia.js" %}'], function (insignia) {
+                insignia.build_svg_from_score(
+                    ele,
+                    eval($(ele).attr('data-target')),
+                )
+            })
+        })
+    })
     </script>
 {% endblock %}
 </body>

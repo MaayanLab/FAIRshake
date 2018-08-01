@@ -6,6 +6,9 @@ require.config({
     tippy: 'https://unpkg.com/tippy.js@2.5.2/dist/tippy.all.min',
     coreapi: url + '/static/v2/rest_framework/js/coreapi-0.1.1',
     schema: url + '/coreapi/schema',
+  },
+  shims: {
+    schema: ['coreapi']
   }
 })
 
@@ -136,19 +139,19 @@ define(function(require) {
   }
 
   function build_svg_from_score(container, params) {
-    require('coreapi')
-    require('schema')
-    var coreapi = window.coreapi
-    var schema = window.schema
-    var client = new coreapi.Client()
-    client
-      .action(schema, ['score', 'list'], params)
-      .then(function (score) {
-        build_svg(
-          container,
-          score,
-        )
-      })
+    var coreapi = window.coreapi = require('coreapi')
+    require(['schema'], function() {
+      var schema = window.schema
+      var client = new coreapi.Client()
+      client
+        .action(schema, ['score', 'list'], params)
+        .then(function (score) {
+          build_svg(
+            container,
+            score,
+          )
+        })
+    })
   }
   
   return {
