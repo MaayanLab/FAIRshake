@@ -7,4 +7,4 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
     '''
     if request.method in permissions.SAFE_METHODS:
       return True
-    return not obj.authors.filter(id=request.user).empty()
+    return obj.authors and obj.authors.filter(id=request.user.id).exists()
