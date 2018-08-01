@@ -30,6 +30,11 @@ class IdentifiableModelMixin(models.Model):
 class Project(IdentifiableModelMixin):
   digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
 
+  def children(self):
+    return {
+      'digital_object': self.digital_objects.all(),
+    }
+
 class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
   title = models.CharField(max_length=255, blank=True, default='')
@@ -63,6 +68,12 @@ class DigitalObject(IdentifiableModelMixin):
         for metric, value in score.items()
       }
       for rubric, score in scores.items()
+    }
+
+  def children(self):
+    return {
+      'project': self.projects.all(),
+      'rubric': self.rubrics.all(),
     }
 
 class Assessment(models.Model):
@@ -114,10 +125,21 @@ class Metric(IdentifiableModelMixin):
   fairmetrics = models.CharField(max_length=255, blank=True, default='')
   fairsharing = models.CharField(max_length=255, blank=True, default='')
 
+  def children(self):
+    return {
+      'rubric': self.rubrics.all(),
+    }
+
 class Rubric(IdentifiableModelMixin):
   license = models.CharField(max_length=255, blank=True, default='')
 
   metrics = models.ManyToManyField('Metric', blank=True, related_name='rubrics')
+
+  def children(self):
+    return {
+      'digital_object': self.digital_objects.all(),
+      'rubric': self.metrics.all(),
+    }
 
 class Author(AbstractUser):
   pass

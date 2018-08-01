@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="container">
-  {% with item=context model="project" %}
+  {% with item=queryset.0 model="project" %}
     {% include "fairshake/generic/retrieve.html" %}
   {% endwith %}
 </div>

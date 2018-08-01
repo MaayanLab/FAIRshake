@@ -67,7 +67,13 @@ class RequestAssessmentViewSet(viewsets.ViewSet):
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
     context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context)
-    return dict(context, context=context)
+    view = renderer_context['view']
+    return dict(context,
+      context=context,
+      # Pass the actual filtered queryset--beyond simply the serialization
+      #  so we have access to the models themselves.
+      queryset=view.filter_queryset(view.get_queryset()),
+    )
 
 class CustomModelViewSet(viewsets.ModelViewSet):
   renderer_classes = [
@@ -78,7 +84,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
   def get_model(self):
     return self.model
-  
+
   def get_queryset(self):
     return getattr(self, 'queryset', self.get_model().objects.all())
 

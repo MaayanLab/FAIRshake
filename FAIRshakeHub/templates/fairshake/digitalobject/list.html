@@ -9,7 +9,7 @@
 {% block content %}
 <div class="container">
   <h1 class="text-left">Digital Objects</h1>
-  {% with items=results model="digital_object" %}
+  {% with items=queryset model="digital_object" %}
     {% include "fairshake/generic/list.html" %}
   {% endwith %}
 </div>

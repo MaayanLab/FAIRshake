@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="container">
-  {% with item=context model="digital_object" %}
+  {% with item=queryset.0 model="digital_object" %}
     {% include "fairshake/generic/retrieve.html" %}
   {% endwith %}
 </div>
