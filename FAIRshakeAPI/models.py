@@ -1,19 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from collections import OrderedDict
 
 class IdentifiableModelMixin(models.Model):
   id = models.AutoField(primary_key=True)
 
   title = models.CharField(max_length=255, blank=False)
-  url = models.CharField(max_length=255, blank=True, default='')
-  description = models.TextField(blank=True, default='')
-  image = models.CharField(max_length=255, blank=True, default='')
-  tags = models.CharField(max_length=255, blank=True, default='')
+  url = models.CharField(max_length=255, blank=True, null=False, default='')
+  description = models.TextField(blank=True, null=False, default='')
+  image = models.CharField(max_length=255, blank=True, null=False, default='')
+  tags = models.CharField(max_length=255, blank=True, null=False, default='')
 
-  type = models.CharField(max_length=16, blank=True, default='', choices=(
+  type = models.CharField(max_length=16, blank=True, null=False, default='', choices=(
     ('', 'Other'),
     ('any', 'Any Digital Object'),
-    ('data', 'Database'),
+    ('data', 'Dataset'),
     ('repo', 'Repository'),
     ('test', 'Test Object'),
     ('tool', 'Tool'),
@@ -28,19 +29,19 @@ class IdentifiableModelMixin(models.Model):
     abstract = True
 
 class Project(IdentifiableModelMixin):
-  digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
+  digital_objects = models.ManyToManyField('DigitalObject', blank=True, null=False, related_name='projects')
 
   def children(self):
-    return {
-      'digital_object': self.digital_objects.all(),
-    }
+    return OrderedDict([
+      ('digital_object', self.digital_objects.all()),
+    ])
 
 class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
-  title = models.CharField(max_length=255, blank=True, default='')
+  title = models.CharField(max_length=255, blank=True, null=False, default='')
   url = models.CharField(max_length=255, blank=False)
 
-  rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
+  rubrics = models.ManyToManyField('Rubric', blank=True, null=False, related_name='digital_objects')
 
   def score(self, projects=None, rubrics=None):
     '''
@@ -71,10 +72,10 @@ class DigitalObject(IdentifiableModelMixin):
     }
 
   def children(self):
-    return {
-      'project': self.projects.all(),
-      'rubric': self.rubrics.all(),
-    }
+    return OrderedDict([
+      ('project', self.projects.all()),
+      ('rubric', self.rubrics.all()),
+    ])
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
@@ -87,7 +88,7 @@ class Assessment(models.Model):
     ('auto', 'Automatic Assessment'),
     ('test', 'Test Assessment'),
   ))
-  requestor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=True, default='')
+  requestor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=True, null=False, default='')
   assessor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=False)
   timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -95,9 +96,9 @@ class Answer(models.Model):
   id = models.AutoField(primary_key=True)
   assessment = models.ForeignKey('Assessment', on_delete=models.DO_NOTHING, related_name='answers')
   metric = models.ForeignKey('Metric', on_delete=models.DO_NOTHING, related_name='answers')
-  answer = models.TextField(blank=True, default='')
-  comment = models.TextField(blank=True, default='')
-  url_comment = models.TextField(blank=True, default='')
+  answer = models.TextField(blank=True, null=False, default='')
+  comment = models.TextField(blank=True, null=False, default='')
+  url_comment = models.TextField(blank=True, null=False, default='')
 
   def value(self):
     if self.answer != '':
@@ -107,23 +108,23 @@ class Answer(models.Model):
     return -1
 
 class Metric(IdentifiableModelMixin):
-  type = models.CharField(max_length=16, blank=True, default='yesnobut', choices=(
+  type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
     ('yesnobut', 'Yes no or but question'),
     ('text', 'Simple textbox input'),
     ('url', 'A url input'),
   ))
 
-  license = models.CharField(max_length=255, blank=True, default='')
+  license = models.CharField(max_length=255, blank=True, null=False, default='')
 
-  rationale = models.TextField(blank=True, default='')
-  principle = models.CharField(max_length=16, blank=True, default='', choices=(
+  rationale = models.TextField(blank=True, null=False, default='')
+  principle = models.CharField(max_length=16, blank=True, null=False, default='', choices=(
     ('F', 'Findability',),
     ('A', 'Accessibility',),
     ('I', 'Interoperability',),
     ('R', 'Reusability',),
   ))
-  fairmetrics = models.CharField(max_length=255, blank=True, default='')
-  fairsharing = models.CharField(max_length=255, blank=True, default='')
+  fairmetrics = models.CharField(max_length=255, blank=True, null=False, default='')
+  fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
 
   def children(self):
     return {
@@ -131,15 +132,15 @@ class Metric(IdentifiableModelMixin):
     }
 
 class Rubric(IdentifiableModelMixin):
-  license = models.CharField(max_length=255, blank=True, default='')
+  license = models.CharField(max_length=255, blank=True, null=False, default='')
 
-  metrics = models.ManyToManyField('Metric', blank=True, related_name='rubrics')
+  metrics = models.ManyToManyField('Metric', blank=True, null=False, related_name='rubrics')
 
   def children(self):
-    return {
-      'digital_object': self.digital_objects.all(),
-      'rubric': self.metrics.all(),
-    }
+    return OrderedDict([
+      ('metric', self.metrics.all()),
+      ('digital_object', self.digital_objects.all()),
+    ])
 
 class Author(AbstractUser):
   pass
