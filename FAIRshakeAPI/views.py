@@ -78,10 +78,14 @@ class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
 
 class CustomModelViewSet(viewsets.ModelViewSet):
   renderer_classes = [
+    renderers.JSONRenderer,
     CustomTemplateHTMLRenderer,
     renderers.BrowsableAPIRenderer,
-    renderers.JSONRenderer,
   ]
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    IsAuthorOrReadOnly,
+  )
 
   def get_model(self):
     return self.model
@@ -95,55 +99,31 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 class AnswerViewSet(CustomModelViewSet):
   model = models.Answer
   serializer_class = serializers.AnswerSerializer
-  permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    IsAuthorOrReadOnly,
-  )
   filter_class = filters.AnswerFilterSet
 
 class AssessmentViewSet(CustomModelViewSet):
   model = models.Assessment
   serializer_class = serializers.AssessmentSerializer
-  permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    IsAuthorOrReadOnly,
-  )
   filter_class = filters.AssessmentFilterSet
 
 class DigitalObjectViewSet(CustomModelViewSet):
   model = models.DigitalObject
   serializer_class = serializers.DigitalObjectSerializer
-  permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    IsAuthorOrReadOnly,
-  )
   filter_class = filters.DigitalObjectFilterSet
 
 class MetricViewSet(CustomModelViewSet):
   model = models.Metric
   serializer_class = serializers.MetricSerializer
-  permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    IsAuthorOrReadOnly,
-  )
   filter_class = filters.MetricFilterSet
 
 class ProjectViewSet(CustomModelViewSet):
   model = models.Project
   serializer_class = serializers.ProjectSerializer
-  permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    IsAuthorOrReadOnly,
-  )
   filter_class = filters.ProjectFilterSet
 
 class RubricViewSet(CustomModelViewSet):
   model = models.Rubric
   serializer_class = serializers.RubricSerializer
-  permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    IsAuthorOrReadOnly,
-  )
   filter_class = filters.RubricFilterSet
 
 class ScoreViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
