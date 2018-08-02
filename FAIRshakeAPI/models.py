@@ -101,11 +101,12 @@ class Answer(models.Model):
   url_comment = models.TextField(blank=True, null=False, default='')
 
   def value(self):
-    if self.answer != '':
-      if self.comment == '':
-        return 0
+    if self.answer != '' and self.answer != 'no':
       return 1
-    return -1
+    elif self.comment != '' or self.url_comment != '':
+      return 0
+    else:
+      return -1
 
 class Metric(IdentifiableModelMixin):
   type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
