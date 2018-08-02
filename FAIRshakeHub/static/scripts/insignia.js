@@ -13,13 +13,45 @@ require.config({
 })
 
 define(function(require) {
-  function build_svg(container, scores, metrics) {
-    var d3 = require('d3')
+  function nearest_sq(n) {
+    // Find the nearest square to build the insignia
+    return Math.ceil(Math.sqrt(n))
+  }
+
+  function create_sq(svg, props) {
+    // Add a square to an svg
+    // props: svg, x, y, size, strokeSize, fillColor, tooltip
+    var sq = svg.append('rect')
+    sq
+      .attr('x', props.x)
+      .attr('y', props.y)
+      .attr('width', props.size)
+      .attr('height', props.size)
+      .attr('stroke', '#ffffff')
+      .attr('stroke-width', props.strokeSize)
+      .attr('fill', props.fillColor)
+
+    if (props.tooltip !== undefined) {
+      sq
+        .attr('class', 'insignia-tooltip')
+        .attr('data-tippy-delay', '0')
+        .attr('data-tippy-size', 'large')
+        .attr('data-tippy-placement', 'right')
+        .attr('data-container', 'body')
+        .attr('title', props.tooltip)
+    }
+
+    return sq
+  }
+
+  function build_svg(container, scores, metrics, settings) {
     // Construct the insignia with arbitrary scores and summaries
     //
     // params:
     //   container: div/element where the svg element will be appended
     //   scores: {rubric-id: {metrid-id: 0, ...}, ...}
+    //   metrics: {metric-id: "description"}
+    //   settings (optional): {color: d3 range, svg: container, tooltip: boolean}
     //
     // Description:
     // This constructs a nested square where the outer square consists
@@ -41,10 +73,16 @@ define(function(require) {
     //
     // Color is linarly chosen between Red (0) and Blue (1).
 
-    if(metrics === undefined)
-      metrics = {}
+    // D3 Dependency
+    var d3 = require('d3')
 
-    var color =
+    // Default settings
+    if (metrics === undefined)
+      metrics = {}
+    if (settings === undefined)
+      settings = {}
+
+    var color = settings.color !== undefined ? settings.color :
       d3.scaleLinear()
         .domain([-1, 1])
         .interpolate(d3.interpolateRgb)
@@ -53,18 +91,15 @@ define(function(require) {
           d3.rgb(0, 0, 255),
         ])
 
-    var svg =
+    var svg = settings.svg !== undefined ? settings.svg :
       d3.select(container)
         .append('svg')
         .attr('width', '100%')
         .attr('height', '100%')
         .attr('preserveAspectRatio', 'xMinYMin')
         .attr('viewBox', '0 0 1 1')
-
-    function nearest_sq(n) {
-      // Find the nearest square to build the insignia
-      return Math.ceil(Math.sqrt(n))
-    }
+    
+    var tooltip = settings.tooltip !== undefined ? settings.tooltip : true
 
     var n_scores = Object.keys(scores).length
     var scores_sq = nearest_sq(n_scores)
@@ -83,59 +118,47 @@ define(function(require) {
         var local_x = (j % summary_sq) * local_unit
         var local_y = Math.floor(j / summary_sq) * local_unit
 
-        svg
-          .append('rect')
-          .attr('x', abs_x + local_x)
-          .attr('y', abs_y + local_y)
-          .attr('width', local_unit)
-          .attr('height', local_unit)
-          .attr('stroke', '#ffffff')
-          .attr('stroke-width', abs_unit / 40)
-          .attr('fill', isNaN(average) ? 'darkgray' : color(average))
-          .attr('class', 'insignia-tooltip')
-          .attr('data-tippy-delay', '0')
-          .attr('data-tippy-size', 'large')
-          .attr('data-tippy-placement', 'right')
-          .attr('data-container', 'body')
-          .attr('title', function (d) {
-            return 'Score (' + average + '): ' + description
-          })
-          .attr('data-html', 'true')
+        create_sq(svg, {
+          x: abs_x + local_x,
+          y: abs_y + local_y,
+          size: local_unit,
+          strokeSize: abs_unit / 40,
+          fillColor: isNaN(average) ? 'darkgray' : color(average),
+          tooltip: 'Score (' + average + '): ' + description,
+        })
       })
-      // For filling in the rest with grey squares
-      // for(var j = n_score - 1; j < summary_sq; j++) {
-      //   var local_x = (j % summary_sq) * local_unit
-      //   var local_y = Math.floor(j / summary_sq) * local_unit
 
-      //   svg
-      //     .append('rect')
-      //     .attr('x', abs_x + local_x)
-      //     .attr('y', abs_y + local_y)
-      //     .attr('width', local_unit)
-      //     .attr('height', local_unit)
-      //     .attr('stroke', '#ffffff')
-      //     .attr('stroke-width', abs_unit / 10)
-      //     .attr('fill', '#aaaaaa')
-      // }
+      for(var j = n_score; j < summary_sq*summary_sq; j++) {
+        var local_x = (j % summary_sq) * local_unit
+        var local_y = Math.floor(j / summary_sq) * local_unit
+
+        create_sq(svg, {
+          x: abs_x + local_x,
+          y: abs_y + local_y,
+          size: local_unit,
+          strokeSize: abs_unit / 40,
+          fillColor: 'lightgrey',
+        })
+      }
     })
-    // For filling in the rest with grey squares
-    // for(var i = n_scores.length - 1; i < scores_sq; i++) {
-    //   var abs_x = (i % scores_sq) * abs_unit
-    //   var abs_y = Math.floor(i / scores_sq) * abs_unit
 
-    //   svg
-    //     .append('rect')
-    //     .attr('x', abs_x)
-    //     .attr('y', abs_y)
-    //     .attr('width', abs_unit)
-    //     .attr('height', abs_unit)
-    //     .attr('stroke', '#ffffff')
-    //     .attr('stroke-width', abs_unit / 10)
-    //     .attr('fill', '#aaaaaa')
-    // }
+    for(var i = n_scores; i < scores_sq*scores_sq; i++) {
+      var abs_x = (i % scores_sq) * abs_unit
+      var abs_y = Math.floor(i / scores_sq) * abs_unit
 
-    var tippy = require('tippy')
-    tippy('.insignia-tooltip')
+      create_sq(svg, {
+        x: abs_x,
+        y: abs_y,
+        size: abs_unit,
+        strokeSize: abs_unit / 40,
+        fillColor: 'lightgrey',
+      })
+    }
+
+    if (tooltip) {
+      var tippy = require('tippy')
+      tippy('.insignia-tooltip')
+    }
   }
 
   function build_svg_from_score(container, params) {
