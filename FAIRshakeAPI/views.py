@@ -130,6 +130,7 @@ class ScoreViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     Generate aggregate scores on a per-rubric and per-metric basis.
     '''
     scores = {}
+    metrics = {}
 
     for assessment in self.filter_queryset(self.get_queryset()):
       if scores.get(assessment.rubric.id) is None:
@@ -137,14 +138,19 @@ class ScoreViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
       for answer in models.Answer.objects.filter(
         assessment=assessment.id,
       ):
+        if metrics.get(answer.metric.id) is None:
+          metrics[answer.metric.id] = answer.metric.title
         if scores[assessment.rubric.id].get(answer.metric.id) is None:
           scores[assessment.rubric.id][answer.metric.id] = []
         scores[assessment.rubric.id][answer.metric.id].append(answer.value())
 
     return response.Response({
-      rubric: {
-        metric: sum(value)/len(value)
-        for metric, value in score.items()
-      }
-      for rubric, score in scores.items()
+      'scores': {
+        rubric: {
+          metric: sum(value)/len(value)
+          for metric, value in score.items()
+        }
+        for rubric, score in scores.items()
+      },
+      'metrics': metrics,
     })

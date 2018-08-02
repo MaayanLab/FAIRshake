@@ -168,10 +168,11 @@ define(function(require) {
       var client = new coreapi.Client()
       client
         .action(schema, ['score', 'list'], params)
-        .then(function (score) {
+        .then(function (results) {
           build_svg(
             container,
-            score,
+            results.scores,
+            results.metrics,
           )
         })
     })
