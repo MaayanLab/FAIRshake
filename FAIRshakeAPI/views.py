@@ -68,12 +68,13 @@ class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
     context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context)
     view = renderer_context['view']
-    return dict(context,
-      context=context,
-      # Pass the actual filtered queryset--beyond simply the serialization
-      #  so we have access to the models themselves.
-      queryset=view.filter_queryset(view.get_queryset()),
-    )
+    kwargs = renderer_context['kwargs']
+    context['model'] = view.get_model()._meta.model_name
+    if view.action == 'retrieve':
+      context['item'] = view.get_object()
+    elif view.action == 'list':
+      context['items'] = view.filter_queryset(view.get_queryset())
+    return context
 
 class CustomModelViewSet(viewsets.ModelViewSet):
   renderer_classes = [

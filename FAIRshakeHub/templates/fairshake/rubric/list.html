@@ -9,8 +9,6 @@
 {% block content %}
 <div class="container">
   <h1 class="text-left">Rubrics</h1>
-  {% with items=queryset model="rubric" %}
-    {% include "fairshake/generic/list.html" %}
-  {% endwith %}
+  {% include "fairshake/generic/list.html" %}
 </div>
 {% endblock %}

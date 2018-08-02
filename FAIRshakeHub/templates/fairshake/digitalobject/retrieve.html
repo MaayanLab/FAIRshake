@@ -8,8 +8,6 @@
 
 {% block content %}
 <div class="container">
-  {% with item=queryset.0 model="digital_object" %}
-    {% include "fairshake/generic/retrieve.html" %}
-  {% endwith %}
+  {% include "fairshake/generic/retrieve.html" %}
 </div>
 {% endblock %}
