@@ -48,6 +48,9 @@ class RubricFilterSet(filters.FilterSet):
 
 class ScoreFilterSet(filters.FilterSet):
   id = AllInFilter()
+
+  url = filters.CharFilter(field_name='target__url', lookup_expr='icontains')
+
   class Meta:
     model = models.Assessment
     exclude = ('timestamp',)
