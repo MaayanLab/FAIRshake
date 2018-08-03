@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_auth.registration',
     'bootstrapform',
     'livereload',
+    'corsheaders',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -60,6 +61,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -201,6 +203,8 @@ LOGOUT_URL = '/accounts/logout/'
 LOGIN_REDIRECT_URL = '/'
 
 LOGOUT_ON_PASSWORD_CHANGE = False
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 SWAGGER_SETTINGS = {
    'DEFAULT_GENERATOR_CLASS': 'FAIRshakeAPI.schema.CustomSchemaGenerator',
