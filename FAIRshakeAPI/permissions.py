@@ -18,9 +18,9 @@ class HasAssessmentPermissions(permissions.BasePermission):
       # Read only access
       request.method in permissions.SAFE_METHODS and any([
         # Creator of the assessment target
-        obj.target and obj.target.filter(authors__id=request.user.id).exists(),
+        obj.target and obj.target.authors and obj.target.authors.filter(id=request.user.id),
         # Creator of the assessment project
-        obj.project and obj.project.filter(authors__id=request.user.id).exists(),
+        obj.project and obj.project.authors and obj.project.authors.filter(id=request.user.id),
         # Requestor of the assessment
         obj.requestor.id == request.user.id,
       ]),
