@@ -67,3 +67,7 @@ h1 {
     margin-right: 5px;
     float: right;
 }
+
+.tippy-tooltip {
+    font-size: 14pt !important;
+}
