@@ -79,7 +79,6 @@ class AssessmentSerializer(serializers.ModelSerializer):
       'assessor',
       'timestamp',
     )
-    depth = 1
 
 class AnswerSerializer(serializers.ModelSerializer):
   class Meta:
