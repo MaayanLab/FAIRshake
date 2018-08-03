@@ -20,7 +20,7 @@ define(function(require) {
 
   function create_sq(svg, props) {
     // Add a square to an svg
-    // props: svg, x, y, size, strokeSize, fillColor, tooltip
+    // props: svg, x, y, size, strokeSize, fillColor, link, tooltip
     var sq = svg.append('rect')
     sq
       .attr('x', props.x)
@@ -39,6 +39,12 @@ define(function(require) {
         .attr('data-tippy-placement', 'right')
         .attr('data-container', 'body')
         .attr('title', props.tooltip)
+    }
+    
+    if (props.link !== undefined) {
+      sq.on('click', function() {
+        window.location = props.link
+      })
     }
 
     return sq
@@ -125,6 +131,7 @@ define(function(require) {
           strokeSize: abs_unit / 40,
           fillColor: isNaN(average) ? 'darkgray' : color(average),
           tooltip: 'Score (' + average + '): ' + description,
+          link: url + '/metric/' + summary + '/'
         })
       })
 
