@@ -50,6 +50,7 @@ class ScoreFilterSet(filters.FilterSet):
   id = AllInFilter()
 
   url = filters.CharFilter(field_name='target__url', lookup_expr='icontains')
+  metric = filters.BaseInFilter(field_name='rubric__metrics')
 
   class Meta:
     model = models.Assessment
