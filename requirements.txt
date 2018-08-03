@@ -11,5 +11,6 @@ djangorestframework
 drf-yasg
 drf-yasg[validation]
 dynamic-rest
+mysqlclient
 Pillow
 uwsgi
