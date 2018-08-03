@@ -10,4 +10,5 @@ urlpatterns = [
     path('rubric/create/', views.rubric_create, name='rubric_create'),
     path('metric/create/', views.metric_create, name='metric_create'),
     path('assessment/create/', views.assessment_create, name='assessment_create'),
+    path('select2/', include('select2.urls')),
 ]

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'bootstrapform',
     'livereload',
     'corsheaders',
+    'select2',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
