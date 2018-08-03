@@ -7,7 +7,7 @@ from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from . import serializers, filters, models
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly, HasAssessmentPermissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -96,16 +96,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   def get_template_names(self):
     return ['fairshake/' + self.get_model()._meta.model_name + '/' + self.action + '.html']
 
-class AnswerViewSet(CustomModelViewSet):
-  model = models.Answer
-  serializer_class = serializers.AnswerSerializer
-  filter_class = filters.AnswerFilterSet
-
-class AssessmentViewSet(CustomModelViewSet):
-  model = models.Assessment
-  serializer_class = serializers.AssessmentSerializer
-  filter_class = filters.AssessmentFilterSet
-
 class DigitalObjectViewSet(CustomModelViewSet):
   model = models.DigitalObject
   serializer_class = serializers.DigitalObjectSerializer
@@ -126,7 +116,25 @@ class RubricViewSet(CustomModelViewSet):
   serializer_class = serializers.RubricSerializer
   filter_class = filters.RubricFilterSet
 
-class ScoreViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
+class AssessmentViewSet(viewsets.ModelViewSet):
+  renderer_classes = [
+    renderers.JSONRenderer,
+    CustomTemplateHTMLRenderer,
+    renderers.BrowsableAPIRenderer,
+  ]
+  queryset = models.Assessment.objects.all()
+  serializer_class = serializers.AssessmentSerializer
+  filter_class = filters.AssessmentFilterSet
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    HasAssessmentPermissions,
+  )
+
+class ScoreViewSet(
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+  ):
   ''' Request an score for a digital resource
   '''
   queryset = models.Assessment.objects.all()

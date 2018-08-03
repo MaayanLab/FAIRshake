@@ -5,7 +5,6 @@ from rest_framework.documentation import include_docs_urls
 from . import views
 
 router = routers.SimpleRouter()
-router.register(r'answer', views.AnswerViewSet, base_name='answer')
 router.register(r'assessment', views.AssessmentViewSet, base_name='assessment')
 router.register(r'digital_object', views.DigitalObjectViewSet, base_name='digital_object')
 router.register(r'metric', views.MetricViewSet, base_name='metric')
