@@ -26,6 +26,9 @@ class IdentifiableModelMixin(models.Model):
   def tags_as_list(self):
     return self.tags.split()
 
+  def __str__(self):
+    return '{title} ({id})'.format(id=self.id, title=self.title)
+
   class Meta:
     abstract = True
 
@@ -93,6 +96,15 @@ class Assessment(models.Model):
   assessor = ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=False)
   timestamp = models.DateTimeField(auto_now_add=True)
 
+  def __str__(self):
+    return '{methodology} assessment on Target[{target}] for Project[{project}] with Rubric[{rubric}] ({id})'.format(
+      id=self.id,
+      project=self.project,
+      target=self.target,
+      rubric=self.rubric,
+      methodology=self.methodology
+    )
+
 class Answer(models.Model):
   id = models.AutoField(primary_key=True)
   assessment = ForeignKey('Assessment', on_delete=models.DO_NOTHING, related_name='answers')
@@ -108,6 +120,14 @@ class Answer(models.Model):
       return 0
     else:
       return -1
+
+  def __str__(self):
+    return 'Answer to Metric[{metric}] for assessment[{assessment}]: {answer} ({id})'.format(
+      id=self.id,
+      assessment=self.assessment,
+      metric=self.metric,
+      answer=self.answer,
+    )
 
 class Metric(IdentifiableModelMixin):
   type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
