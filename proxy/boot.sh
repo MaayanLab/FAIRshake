@@ -67,7 +67,7 @@ http {
             proxy_set_header   X-Forwarded-Host \$server_name;
         }
 
-        location ~ ^/(static/v2|api/v2|admin|accounts)/ {
+        location ~ ^/(v2|static/v2|api/v2)/ {
             include            /etc/nginx/uwsgi_params;
             uwsgi_pass         django:8080;
             proxy_redirect     off;

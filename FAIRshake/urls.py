@@ -19,8 +19,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', include('FAIRshakeHub.urls')),
-    path('', include('FAIRshakeAPI.urls')),
-    path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('api/v2/', include('FAIRshakeAPI.urls')), # Legacy
+    path(settings.BASE_URL + '/' + '', include('FAIRshakeHub.urls')),
+    path(settings.BASE_URL + '/' + '', include('FAIRshakeAPI.urls')),
+    path(settings.BASE_URL + '/' + 'admin/', admin.site.urls),
+    path(settings.BASE_URL + '/' + 'accounts/', include('allauth.urls')),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
+ + static('/static/v2/', document_root=settings.STATIC_ROOT) # Legacy
