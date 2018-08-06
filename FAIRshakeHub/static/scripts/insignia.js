@@ -1,11 +1,11 @@
-var url = 'http://localhost:8000'
+var url = 'https://fairshake.cloud'
 
 require.config({
   paths: {
     d3: 'https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min',
     tippy: 'https://unpkg.com/tippy.js@2.5.2/dist/tippy.all.min',
     coreapi: url + '/static/v2/rest_framework/js/coreapi-0.1.1',
-    schema: url + '/coreapi/schema',
+    schema: url + '/api/v2/coreapi/schema',
   },
   shims: {
     schema: ['coreapi']
