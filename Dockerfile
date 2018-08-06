@@ -12,7 +12,7 @@ RUN apt-get update && \
         uwsgi-core
 
 ADD requirements.txt /requirements.txt
-RUN pip3 install -Ivr /requirements.txt
+RUN grep -v mysqlclient /requirements.txt | pip3 install -Ivr /dev/stdin
 
 VOLUME /ssl
 EXPOSE 80
