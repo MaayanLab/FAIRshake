@@ -33,7 +33,7 @@ class IdentifiableModelMixin(models.Model):
     abstract = True
 
 class Project(IdentifiableModelMixin):
-  digital_objects = ManyToManyField('DigitalObject', blank=True, null=False, related_name='projects')
+  digital_objects = ManyToManyField('DigitalObject', blank=True, related_name='projects')
 
   def children(self):
     return OrderedDict([
@@ -45,7 +45,7 @@ class DigitalObject(IdentifiableModelMixin):
   title = models.CharField(max_length=255, blank=True, null=False, default='')
   url = models.CharField(max_length=255, blank=False)
 
-  rubrics = ManyToManyField('Rubric', blank=True, null=False, related_name='digital_objects')
+  rubrics = ManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
   def score(self, projects=None, rubrics=None):
     '''
@@ -156,7 +156,7 @@ class Metric(IdentifiableModelMixin):
 class Rubric(IdentifiableModelMixin):
   license = models.CharField(max_length=255, blank=True, null=False, default='')
 
-  metrics = ManyToManyField('Metric', blank=True, null=False, related_name='rubrics')
+  metrics = ManyToManyField('Metric', blank=True, related_name='rubrics')
 
   def children(self):
     return OrderedDict([
