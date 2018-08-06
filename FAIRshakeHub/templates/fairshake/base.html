@@ -26,25 +26,25 @@
             </div>
             <ul class="nav navbar-nav navbar-left">
                 <li{% if active_page == "projects" %} class="active"{% endif %}>
-                    <a href="/project/" class="headx">Projects</a>
+                    <a href="{% url 'project-list' %}" class="headx">Projects</a>
                 </li>
                 <li{% if active_page == "rubrics" %} class="active"{% endif %}>
-                    <a href="/rubric/" class="headx">Rubrics</a>
+                    <a href="{% url 'rubric-list' %}" class="headx">Rubrics</a>
                 </li>
                 <li{% if active_page == "chrome_extension" %} class="active"{% endif %}>
-                    <a href="/chrome_extension" class="headx">Install Chrome Extension</a>
+                    <a href="{% url 'chrome_extension' %}" class="headx">Install Chrome Extension</a>
                 </li>
                 <li{% if active_page == "bookmarklet" %} class="active"{% endif %}>
-                    <a href="/bookmarklet" class="headx">Install Bookmarklet</a>
+                    <a href="{% url 'bookmarklet' %}" class="headx">Install Bookmarklet</a>
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if not user.is_authenticated %}
                     <li{% if active_page == "login" %} class="active"{% endif %}>
-                        <a href="/accounts/login/" class="headx">Login</a>
+                        <a href="{% url '/accounts/login/' %}" class="headx">Login</a>
                     </li>
                     <li{% if active_page == "register" %} class="active"{% endif %}>
-                        <a href="/accounts/signup/" class="headx">Sign up</a>
+                        <a href="{% url '/accounts/signup/' %}" class="headx">Sign up</a>
                     </li>
                 {% else %}
                     <li class="dropdown">
@@ -53,14 +53,14 @@
                             aria-expanded="false">{{ user.email }} ({{ user.username }})</a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="/assessment?assessor={{ user.id }}">Evaluated Projects</a>
+                                <a href="{% url 'assessment-create' %}">Evaluated Projects</a>
                             </li>
                             <li>
-                                <a href="/accounts/email/">Settings</a>
+                                <a href="{% url 'account_email' %}">Settings</a>
                             </li>
                             <li role="separator" class="divider" />
                             <li>
-                                <a href="/accounts/logout/">Logout</a>
+                                <a href="{% url 'account_logout' %}">Logout</a>
                             </li>
                         </ul>
                     </li>

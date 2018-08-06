@@ -4,7 +4,7 @@
   <div class="col-md-3 col-sm-6">
     <div class="panel panel-default" style="height: 300px">
         <div class="panel-body text-center">
-          <a href="/{{ model }}/{{ item.id }}/">
+          <a href="{% url model|add:'-detail' item.id %}">
             <div class="image-container">
               <img src="{{ item.image }}" />
             </div>
@@ -37,7 +37,7 @@
   <div class="col-md-3 col-sm-6">
     <div class="panel panel-default" style="height: 300px">
         <div class="panel-body text-center">
-          <a href="/{{ model }}/create/">
+          <a href="{% url model|add:'-create' %}">
             <div class="image-container">
               <span
                 style="font-size: 4em"
@@ -46,7 +46,7 @@
             </div>
           </a>
           <div class="caption text-left">
-            <h4><a href="/{{ model }}/create/">Create New {{ model|unslugify }}</a></h4>
+            <h4><a href="{% url model|add:'-create' %}">Create New {{ model|unslugify }}</a></h4>
           </div>
       </div>
     </div>
