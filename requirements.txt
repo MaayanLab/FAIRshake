@@ -2,6 +2,7 @@ coreapi
 django
 django-allauth
 django-bootstrap-form
+django-cors-headers
 django-extensions
 django-filter
 django-livereload-server
@@ -11,6 +12,8 @@ djangorestframework
 drf-yasg
 drf-yasg[validation]
 dynamic-rest
+flex
 mysqlclient
 Pillow
+swagger-spec-validator
 uwsgi

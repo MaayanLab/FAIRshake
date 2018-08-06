@@ -138,6 +138,7 @@ class ScoreViewSet(
   ''' Request an score for a digital resource
   '''
   queryset = models.Assessment.objects.all()
+  serializer_class = serializers.AssessmentSerializer
   filter_class = filters.ScoreFilterSet
   pagination_class = None
 
