@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
+    'drf_yasg',
     'rest_auth',
     'rest_auth.registration',
     'bootstrapform',
@@ -201,3 +201,7 @@ LOGOUT_URL = '/accounts/logout/'
 LOGIN_REDIRECT_URL = '/'
 
 LOGOUT_ON_PASSWORD_CHANGE = False
+
+SWAGGER_SETTINGS = {
+   'DEFAULT_GENERATOR_CLASS': 'FAIRshakeAPI.schema.CustomSchemaGenerator',
+}

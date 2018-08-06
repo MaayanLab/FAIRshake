@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, re_path, include
 from rest_framework import routers
 from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
@@ -16,7 +16,8 @@ router.register(r'request_assessment', views.RequestAssessmentViewSet, base_name
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', views.schema_view, name='Swagger UI',),
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$', views.schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('', views.schema_view.with_ui('swagger', cache_timeout=0), name='swagger-ui',),
     path('coreapi/', include_docs_urls(title='FAIRshake')),
     path('schema/', get_schema_view(title='FAIRshake')),
     path('auth/', include('rest_auth.urls')),

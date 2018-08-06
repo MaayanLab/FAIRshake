@@ -6,8 +6,9 @@ django-extensions
 django-filter
 django-livereload-server
 django-rest-auth
-django-rest-swagger
 djangorestframework
+drf-yasg
+drf-yasg[validation]
 dynamic-rest
 Pillow
 uwsgi

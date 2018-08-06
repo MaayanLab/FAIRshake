@@ -4,34 +4,28 @@ import coreapi
 import coreschema
 from rest_framework import views, viewsets, permissions, schemas, response, mixins, decorators
 from rest_auth.registration.views import SocialLoginView
-from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from . import serializers, filters, models
 from .permissions import IsAuthorOrReadOnly
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
-class CustomOpenAPIRenderer(OpenAPIRenderer):
-  def get_customizations(self):
-    return dict(super().get_customizations(),
-      info={
-        'description': 'A web interface for the scoring of biomedical digital objects by user evaluation according to the FAIR data principles: Findability, Accessibility, Interoperability, and Reusability',
-        'contact': {
-          'x-role': 'responsible organization',
-          'email': 'avi.maayan@mssm.edu',
-        },
-        'version': '1.0.1',
-      },
-      tags=[
-        {"name": "NIHdatacommons"},
-        {"name": "Maayanlab"},
-      ],
-    )
-
-@decorators.api_view()
-@decorators.renderer_classes([SwaggerUIRenderer, CustomOpenAPIRenderer])
-def schema_view(request):
-    generator = schemas.SchemaGenerator(title='FAIRshake API')
-    return response.Response(generator.get_schema(request=request))
+schema_view = get_schema_view(
+  openapi.Info(
+    title='FAIRshake API v2',
+    default_version='v2',
+    description='A web interface for the scoring of biomedical digital objects by user evaluation according to the FAIR data principles: Findability, Accessibility, Interoperability, and Reusability',
+    terms_of_service='https://fairshake.cloud/',
+    contact=openapi.Contact(
+      email='avi.maayan@mssm.edu',
+    ),
+    license=openapi.License(name='Apache 2.0 License'),
+  ),
+  validators=['flex', 'ssv'],
+  public=True,
+  permission_classes=(permissions.AllowAny,),
+)
 
 class GithubLogin(SocialLoginView):
   adapter_class = GitHubOAuth2Adapter
