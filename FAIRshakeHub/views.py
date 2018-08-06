@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views import generic
 from collections import OrderedDict
 from FAIRshakeAPI import models, serializers
+from . import forms
 
 # TODO: Use Coreapi instead of django models and/or find a coreapi -> django model converter?
 
@@ -24,29 +25,34 @@ def chrome_extension(request):
 @login_required
 def project_create(request):
   return render(request, 'fairshake/project/create.html', dict(
-    serializer=serializers.ProjectSerializer,
+    model='project',
+    formsets=forms.ProjectFormSets(),
   ))
 
 @login_required
 def rubric_create(request):
   return render(request, 'fairshake/rubric/create.html', dict(
-    serializer=serializers.RubricSerializer,
+    model='rubric',
+    formsets=forms.RubricFormSets(),
   ))
 
 @login_required
 def digital_object_create(request):
   return render(request, 'fairshake/digitalobject/create.html', dict(
-    serializer=serializers.DigitalObjectSerializer,
+    model='digital_object',
+    formsets=forms.DigitalObjectFormSets(),
   ))
 
 @login_required
 def metric_create(request):
   return render(request, 'fairshake/metric/create.html', dict(
-    serializer=serializers.MetricSerializer,
+    model='metric',
+    formsets=forms.MetricFormSets(),
   ))
 
 @login_required
 def assessment_create(request):
   return render(request, 'fairshake/assessment/create.html', dict(
-    serializer=serializers.AssessmentSerializer,
+    model='assessment',
+    formsets=forms.AssessmentFormSets(),
   ))
