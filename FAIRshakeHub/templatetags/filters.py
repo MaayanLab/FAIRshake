@@ -17,3 +17,7 @@ def jsonify(d):
 @register.filter
 def unslugify(v):
   return ' '.join(map(str.capitalize, v.split('_')))
+
+@register.filter
+def limit(text, amount):
+  return ''.join(text[:amount])

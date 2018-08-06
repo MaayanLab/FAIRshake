@@ -2,11 +2,15 @@
 <div class="row">
   {% for item in items %}
   <div class="col-md-3 col-sm-6">
-    <div class="panel panel-default" style="height: 300px">
+    <div class="panel panel-default" style="height: 320px">
         <div class="panel-body text-center">
           <a href="{% url model|add:'-detail' item.id %}">
             <div class="image-container">
-              <img src="{{ item.image }}" />
+              {% if item.image %}
+                <img src="{{ item.image }}" />
+              {% else %}
+                <img src="http://amp.pharm.mssm.edu/datasets2tools/static/icons/tool.png">
+              {% endif %}
             </div>
         </a>
         <div class="caption text-left">
@@ -16,15 +20,19 @@
               data-target='{ "{{ model }}": {{ item.id }} }'
             />
             <h4><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h4>
-            <p>{{ item.description }}</p>
+            {% if item.description|length > 100 %}
+                <p>{{ item.description|limit:100 }}...</p>
+            {% else %}
+                <p>{{ item.description }}</p>
+            {% endif %}
             {% if item.type %}
-              <span class="badge badge-primary">
+              <span class="label label-default">
                 {{ item.type }}
               </span>
             {% endif %}
             {% if item.tags %}
               {% for tag in item.tags_as_list %}
-                <span class="chip">
+                <span class="label label-success">
                   {{ tag }}
                 </span>
               {% endfor %}
@@ -35,7 +43,7 @@
   </div>
   {% endfor %}
   <div class="col-md-3 col-sm-6">
-    <div class="panel panel-default" style="height: 300px">
+    <div class="panel panel-default" style="height: 320px">
         <div class="panel-body text-center">
           <a href="{% url model|add:'-create' %}">
             <div class="image-container">

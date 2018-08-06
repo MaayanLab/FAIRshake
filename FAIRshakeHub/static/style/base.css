@@ -56,8 +56,8 @@ h1 {
 }
 
 .image-container img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 90%;
+    max-height: 90%;
 }
 
 .insignia.embed-image {
@@ -69,5 +69,6 @@ h1 {
 }
 
 .tippy-tooltip {
-    font-size: 14pt !important;
+    font-size: 10pt !important;
+    text-align: left;
 }

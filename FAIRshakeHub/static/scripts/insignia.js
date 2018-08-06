@@ -130,7 +130,7 @@ define(function(require) {
           size: local_unit,
           strokeSize: abs_unit / 40,
           fillColor: isNaN(average) ? 'darkgray' : color(average),
-          tooltip: 'Score (' + average + '): ' + description,
+          tooltip: 'Score (' + (average + 1) * 50 + '%): ' + description,
           link: url + '/metric/' + summary + '/'
         })
       })
