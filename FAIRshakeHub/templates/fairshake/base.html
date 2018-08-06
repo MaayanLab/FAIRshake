@@ -19,7 +19,7 @@
     {% block header %}
         <nav class="navbar navbar-default navbar-static-top">
             <div class="navbar-header">
-                <a id="navbar-logo" class="navbar-brand" href="/" style="display: table;">
+                <a id="navbar-logo" class="navbar-brand" href="{% url 'index' %}" style="display: table;">
                     <img src="{% static 'image/icon-32.png' %}" style="display: table-cell; vertical-align: middle; margin-right: 10px;">
                     <div style="display: table-cell; vertical-align: middle;">FAIRshake</div>
                 </a>
