@@ -20,4 +20,4 @@ def unslugify(v):
 
 @register.filter
 def limit(text, amount):
-  return ''.join(text[:amount])
+  return ''.join(text[:amount]) + '...' if len(text) > amount else text
