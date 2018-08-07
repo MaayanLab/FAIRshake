@@ -49,6 +49,7 @@ class RubricFilterSet(filters.FilterSet):
 class ScoreFilterSet(filters.FilterSet):
   id = AllInFilter()
 
+  digital_object = filters.BaseInFilter(field_name='target')
   url = filters.CharFilter(field_name='target__url', lookup_expr='icontains')
   metric = filters.BaseInFilter(field_name='rubric__metrics')
 
