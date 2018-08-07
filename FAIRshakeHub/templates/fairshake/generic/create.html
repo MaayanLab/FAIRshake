@@ -3,12 +3,7 @@
 <form role="form" action="" method="POST">
     <legend>{{ model|unslugify }}</legend>
     {% csrf_token %}
-    {{ formsets.get_modelform|bootstrap }}
-    {% for inline_formsets in formsets.get_inline_formsets %}
-        {% for inline_form in inline_formsets %}
-            {{ inline_form|bootstrap_horizontal }}
-        {% endfor %}
-    {% endfor %}
+    {{ form|bootstrap }}
     <div class="form-group">
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>

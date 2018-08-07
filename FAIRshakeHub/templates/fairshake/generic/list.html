@@ -1,42 +1,7 @@
 {% load filters %}
 <div class="row">
   {% for item in items %}
-  <div class="col-md-3 col-sm-6">
-    <div class="panel panel-default" style="height: 320px">
-        <div class="panel-body text-center">
-          <a href="{% url model|add:'-detail' item.id %}">
-            <div class="image-container">
-              {% if item.image %}
-                <img src="{{ item.image }}" />
-              {% else %}
-                <img src="{% static 'image/digital_object.png' %}">
-              {% endif %}
-            </div>
-        </a>
-        <div class="caption text-left">
-            <div
-              class="insignia embed-image"
-              style="width: 60px; height: 60px;"
-              data-target='{ "{{ model }}": {{ item.id }} }'
-            />
-            <h4><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h4>
-            <p>{{ item.description|limit:100 }}</p>
-            {% if item.type %}
-              <span class="label label-default">
-                {{ item.type }}
-              </span>
-            {% endif %}
-            {% if item.tags %}
-              {% for tag in item.tags_as_list %}
-                <span class="label label-success">
-                  {{ tag }}
-                </span>
-              {% endfor %}
-            {% endif %}
-          </div>
-      </div>
-    </div>
-  </div>
+  {% include "fairshake/generic/element.html" %}
   {% endfor %}
   <div class="col-md-3 col-sm-6">
     <div class="panel panel-default" style="height: 320px">

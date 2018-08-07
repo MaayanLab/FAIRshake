@@ -1,5 +1,10 @@
 {% extends "fairshake/base.html" %}
 
+{% block header %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock %}
+
 {% block content %}
 <div class="container">
   {% include "fairshake/generic/create.html" %}

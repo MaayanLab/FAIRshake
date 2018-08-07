@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from select2.fields import ForeignKey, ManyToManyField
 from collections import OrderedDict
 
 class IdentifiableModelMixin(models.Model):
@@ -21,7 +20,7 @@ class IdentifiableModelMixin(models.Model):
     ('tool', 'Tool'),
   ))
 
-  authors = ManyToManyField('Author', blank=True)
+  authors = models.ManyToManyField('Author', blank=True)
 
   def tags_as_list(self):
     return self.tags.split()
@@ -33,19 +32,23 @@ class IdentifiableModelMixin(models.Model):
     abstract = True
 
 class Project(IdentifiableModelMixin):
-  digital_objects = ManyToManyField('DigitalObject', blank=True, related_name='projects')
+  digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
 
   def children(self):
     return OrderedDict([
       ('digital_object', self.digital_objects.all()),
     ])
+  
+  class Meta:
+    verbose_name = 'project'
+    verbose_name_plural = 'projects'
 
 class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
   title = models.CharField(max_length=255, blank=True, null=False, default='')
   url = models.CharField(max_length=255, blank=False)
 
-  rubrics = ManyToManyField('Rubric', blank=True, related_name='digital_objects')
+  rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
   def score(self, projects=None, rubrics=None):
     '''
@@ -81,19 +84,23 @@ class DigitalObject(IdentifiableModelMixin):
       ('rubric', self.rubrics.all()),
     ])
 
+  class Meta:
+    verbose_name = 'digital_object'
+    verbose_name_plural = 'digital_objects'
+
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
-  project = ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='assessments')
-  target = ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='assessments')
-  rubric = ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='assessments')
+  project = models.ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='assessments')
+  target = models.ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='assessments')
+  rubric = models.ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='assessments')
   methodology = models.TextField(max_length=16, blank=False, choices=(
     ('self', 'Digital Object Creator Assessment'),
     ('user', 'Independent User Assessment'),
     ('auto', 'Automatic Assessment'),
     ('test', 'Test Assessment'),
   ))
-  requestor = ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=True, null=False, default='')
-  assessor = ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=False)
+  requestor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=True, null=False, default='')
+  assessor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=False)
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def __str__(self):
@@ -105,10 +112,14 @@ class Assessment(models.Model):
       methodology=self.methodology
     )
 
+  class Meta:
+    verbose_name = 'assessment'
+    verbose_name_plural = 'assessments'
+
 class Answer(models.Model):
   id = models.AutoField(primary_key=True)
-  assessment = ForeignKey('Assessment', on_delete=models.DO_NOTHING, related_name='answers')
-  metric = ForeignKey('Metric', on_delete=models.DO_NOTHING, related_name='answers')
+  assessment = models.ForeignKey('Assessment', on_delete=models.DO_NOTHING, related_name='answers')
+  metric = models.ForeignKey('Metric', on_delete=models.DO_NOTHING, related_name='answers')
   answer = models.TextField(blank=True, null=False, default='')
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
@@ -128,6 +139,10 @@ class Answer(models.Model):
       metric=self.metric,
       answer=self.answer,
     )
+
+  class Meta:
+    verbose_name = 'answer'
+    verbose_name_plural = 'answers'
 
 class Metric(IdentifiableModelMixin):
   type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
@@ -153,10 +168,14 @@ class Metric(IdentifiableModelMixin):
       'rubric': self.rubrics.all(),
     }
 
+  class Meta:
+    verbose_name = 'metric'
+    verbose_name_plural = 'metrics'
+
 class Rubric(IdentifiableModelMixin):
   license = models.CharField(max_length=255, blank=True, null=False, default='')
 
-  metrics = ManyToManyField('Metric', blank=True, related_name='rubrics')
+  metrics = models.ManyToManyField('Metric', blank=True, related_name='rubrics')
 
   def children(self):
     return OrderedDict([
@@ -164,5 +183,11 @@ class Rubric(IdentifiableModelMixin):
       ('digital_object', self.digital_objects.all()),
     ])
 
+  class Meta:
+    verbose_name = 'rubric'
+    verbose_name_plural = 'rubrics'
+
 class Author(AbstractUser):
-  pass
+  class Meta:
+    verbose_name = 'author'
+    verbose_name_plural = 'authors'

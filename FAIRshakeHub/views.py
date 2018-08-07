@@ -25,34 +25,34 @@ def chrome_extension(request):
 @login_required
 def project_create(request):
   return render(request, 'fairshake/project/create.html', dict(
-    model='project',
-    formsets=forms.ProjectFormSets(),
+    model=models.Project._meta.verbose_name_raw,
+    form=forms.ProjectForm(),
   ))
 
 @login_required
 def rubric_create(request):
   return render(request, 'fairshake/rubric/create.html', dict(
-    model='rubric',
-    formsets=forms.RubricFormSets(),
+    model=models.Rubric._meta.verbose_name_raw,
+    form=forms.RubricForm(),
   ))
 
 @login_required
 def digital_object_create(request):
   return render(request, 'fairshake/digitalobject/create.html', dict(
-    model='digital_object',
-    formsets=forms.DigitalObjectFormSets(),
+    model=models.DigitalObject._meta.verbose_name_raw,
+    form=forms.DigitalObjectForm(),
   ))
 
 @login_required
 def metric_create(request):
   return render(request, 'fairshake/metric/create.html', dict(
-    model='metric',
-    formsets=forms.MetricFormSets(),
+    model=models.Metric._meta.verbose_name_raw,
+    form=forms.MetricForm(),
   ))
 
 @login_required
 def assessment_create(request):
   return render(request, 'fairshake/assessment/create.html', dict(
-    model='assessment',
-    formsets=forms.AssessmentFormSets(),
+    model=models.Assessment._meta.verbose_name_raw,
+    form=forms.AssessmentForm(),
   ))

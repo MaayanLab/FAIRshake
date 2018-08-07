@@ -1,4 +1,5 @@
 from django.urls import path, include
+from ajax_select import urls as ajax_select_urls
 from . import views
 
 urlpatterns = [
@@ -10,5 +11,5 @@ urlpatterns = [
     path('rubric/create/', views.rubric_create, name='rubric-create'),
     path('metric/create/', views.metric_create, name='metric-create'),
     path('assessment/create/', views.assessment_create, name='assessment-create'),
-    path('select2/', include('select2.urls')),
+    path('ajax_select/', include(ajax_select_urls)),
 ]
