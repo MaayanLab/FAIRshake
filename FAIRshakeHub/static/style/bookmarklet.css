@@ -42,8 +42,8 @@
 }
 
 .carousel .item img {
-    width: auto;
-    height: 100%;
+    width: 100%;
+    height: auto;
     top: 0;
     bottom: 0;
     left: 0;
@@ -54,6 +54,14 @@
 
 .carousel-container {
     margin: 20px;
+}
+
+.carousel-indicators li {
+    background-color:#dddddd;
+}
+
+.carousel-indicators .active {
+    background-color:#a8a8a8;
 }
 
 .glyphicon-chevron-left {
