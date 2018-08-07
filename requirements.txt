@@ -1,5 +1,5 @@
 coreapi
-django
+Django==2.0.7
 django-ajax-selects
 django-allauth
 django-bootstrap-form
