@@ -3,42 +3,43 @@
   <div class="panel panel-default" style="height: 320px">
     <div class="panel-body text-center">
       <div class="image-container">
-        {% if item.image %}
-          <a href="{% url model|add:'-detail' item.id %}" class="image-link">
-            <span class="helper"></span><img src="{{ item.image }}"/>
-          </a>
-          <div
+        <a href="{% url model|add:'-detail' item.id %}" class="image-link">
+          <span class="helper"></span><img
+            {% if item.image %}
+              src="{{ item.image }}"
+            {% else %}
+              src="{% static 'image/digital_object.png' %}"
+            {% endif %}/>
+        </a>
+        <div
             class="insignia embed-image"
             style="width: 40px; height: 40px;"
             data-target='{ "{{ model }}": {{ item.id }} }'
-          />
-        {% else %}
-          <a href="{% url model|add:'-detail' item.id %}" class="image-link">
-            <span class="helper"></span><img src="{% static 'image/digital_object.png' %}"/>
-          </a>
-          <div
-            class="insignia embed-image"
-            style="width: 40px; height: 40px;"
-            data-target='{ "{{ model }}": {{ item.id }} }'
-          />
-        {% endif %}
+        />
       </div>
       <div class="caption text-left">
-        <p class="item-title"><a href="{{ item.url }}" target=_blank>{{ item.title|limit:80 }}</a></p>
+        <p class="item-title" style="margin-right:60px;">
+          <a href="{{ item.url }}" target=_blank>{{ item.title|limit:80 }}</a>
+        </p>
+        {% if item.type %}
+          <span class="label label-success"
+              style="font-size:10px;position:absolute;top:164px;right:30px;">{{ item.type }}</span>
+        {% endif %}
         <p>{{ item.description|limit:110 }}</p>
-        <div style="position: absolute;bottom: 35px;">
-          {% if item.type %}
-            <span class="label label-default">
-              {{ item.type }}
-            </span>
-          {% endif %}
-          {% if item.tags %}
-            {% for tag in item.tags_as_list %}
-              <span class="label label-success">
-                {{ tag }}
-              </span>
-            {% endfor %}
-          {% endif %}
+        <div style="position:absolute;bottom:30px;margin-right:60px;">
+          <div>
+            <div style="font-size:10px;color:gray;margin-top:5px;">
+              {% if item.tags %}
+                {% for tag in item.tags_as_list %}
+                  <span class="glyphicon glyphicon-tag"></span>
+                  {{ tag }}
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:25px;right:25px;font-size:20px;color:#666666;">
+          <span class="glyphicon glyphicon-edit"></span>
         </div>
       </div>
     </div>
