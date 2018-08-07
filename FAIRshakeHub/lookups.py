@@ -3,6 +3,9 @@ from FAIRshakeAPI import models
 from django.template.loader import render_to_string
 
 class IdentifiableLookupChannel(LookupChannel):
+  def check_auth(self, request):
+    return True
+
   def get_query(self, q, request):
     return self.model.objects.filter(title__icontains=q).order_by('title')
 
