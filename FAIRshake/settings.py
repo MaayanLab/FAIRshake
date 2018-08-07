@@ -202,7 +202,7 @@ SOCIALACCOUNT_PROVIDERS = {
 LOGIN_URL = '/' + BASE_URL + '/accounts/login/'
 LOGOUT_URL = '/' + BASE_URL + '/accounts/logout/'
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/' + BASE_URL + '/'
 
 LOGOUT_ON_PASSWORD_CHANGE = False
 
