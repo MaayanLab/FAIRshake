@@ -1,6 +1,6 @@
 {% load bootstrap %}
 {% load filters %}
-<form role="form" action="" method="POST">
+<form role="form" action="{% url model|add:'-create' %}" enctype="multipart/form-data" method="POST" novalidate>
     <legend>{{ model|unslugify }}</legend>
     {% csrf_token %}
     {{ form|bootstrap }}
