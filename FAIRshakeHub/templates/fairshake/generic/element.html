@@ -5,30 +5,25 @@
       <div class="image-container">
         {% if item.image %}
           <a href="{% url model|add:'-detail' item.id %}" class="image-link">
-              <span class="helper"></span><img src="{{ item.image }}"/>
+            <span class="helper"></span><img src="{{ item.image }}"/>
           </a>
           <div
-          class="insignia embed-image"
-          style="width: 40px; height: 40px;"
-          data-target='{ "{{ model }}": {{ item.id }} }'
-        />
+            class="insignia embed-image"
+            style="width: 40px; height: 40px;"
+            data-target='{ "{{ model }}": {{ item.id }} }'
+          />
         {% else %}
           <a href="{% url model|add:'-detail' item.id %}" class="image-link">
-              <span class="helper"></span><img src="{% static 'image/digital_object.png' %}"/>
+            <span class="helper"></span><img src="{% static 'image/digital_object.png' %}"/>
           </a>
           <div
-          class="insignia embed-image"
-          style="width: 40px; height: 40px;"
-          data-target='{ "{{ model }}": {{ item.id }} }'
+            class="insignia embed-image"
+            style="width: 40px; height: 40px;"
+            data-target='{ "{{ model }}": {{ item.id }} }'
           />
         {% endif %}
       </div>
       <div class="caption text-left">
-        <div
-          class="insignia embed-image"
-          style="width: 40px; height: 40px;"
-          data-target='{ "{{ model }}": {{ item.id }} }'
-        />
         <p class="item-title"><a href="{{ item.url }}" target=_blank>{{ item.title|limit:80 }}</a></p>
         <p>{{ item.description|limit:110 }}</p>
         <div style="position: absolute;bottom: 35px;">
