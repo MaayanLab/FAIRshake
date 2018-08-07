@@ -69,8 +69,6 @@ class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
     context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context)
     view = renderer_context['view']
-    if view.request.user.is_anonymous:
-      return context
     kwargs = renderer_context['kwargs']
     context['model'] = view.get_model()._meta.model_name
     if view.action == 'retrieve':
@@ -123,6 +121,8 @@ class AssessmentViewSet(CustomModelViewSet):
   model = models.Assessment
 
   def get_queryset(self):
+    if self.request.user.is_anonymous:
+      return models.Assessment.objects.none()
     return models.Assessment.objects.filter(
       Q(target__authors=self.request.user)
       | Q(project__authors=self.request.user)
