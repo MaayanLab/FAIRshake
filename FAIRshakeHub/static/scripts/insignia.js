@@ -1,11 +1,15 @@
-var url = 'https://fairshake.cloud'
-
 require.config({
   paths: {
     d3: 'https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min',
     tippy: 'https://unpkg.com/tippy.js@2.5.2/dist/tippy.all.min',
-    coreapi: url + '/v2/static/rest_framework/js/coreapi-0.1.1',
-    schema: url + '/v2/coreapi/schema',
+    coreapi: [
+      window.location.protocol + '//' + window.location.host + '/v2/static/rest_framework/js/coreapi-0.1.1',
+      'https://fairshake.cloud/v2/static/rest_framework/js/coreapi-0.1.1',
+    ],
+    schema: [
+      window.location.protocol + '//' + window.location.host + '/v2/coreapi/schema',
+      'https://fairshake.cloud/v2/coreapi/schema',
+    ],
   },
   shims: {
     schema: ['coreapi']
@@ -131,7 +135,7 @@ define(function(require) {
           strokeSize: abs_unit / 40,
           fillColor: isNaN(average) ? 'darkgray' : color(average),
           tooltip: 'Score (' + (average + 1) * 50 + '%): ' + description,
-          link: url + '/metric/' + summary + '/'
+          link: 'https://fairshake.cloud/v2/metric/' + summary + '/'
         })
       })
 
