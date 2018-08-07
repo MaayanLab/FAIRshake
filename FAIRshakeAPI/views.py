@@ -2,14 +2,15 @@
 
 import coreapi
 import coreschema
-from rest_framework import views, viewsets, permissions, schemas, response, mixins, decorators, renderers
-from rest_auth.registration.views import SocialLoginView
+from . import serializers, filters, models
+from .permissions import IsAuthorOrReadOnly
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
-from . import serializers, filters, models
-from .permissions import IsAuthorOrReadOnly, HasAssessmentPermissions
-from drf_yasg.views import get_schema_view
+from django.db.models import Q
 from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_auth.registration.views import SocialLoginView
+from rest_framework import views, viewsets, permissions, schemas, response, mixins, decorators, renderers
 
 schema_view = get_schema_view(
   openapi.Info(
@@ -68,6 +69,8 @@ class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
     context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context)
     view = renderer_context['view']
+    if view.request.user.is_anonymous:
+      return context
     kwargs = renderer_context['kwargs']
     context['model'] = view.get_model()._meta.model_name
     if view.action == 'retrieve':
@@ -116,19 +119,21 @@ class RubricViewSet(CustomModelViewSet):
   serializer_class = serializers.RubricSerializer
   filter_class = filters.RubricFilterSet
 
+class AssessmentViewSet(CustomModelViewSet):
+  model = models.Assessment
 
-class AssessmentViewSet(viewsets.ModelViewSet):
-  renderer_classes = [
-    renderers.JSONRenderer,
-    CustomTemplateHTMLRenderer,
-    renderers.BrowsableAPIRenderer,
-  ]
-  queryset = models.Assessment.objects.all()
+  def get_queryset(self):
+    return models.Assessment.objects.filter(
+      Q(target__authors=self.request.user)
+      | Q(project__authors=self.request.user)
+      | Q(requestor=self.request.user)
+      | Q(assessor=self.request.user)
+    )
+
   serializer_class = serializers.AssessmentSerializer
-  filter_class = filters.AssessmentFilterSet
+  filter_classes = filters.AssessmentFilterSet
   permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    HasAssessmentPermissions,
+    permissions.IsAuthenticated,
   )
 
 class ScoreViewSet(
