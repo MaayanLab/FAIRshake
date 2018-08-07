@@ -8,14 +8,11 @@
         <div class="panel-body text-center">
           <a href="{% url model|add:'-create' %}">
             <div class="image-container">
-              <span
-                style="font-size: 4em"
-                class="glyphicon glyphicon-plus"
-              ></span>
+              <img src="{% static 'image/plus.png' %}" style="max-width:50%; max-height:50%;"/>
             </div>
           </a>
           <div class="caption text-left">
-            <h4><a href="{% url model|add:'-create' %}">Create New {{ model|unslugify }}</a></h4>
+            <p class="item-title" style="text-align:center;"><a href="{% url model|add:'-create' %}">Create New {{ model|unslugify }}</a></p>
           </div>
       </div>
     </div>

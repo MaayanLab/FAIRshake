@@ -134,7 +134,7 @@ define(function(require) {
           size: local_unit,
           strokeSize: abs_unit / 40,
           fillColor: isNaN(average) ? 'darkgray' : color(average),
-          tooltip: 'Score (' + (average + 1) * 50 + '%): ' + description,
+          tooltip: 'Score: ' + ((average + 1) * 50).toFixed(0) + '%<br />' + description,
           link: 'https://fairshake.cloud/v2/metric/' + summary + '/'
         })
       })

@@ -15,20 +15,14 @@
 <div class="container-fluid">
     <h3 class="project-head text-left">FAIRshake Chrome Extension</h3>
     <div class="bookmarklet-btn">
-        <a class="btn btn-lg btn-success" href="{% static 'file/FAIRshake_chrext.zip' %}">
-            Download
-            &nbsp;&nbsp;
-            <span class="glyphicon glyphicon-download" aria-hidden="true" />
-        </a>
+        <a href="https://chrome.google.com/webstore/detail/fairshake/pihohcecpiomegpagadljmdifpbkhnjn"><h4>Install from the Chrome Web Store!</h4></a>
     </div>
     <div class="install-instructions">
         <h4>How to install:</h4>
         <ol>
-            <li>Click "Download" button and unzip files.</li>
-            <li>Open Google Chrome and go to "chrome://extensions".</li>
-            <li>Enable Developer mode at the top right.</li>
-            <li>Click "Load unpacked extension..." and choose the folder containing the downloaded files.</li>
-            <li>Enable the FAIRshake extension in the Chrome extension list.</li>
+            <li>Install the Chrome extension from the Chrome web store.</li>
+            <li>Navigate to the landing page of any biomedical digital object.</li>
+            <li>Click on the FAIRshake icon in the Extensions bar to see the FAIR insignia and a link to the evaluation form for the digital object, where you can submit a FAIR assessment.</li>
         </ol>
     </div>
     <h4 class="carousel-head text-left">Examples:</h4>
@@ -38,44 +32,33 @@
                 <li data-target="#examples-carousel" data-slide-to="0" class="active"></li>
                 <li data-target="#examples-carousel" data-slide-to="1"></li>
                 <li data-target="#examples-carousel" data-slide-to="2"></li>
-                <li data-target="#examples-carousel" data-slide-to="3"></li>
-                <li data-target="#examples-carousel" data-slide-to="4"></li>
-                <li data-target="#examples-carousel" data-slide-to="5"></li>
             </ol>
-            <div class="carousel-inner">
-                <div class="item active">
-                    <div id="project-image-container">
-                        <img src="{% static 'image/example/chrome_extension1.png' %}" />
+                <div class="carousel-inner">
+                    <div class="item active">
+                        <div class="image-container">
+                            <img src="{% static 'image/example/chrome_extension1.png' %}" alt="First Slide">
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="image-container">
+                            <img src="{% static 'image/example/chrome_extension2.png' %}"
+                                 alt="Second Slide">
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="image-container">
+                            <img src="{% static 'image/example/chrome_extension3.png' %}"
+                                 alt="Third Slide">
+                        </div>
                     </div>
                 </div>
-                <div class="item">
-                    <div id="project-image-container">
-                        <img src="{% static 'image/example/chrome_extension2.png' %}" />
-                    </div>
-                </div>
-                <div class="item">
-                    <div id="project-image-container">
-                        <img src="{% static 'image/example/chrome_extension3.png' %}" />
-                    </div>
-                </div>
-                <div class="item">
-                    <div id="project-image-container">
-                        <img src="{% static 'image/example/chrome_extension4.png' %}" />
-                    </div>
-                </div>
-                <div class="item">
-                    <div id="project-image-container">
-                        <img src="{% static 'image/example/chrome_extension5.png' %}" />
-                    </div>
-                </div>
-            </div>
-            <a class="carousel-control left" href="#examples-carousel" data-slide="prev">
+                <a class="carousel-control left" href="#examples-carousel" data-slide="prev">
                 <span class="glyphicon glyphicon-chevron-left"></span>
             </a>
             <a class="carousel-control right" href="#examples-carousel" data-slide="next">
                 <span class="glyphicon glyphicon-chevron-right"></span>
             </a>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
