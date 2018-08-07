@@ -90,17 +90,17 @@ class DigitalObject(IdentifiableModelMixin):
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
-  project = models.ForeignKey('Project', on_delete=models.DO_NOTHING, related_name='assessments')
-  target = models.ForeignKey('DigitalObject', on_delete=models.DO_NOTHING, related_name='assessments')
-  rubric = models.ForeignKey('Rubric', on_delete=models.DO_NOTHING, related_name='assessments')
+  project = models.ForeignKey('Project', on_delete=models.SET_NULL, blank=True, null=True, related_name='assessments')
+  target = models.ForeignKey('DigitalObject', on_delete=models.CASCADE, related_name='assessments')
+  rubric = models.ForeignKey('Rubric', on_delete=models.CASCADE, related_name='assessments')
   methodology = models.TextField(max_length=16, blank=False, choices=(
     ('self', 'Digital Object Creator Assessment'),
     ('user', 'Independent User Assessment'),
     ('auto', 'Automatic Assessment'),
     ('test', 'Test Assessment'),
   ))
-  requestor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=True, null=False, default='')
-  assessor = models.ForeignKey('Author', on_delete=models.DO_NOTHING, related_name='+', blank=False)
+  requestor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True, default='')
+  assessor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True)
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def __str__(self):
@@ -118,8 +118,8 @@ class Assessment(models.Model):
 
 class Answer(models.Model):
   id = models.AutoField(primary_key=True)
-  assessment = models.ForeignKey('Assessment', on_delete=models.DO_NOTHING, related_name='answers')
-  metric = models.ForeignKey('Metric', on_delete=models.DO_NOTHING, related_name='answers')
+  assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='answers')
+  metric = models.ForeignKey('Metric', on_delete=models.CASCADE, related_name='answers')
   answer = models.TextField(blank=True, null=False, default='')
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
