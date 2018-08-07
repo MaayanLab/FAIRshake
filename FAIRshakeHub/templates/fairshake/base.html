@@ -41,10 +41,10 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if not user.is_authenticated %}
                     <li{% if active_page == "login" %} class="active"{% endif %}>
-                        <a href="{% url 'account-login' %}" class="headx">Login</a>
+                        <a href="{% url 'account_login' %}" class="headx">Login</a>
                     </li>
                     <li{% if active_page == "register" %} class="active"{% endif %}>
-                        <a href="{% url 'account-signup' %}" class="headx">Sign up</a>
+                        <a href="{% url 'account_signup' %}" class="headx">Sign up</a>
                     </li>
                 {% else %}
                     <li class="dropdown">

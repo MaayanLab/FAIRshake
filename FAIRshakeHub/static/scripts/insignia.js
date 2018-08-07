@@ -4,8 +4,8 @@ require.config({
   paths: {
     d3: 'https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min',
     tippy: 'https://unpkg.com/tippy.js@2.5.2/dist/tippy.all.min',
-    coreapi: url + '/static/v2/rest_framework/js/coreapi-0.1.1',
-    schema: url + '/coreapi/schema',
+    coreapi: url + '/v2/static/rest_framework/js/coreapi-0.1.1',
+    schema: url + '/v2/coreapi/schema',
   },
   shims: {
     schema: ['coreapi']
@@ -174,7 +174,7 @@ define(function(require) {
       var schema = window.schema
       var client = new coreapi.Client()
       client
-        .action(schema, ['score', 'list'], params)
+        .action(schema, ['v2', 'score', 'list'], params)
         .then(function (results) {
           build_svg(
             container,
