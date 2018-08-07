@@ -7,6 +7,7 @@ from .permissions import IsAuthorOrReadOnly
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from django.db.models import Q
+from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_auth.registration.views import SocialLoginView
@@ -69,12 +70,35 @@ class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
     context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context)
     view = renderer_context['view']
-    kwargs = renderer_context['kwargs']
+
     context['model'] = view.get_model()._meta.model_name
+
+    paginator_cls = view.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+
     if view.action == 'retrieve':
-      context['item'] = view.get_object()
+      item = view.get_object()
+      context['item'] = item
+      context['children'] = {
+        child: paginator_cls(
+          child_queryset,
+          page_size,
+        ).get_page(
+          view.request.GET.get('page')
+        )
+        for child, child_queryset in item.children().items()
+      }
+
     elif view.action == 'list':
-      context['items'] = view.filter_queryset(view.get_queryset())
+      context['items'] = paginator_cls(
+        view.filter_queryset(
+          view.get_queryset()
+        ),
+        page_size,
+      ).get_page(
+        view.request.GET.get('page')
+      )
+
     return context
 
 class CustomModelViewSet(viewsets.ModelViewSet):

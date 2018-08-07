@@ -1,7 +1,7 @@
 {% load filters %}
 <div class="row">
   {% for item in items %}
-  {% include "fairshake/generic/element.html" %}
+    {% include "fairshake/generic/element.html" %}
   {% endfor %}
   <div class="col-md-3 col-sm-6">
     <div class="panel panel-default" style="height: 320px">
@@ -17,4 +17,30 @@
       </div>
     </div>
   </div>
+  {% if items.paginator.num_pages > 1 %}
+    <div class="col-sm-12 text-center">
+      <ul class="pagination">
+        {% if items.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ items.previous_page_number }}" tabindex="-1">{{ items.previous_page_number }}</a>
+          </li>
+        {% endif %}
+        <li class="page-item active">
+          <span class="page-link">
+            {{ items.number }}
+            <span class="sr-only">(current)</span>
+          </span>
+        </li>
+        {% if items.has_next %}
+          <li class="page-item{% if not items.has_next %}disabled{% endif %}">
+            <a class="page-link" href="?page={{ items.next_page_number }}" tabindex="-1">{{ items.next_page_number }}</a>
+          </li>
+          <li class="page-item{% if not items.has_next %}disabled{% endif %}">
+            <a class="page-link" href="?page={{ items.paginator.num_pages }}" tabindex="-1">Last</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
 </div>
