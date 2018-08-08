@@ -49,8 +49,7 @@ class RubricSerializer(IdentifiableModelMixinSerializer):
 class AnswerSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Answer
-    fields = '__all__'
-    read_only_fields = (
+    exclude = (
       'id',
       'assessment',
     )
