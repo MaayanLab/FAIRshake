@@ -54,14 +54,13 @@ define(function(require) {
     return sq
   }
 
-  function build_svg(container, scores, metrics, settings) {
+  function build_svg(container, scores, settings) {
     // Construct the insignia with arbitrary scores and summaries
     //
     // params:
     //   container: div/element where the svg element will be appended
     //   scores: {rubric-id: {metrid-id: 0, ...}, ...}
-    //   metrics: {metric-id: "description"}
-    //   settings (optional): {color: d3 range, svg: container, tooltip: boolean}
+    //   settings (optional): {tooltips: {}, color: d3 range, svg: container, tooltip: boolean}
     //
     // Description:
     // This constructs a nested square where the outer square consists
@@ -87,10 +86,11 @@ define(function(require) {
     var d3 = require('d3')
 
     // Default settings
-    if (metrics === undefined)
-      metrics = {}
     if (settings === undefined)
       settings = {}
+
+    var tooltips = settings.tooltips
+    var links = settings.links
 
     var color = settings.color !== undefined ? settings.color :
       d3.scaleLinear()
@@ -108,8 +108,6 @@ define(function(require) {
         .attr('height', '100%')
         .attr('preserveAspectRatio', 'xMinYMin')
         .attr('viewBox', '0 0 1 1')
-    
-    var tooltip = settings.tooltip !== undefined ? settings.tooltip : true
 
     var n_scores = Object.keys(scores).length
     var scores_sq = nearest_sq(n_scores)
@@ -124,7 +122,6 @@ define(function(require) {
 
       Object.keys(score).forEach(function (summary, j) {
         var average = score[summary]
-        var description = metrics[summary] === undefined ? '' : metrics[summary]
         var local_x = (j % summary_sq) * local_unit
         var local_y = Math.floor(j / summary_sq) * local_unit
 
@@ -134,8 +131,8 @@ define(function(require) {
           size: local_unit,
           strokeSize: abs_unit / 40,
           fillColor: isNaN(average) ? 'darkgray' : color(average),
-          tooltip: 'Score: ' + ((average + 1) * 50).toFixed(0) + '%<br />' + description,
-          link: 'https://fairshake.cloud/v2/metric/' + summary + '/'
+          tooltip: tooltips !== undefined ? tooltips(rubric, summary, average) : undefined,
+          link: links !== undefined ? links(rubric, summary, average) : undefined,
         })
       })
 
@@ -166,7 +163,7 @@ define(function(require) {
       })
     }
 
-    if (tooltip) {
+    if (tooltips !== undefined) {
       var tippy = require('tippy')
       tippy('.insignia-tooltip')
     }
@@ -183,7 +180,14 @@ define(function(require) {
           build_svg(
             container,
             results.scores,
-            results.metrics,
+            {
+              tooltips: function(rubric, metric, score) {
+                return 'Score: ' + ((score + 1) * 50).toFixed(0) + '%<br />' + results.metrics[metric]
+              },
+              links: function(rubric, metric, score) {
+                return 'https://fairshake.cloud/v2/metric/' + metric + '/'
+              },
+            }
           )
         })
     })

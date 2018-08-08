@@ -88,18 +88,34 @@ class DigitalObject(IdentifiableModelMixin):
     verbose_name = 'digital_object'
     verbose_name_plural = 'digital_objects'
 
+class AssessmentRequest(models.Model):
+  id = models.AutoField(primary_key=True)
+  assessment = models.OneToOneField('Assessment', on_delete=models.CASCADE, related_name='request')
+  requestor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True, default='')
+  timestamp = models.DateTimeField(auto_now_add=True)
+
+  def __str__(self):
+    return 'Request by Requestor[{requestor}] for Assessment[{assessment}] ({id})'.format(
+      id=self.id,
+      assessment=self.assessment,
+      requestor=self.requestor,
+    )
+
+  class Meta:
+    verbose_name = 'assessment_request'
+    verbose_name_plural = 'assessment_requests'
+
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
   project = models.ForeignKey('Project', on_delete=models.SET_NULL, blank=True, null=True, related_name='assessments')
   target = models.ForeignKey('DigitalObject', on_delete=models.CASCADE, related_name='assessments')
   rubric = models.ForeignKey('Rubric', on_delete=models.CASCADE, related_name='assessments')
-  methodology = models.TextField(max_length=16, blank=False, choices=(
+  methodology = models.TextField(max_length=16, blank=True, choices=(
     ('self', 'Digital Object Creator Assessment'),
     ('user', 'Independent User Assessment'),
     ('auto', 'Automatic Assessment'),
     ('test', 'Test Assessment'),
   ))
-  requestor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True, default='')
   assessor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True)
   timestamp = models.DateTimeField(auto_now_add=True)
 

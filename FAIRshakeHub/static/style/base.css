@@ -65,6 +65,10 @@ h1 {
     vertical-align: middle;
 }
 
+.insignia {
+    display: none;
+}
+
 .insignia.embed-image {
     position: absolute;
     top: 10px;
