@@ -80,11 +80,39 @@ class AssessmentSerializer(serializers.ModelSerializer):
       'timestamp',
     )
 
-class AnswerSerializer(serializers.ModelSerializer):
+class AssessmentResponseSerializer(serializers.ModelSerializer):
+  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.all())
+  target = serializers.PrimaryKeyRelatedField(queryset=models.DigitalObject.objects.all())
+  rubric = serializers.PrimaryKeyRelatedField(queryset=models.Rubric.objects.all())
+
   class Meta:
-    model = models.Answer
+    model = models.Assessment
     fields = '__all__'
     read_only_fields = (
       'id',
-      'assessment',
+      'assessor',
+      'requestor',
+      'timestamp',
+      'methodology',
+    )
+
+class AssessmentRequestSerializer(serializers.ModelSerializer):
+  assessment = AssessmentResponseSerializer()
+
+  def create(self, validated_data):
+    user = self.context.get('request').user
+    assessment_data = validated_data.pop('assessment')
+    assessment_request = models.AssessmentRequest.objects.create(**validated_data,
+      assessment=self._fields['assessment'].create(assessment_data),
+      requestor=user,
+    )
+    return assessment_request
+
+  class Meta:
+    model = models.AssessmentRequest
+    fields = '__all__'
+    read_only_fields = (
+      'id',
+      'requestor',
+      'timestamp',
     )

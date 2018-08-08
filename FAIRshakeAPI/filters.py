@@ -16,6 +16,12 @@ class AssessmentFilterSet(filters.FilterSet):
     model = models.Assessment
     fields = '__all__'
 
+class AssessmentRequestFilterSet(filters.FilterSet):
+  id = AllInFilter()
+  class Meta:
+    model = models.AssessmentRequest
+    fields = '__all__'
+
 class AuthorFilterSet(filters.FilterSet):
   id = AllInFilter()
   class Meta:

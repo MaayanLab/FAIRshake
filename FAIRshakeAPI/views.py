@@ -3,7 +3,7 @@
 import coreapi
 import coreschema
 from . import serializers, filters, models
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly, IsRequestorOrAssessorOrReadOnly
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from django.db.models import Q
@@ -34,37 +34,6 @@ class GithubLogin(SocialLoginView):
 
 class OrcidLogin(SocialLoginView):
   adapter_class = OrcidOAuth2Adapter
-
-class RequestAssessmentViewSet(viewsets.ViewSet):
-  ''' Request an assessment for a digital resource
-  '''
-  queryset = models.DigitalObject.objects.all()
-  schema = schemas.AutoSchema(manual_fields=[
-    coreapi.Field(
-      'rubric',
-      required=False,
-      description='Specific rubric to use for the assessment, default will be internal associations',
-      location='query',
-      schema=coreschema.String(),
-    ),
-    coreapi.Field(
-      'methodology',
-      required=False,
-      description='Type of assessment requested, default is FAIRshake manual assessment',
-      location='query',
-      schema=coreschema.String(),
-    ),
-    coreapi.Field(
-      'callback',
-      required=False,
-      description='Where to send the results when they are ready, default is FAIRshake itself',
-      location='query',
-    ),
-  ])
-
-  def retrieve(self, request, pk=None, format=None):
-    # TODO: perform assessment
-    return response.Response({})
 
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
@@ -158,6 +127,16 @@ class AssessmentViewSet(CustomModelViewSet):
   filter_classes = filters.AssessmentFilterSet
   permission_classes = (
     permissions.IsAuthenticated,
+  )
+
+class AssessmentRequestViewSet(CustomModelViewSet):
+  model = models.AssessmentRequest
+  queryset = models.AssessmentRequest.objects.all()
+  serializer_class = serializers.AssessmentRequestSerializer
+  filter_classes = filters.AssessmentRequestFilterSet
+  permission_classes = (
+    permissions.IsAuthenticatedOrReadOnly,
+    IsRequestorOrAssessorOrReadOnly,
   )
 
 class ScoreViewSet(
