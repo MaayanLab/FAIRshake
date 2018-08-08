@@ -119,7 +119,6 @@ class AssessmentViewSet(CustomModelViewSet):
     return models.Assessment.objects.filter(
       Q(target__authors=self.request.user)
       | Q(project__authors=self.request.user)
-      | Q(requestor=self.request.user)
       | Q(assessor=self.request.user)
     )
 

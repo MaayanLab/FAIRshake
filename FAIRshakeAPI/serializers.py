@@ -74,7 +74,6 @@ class AssessmentSerializer(serializers.ModelSerializer):
     fields = '__all__'
     read_only_fields = (
       'id',
-      'requestor',
       'assessor',
       'timestamp',
     )
@@ -90,7 +89,6 @@ class AssessmentResponseSerializer(serializers.ModelSerializer):
     read_only_fields = (
       'id',
       'assessor',
-      'requestor',
       'timestamp',
       'methodology',
     )
