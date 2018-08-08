@@ -21,3 +21,7 @@ def unslugify(v):
 @register.filter
 def limit(text, amount):
   return ''.join(text[:amount]) + '...' if len(text) > amount else text
+
+@register.filter
+def limit_list(text, amount):
+  return (''.join(text[:amount] if text[amount-1] != ' ' else text[:amount-1]) + '...' if len(text) > amount else text).split()
