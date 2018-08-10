@@ -84,6 +84,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
     'VIEW_PAGE_SIZE': 11,
+    'SEARCH_PAGE_SIZE': 12,
 }
 
 LOGGING = {

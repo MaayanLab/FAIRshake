@@ -24,6 +24,9 @@ class IdentifiableModelMixin(models.Model):
 
   def tags_as_list(self):
     return self.tags.split()
+  
+  def model_name(self):
+    return self._meta.verbose_name_raw
 
   def __str__(self):
     return '{title} ({id})'.format(id=self.id, title=self.title)

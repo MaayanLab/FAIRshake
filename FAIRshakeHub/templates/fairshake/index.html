@@ -12,13 +12,51 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="title">
-        <h2>FAIRshake</h2>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 text-center">
+      <h2>FAIRshake</h2>
+      <h4>A System to Evaluate Digital Objects</h4>
     </div>
-    <div class="subtitle"><h4>A System to Evaluate Digital Objects</h4></div>
-    <div class="start">
-        <input class="form-control" type="text" placeholder="Search FAIRshake for Projects, Digital Objects, Rubrics, and Metrics" aria-label="Search">
+    <div class="col-sm-offset-1 col-sm-9 text-center">
+      <form class="form-inline" method="GET">
+        <div
+          class="input-group input-group-lg"
+          style="display: flex; flex-direction:row"
+        >
+          <input
+            aria-label="Search"
+            autofocus
+            class="form-control"
+            name="q"
+            placeholder="Search FAIRshake for Projects, Digital Objects, Rubrics, and Metrics"
+            style="flex: 1 0 auto"
+            type="text"
+            value="{{ query }}"
+          />
+          <button
+            type="submit"
+            class="form-control btn btn-primary"
+          >
+            Search
+          </button>
+        </div>
+      </form>
     </div>
+    <div class="col-sm-12">
+      <p>&nbsp;</p>
+      {% for item in items %}
+        {% with model=item.model_name %}
+          {% include "fairshake/generic/element.html" %}
+        {% endwith %}
+      {% endfor %}
+      {% with url_prefix="q="|add:query %}
+        {% include "fairshake/generic/page_nav.html" %}
+      {% endwith %}
+    </div>
+  </div>
 </div>
+{% endblock %}
+
+{% block script %}
 {% endblock %}
