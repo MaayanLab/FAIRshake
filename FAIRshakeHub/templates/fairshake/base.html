@@ -1,3 +1,4 @@
+{% load google_analytics %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +13,8 @@
         {% block style %}
             <link rel="stylesheet" href="{% static 'style/base.css' %}" />
         {% endblock %}
+
+        {% google_analytics %}
     {% endblock %}
 </head>
 <body>

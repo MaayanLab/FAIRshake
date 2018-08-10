@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'livereload',
     'corsheaders',
     'ajax_select',
+    'analytical',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -217,3 +218,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 SWAGGER_SETTINGS = {
    'DEFAULT_GENERATOR_CLASS': 'FAIRshakeAPI.schema.CustomSchemaGenerator',
 }
+
+GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-123749217-1'
+GOOGLE_ANALYTICS_DISPLAY_ADVERTISING = False
+GOOGLE_ANALYTICS_SITE_SPEED = True

@@ -1,13 +1,14 @@
 coreapi
-Django==2.0.7
 django-ajax-selects
 django-allauth
+django-analytical
 django-bootstrap-form
 django-cors-headers
 django-extensions
 django-filter
 django-livereload-server
 django-rest-auth
+Django==2.0.7
 djangorestframework
 drf-yasg
 drf-yasg[validation]
