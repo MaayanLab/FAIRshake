@@ -4,19 +4,26 @@
     <div class="panel-body text-center">
       <div class="image-container">
         <a href="{% url model|add:'-detail' item.id %}" class="image-link">
-          <span class="helper"></span><img
+          <span class="helper"></span>
+          <img
             {% if item.image %}
               src="{{ item.image }}"
             {% else %}
               src="{% static 'image/digital_object.png' %}"
-            {% endif %}/>
+            {% endif %}
+          />
         </a>
-            {% if object_type == "digital_object" %}
-        <div>
-            <button class="btn btn-xs"
-                    style="padding:5px;border:2px solid #428bca;display:inline-block;position: absolute;top: 10px; left: 25px; box-shadow: 0 0 4px 4px white;">Assess</button>
-        </div>
-      {% endif %}
+        {% if model == "digitalobject" %}
+          <div>
+            <a
+              href="#"
+              class="btn btn-xs"
+              style="padding:5px;border:2px solid #428bca;display:inline-block;position: absolute;top: 10px; left: 25px; box-shadow: 0 0 4px 4px white;"
+            >
+              Assess
+            </a>
+          </div>
+        {% endif %}
         <div
             class="insignia embed-image"
             style="width: 40px; height: 40px;"
@@ -28,14 +35,19 @@
           <a href="{{ item.url }}" target=_blank>{{ item.title|limit:45 }}</a>
         </p>
         {% if item.type %}
-          <span class="label" style="background-color:#666666;color:white;font-size:10px;position:absolute;top:164px;right:25px;">{{ item.type }}</span>
+          <span
+            class="label"
+            style="background-color:#666666;color:white;font-size:10px;position:absolute;top:164px;right:25px;"
+          >
+            {{ item.type }}
+          </span>
         {% endif %}
         <p>{{ item.description|limit:80 }}</p>
         <div style="position:absolute;bottom:30px;margin-right:60px;">
           <div>
             <div style="font-size:10px;color:gray;margin-top:5px;">
               {% if item.tags %}
-                {% for tag in item.tags|limit_list:30 %}
+                {% for tag in item.tags_as_list %}
                   <span class="glyphicon glyphicon-tag"></span>
                     {{ tag }}
                 {% endfor %}
@@ -44,7 +56,12 @@
           </div>
         </div>
         <div style="position:absolute;bottom:25px;right:25px;">
-            <a href="#"><span class="glyphicon glyphicon-edit" style="font-size:20px;color:#666666;"></span></a>
+              <a href="#">
+                <span
+                  class="glyphicon glyphicon-edit"
+                  style="font-size:20px;color:#666666;"
+                />
+              </a>
         </div>
       </div>
     </div>

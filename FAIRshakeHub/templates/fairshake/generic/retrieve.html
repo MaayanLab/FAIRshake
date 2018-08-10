@@ -1,72 +1,66 @@
 {% load filters %}
 <div class="row">
   <div class="col-lg-offset-1 col-lg-10 col-sm-12" align="center">
-    <div class="caption" align="center">
-      <div style="position: relative;width:280px;height:280px;" class="image-container">
-          <span class="helper"></span>
-          <img style="max-width:200px;max-height:200px;"
-          {% if item.image %}
-              src="{{ item.image }}"
-          {% else %}
-              src="{% static 'image/digital_object.png' %}"
-          {% endif %}/>
-      </div>
-      <h3 class="helper" style="margin-top:10px;"><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h3>
-      {% if item.type %}
-          <span class="label" style="background-color:#666666;color:white;font-size:10px;display:inline-block;vertical-align:middle;">{{ item.type }}</span>
-      {% endif %}
-      <p>{{ item.description }}</p>
-        <div
-          class="insignia"
-          style="width: 40px; height: 40px;"
-          data-target='{ "{{ model }}": {{ item.id }} }'
-        />
-        {% if item.principle %}
-            <p><strong>Principle: </strong>{{ item.principle }}</p>
+  <div class="caption" align="center">
+    <div style="position: relative;width:280px;height:280px;" class="image-container">
+      <span class="helper"></span>
+      <img style="max-width:200px;max-height:200px;"
+        {% if item.image %}
+          src="{{ item.image }}"
+        {% else %}
+          src="{% static 'image/digital_object.png' %}"
         {% endif %}
-        {% if item.rationale %}
-            <p><strong>Rationale: </strong>{{ item.rationale }}</p>
-        {% endif %}
-        {% if item.fairmetrics %}
-            <p><strong>FAIR Metrics: </strong>{{ item.fairmetrics }}</p>
-        {% endif %}
-        {% if item.fairsharing %}
-            <p><strong>FAIRSharing: </strong>{{ item.fairsharing }}</p>
-        {% endif %}
-        {% if item.license %}
-            <p><strong>License: </strong>{{ item.license }}</p>
-        {% endif %}
-        {% if item.tags %}
-            <p>
-                <strong>Tags:</strong>
-                {% for tag in item.tags_as_list %}
-                    <span class="glyphicon glyphicon-tag"></span>
-                        {{ tag }}
-                {% endfor %}
-            </p>
-        {% endif %}
+      />
     </div>
-        {% if object_type == "digital_object" %}
-        <div><button class="btn btn-xs"
-                style="padding:5px;border:2px solid #428bca;position:absolute;top:0; left:13%; box-shadow: 0 0 4px 4px white;">Assess</button>
-        </div>
-        {% endif %}
-      <div><span class="glyphicon glyphicon-edit" style="font-size:20px;position:absolute;top:0;right:15%;"></span></div>
+    <h3 class="helper" style="margin-top:10px;"><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h3>
+    {% if item.type %}
+      <span class="label" style="background-color:#666666;color:white;font-size:10px;display:inline-block;vertical-align:middle;">{{ item.type }}</span>
+    {% endif %}
+    <p>{{ item.description }}</p>
+    <div
+      class="insignia"
+      style="width: 40px; height: 40px;"
+      data-target='{ "{{ model }}": {{ item.id }} }'
+    />
+    {% if item.principle %}
+      <p><strong>Principle: </strong>{{ item.principle }}</p>
+    {% endif %}
+    {% if item.rationale %}
+      <p><strong>Rationale: </strong>{{ item.rationale }}</p>
+    {% endif %}
+    {% if item.fairmetrics %}
+      <p><strong>FAIR Metrics: </strong>{{ item.fairmetrics }}</p>
+    {% endif %}
+    {% if item.fairsharing %}
+      <p><strong>FAIRSharing: </strong>{{ item.fairsharing }}</p>
+    {% endif %}
+    {% if item.license %}
+      <p><strong>License: </strong>{{ item.license }}</p>
+    {% endif %}
+    {% if item.tags %}
+      <p>
+        <strong>Tags:</strong>
+        {% for tag in item.tags_as_list %}
+          <span class="glyphicon glyphicon-tag"></span>
+          {{ tag }}
+        {% endfor %}
+      </p>
+    {% endif %}
+  </div>
+    {% if model == "digitalobject" %}
+    <div><button class="btn btn-xs"
+        style="padding:5px;border:2px solid #428bca;position:absolute;top:0; left:13%; box-shadow: 0 0 4px 4px white;">Assess</button>
+    </div>
+    {% endif %}
+    <div><span class="glyphicon glyphicon-edit" style="font-size:20px;position:absolute;top:0;right:15%;"></span></div>
   </div>
   <div class="container">
-    {% for model, items in children.items %}
-      <div class="col-xs-12">
-        <hr />
-        <h2>Associated {{ model|unslugify }}s</h2>
-          {% if model|unslugify == "Digital Object" %}
-              {% with object_type="digital_object" %}
-                {% include "fairshake/generic/list.html" %}
-              {% endwith %}
-              {% else %}
-                {% include "fairshake/generic/list.html" %}
-          {% endif %}
-      </div>
-    {% endfor %}
+  {% for model, items in children.items %}
+    <div class="col-xs-12">
+    <hr />
+    <h2>Associated {{ model|unslugify }}s</h2>
+    {% include "fairshake/generic/list.html" %}
     </div>
+  {% endfor %}
   </div>
 </div>
