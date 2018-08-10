@@ -1,0 +1,10 @@
+{% load bootstrap %}
+{% load filters %}
+<form role="form" action="{% url model|add:'-add' %}" enctype="multipart/form-data" method="POST" novalidate>
+    <legend>{{ model|unslugify }}</legend>
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>

@@ -2,16 +2,16 @@
 
 import coreapi
 import coreschema
-from . import serializers, filters, models
-from .permissions import IsAuthorOrReadOnly, IsRequestorOrAssessorOrReadOnly
+from . import serializers, filters, models, forms, permissions
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
-from django.db.models import Q
+from django import shortcuts
 from django.conf import settings
+from django.db.models import Q
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_auth.registration.views import SocialLoginView
-from rest_framework import views, viewsets, permissions, schemas, response, mixins, decorators, renderers
+from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions as drf_permissions
 
 schema_view = get_schema_view(
   openapi.Info(
@@ -26,7 +26,7 @@ schema_view = get_schema_view(
   ),
   validators=['flex', 'ssv'],
   public=True,
-  permission_classes=(permissions.AllowAny,),
+  permission_classes=[drf_permissions.AllowAny],
 )
 
 class GithubLogin(SocialLoginView):
@@ -36,39 +36,61 @@ class OrcidLogin(SocialLoginView):
   adapter_class = OrcidOAuth2Adapter
 
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
-  def get_template_context(self, data, renderer_context):
-    context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context)
-    view = renderer_context['view']
-
-    context['model'] = view.get_model()._meta.model_name
-
+  def get_detail_template_context(self, request, view, context):
     paginator_cls = view.paginator.django_paginator_class
     page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+    item = view.get_object()
+    form_cls = view.get_form()
+    form = form_cls(instance=item)
 
-    if view.action == 'retrieve':
-      item = view.get_object()
-      context['item'] = item
-      context['children'] = {
+    return {
+      'model': view.get_model_name(),
+      'action': view.action,
+      'item': item,
+      'form': form,
+      'children': {
         child: paginator_cls(
           child_queryset,
           page_size,
         ).get_page(
-          view.request.GET.get('page')
+          request.GET.get('page')
         )
         for child, child_queryset in item.children().items()
-      }
+      },
+    }
+  
+  def get_list_template_context(self, request, view, context):
+    paginator_cls = view.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+    form_cls = view.get_form()
+    form = form_cls(request.GET)
 
-    elif view.action == 'list':
-      context['items'] = paginator_cls(
+    return {
+      'model': view.get_model_name(),
+      'action': view.action,
+      'form': form,
+      'items': paginator_cls(
         view.filter_queryset(
           view.get_queryset()
         ),
         page_size,
       ).get_page(
-        view.request.GET.get('page')
-      )
+        request.GET.get('page')
+      ),
+    }
 
-    return context
+  def get_template_context(self, data, renderer_context):
+    context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context) or {}
+    view = renderer_context['view']
+    request = view.request
+
+    return dict(context,
+      **self.get_detail_template_context(
+        request, view, context
+      ) if view.detail else self.get_list_template_context(
+        request, view, context
+      ),
+    )
 
 class CustomModelViewSet(viewsets.ModelViewSet):
   renderer_classes = [
@@ -76,42 +98,104 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     CustomTemplateHTMLRenderer,
     renderers.BrowsableAPIRenderer,
   ]
-  permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    IsAuthorOrReadOnly,
-  )
+  permission_classes = [
+    permissions.IdentifiablePermissions,
+  ]
 
   def get_model(self):
     return self.model
+  
+  def get_model_name(self):
+    return self.get_model()._meta.verbose_name_raw
+  
+  def get_form(self):
+    return self.form
+
+  def save_form(self, request, form):
+    instance = form.save()
+    instance.authors.add(request.user)
+    return instance
 
   def get_queryset(self):
     return getattr(self, 'queryset', self.get_model().objects.all())
 
   def get_template_names(self):
-    return ['fairshake/' + self.get_model()._meta.model_name + '/' + self.action + '.html']
+    return ['fairshake/generic/page.html']
+
+  @decorators.action(
+    detail=False, methods=['get', 'post'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def add(self, request, pk=None):
+    if request.method == 'GET':
+      return response.Response()
+    form_cls = self.get_form()
+    form = form_cls(request.POST)
+    instance = self.save_form(request, form)
+    return shortcuts.redirect(
+      self.get_model_name()+'-detail',
+      pk=instance.id,
+    )
+
+  @decorators.action(
+    detail=True,
+    methods=['get', 'post'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def modify(self, request, pk=None):
+    if request.method == 'GET':
+      return response.Response()
+    form_cls = self.get_form()
+    form = form_cls(request.POST, instance=shortcuts.get_object_or_404(self.get_model(), id=pk))
+    instance = self.save_form(request, form)
+    return shortcuts.redirect(
+      self.get_model_name()+'-detail',
+      pk=pk,
+    )
+
+  @decorators.action(
+    detail=True,
+    methods=['get'],
+  )
+  def delete(self, request, pk=None):
+    item = shortcuts.get_object_or_404(self.get_model(), pk=pk)
+    item.delete()
+    return shortcuts.redirect(
+      self.get_model_name()+'-list'
+    )
 
 class DigitalObjectViewSet(CustomModelViewSet):
   model = models.DigitalObject
+  form = forms.DigitalObjectForm
   serializer_class = serializers.DigitalObjectSerializer
   filter_class = filters.DigitalObjectFilterSet
 
 class MetricViewSet(CustomModelViewSet):
   model = models.Metric
+  form = forms.MetricForm
   serializer_class = serializers.MetricSerializer
   filter_class = filters.MetricFilterSet
 
 class ProjectViewSet(CustomModelViewSet):
   model = models.Project
+  form = forms.ProjectForm
   serializer_class = serializers.ProjectSerializer
   filter_class = filters.ProjectFilterSet
 
 class RubricViewSet(CustomModelViewSet):
   model = models.Rubric
+  form = forms.RubricForm
   serializer_class = serializers.RubricSerializer
   filter_class = filters.RubricFilterSet
 
 class AssessmentViewSet(CustomModelViewSet):
   model = models.Assessment
+  form = forms.AssessmentForm
+  serializer_class = serializers.AssessmentSerializer
+  filter_classes = filters.AssessmentFilterSet
+  permission_classes = [
+    permissions.AssessmentPermissions,
+  ]
 
   def get_queryset(self):
     if self.request.user.is_anonymous:
@@ -122,21 +206,27 @@ class AssessmentViewSet(CustomModelViewSet):
       | Q(assessor=self.request.user)
     )
 
-  serializer_class = serializers.AssessmentSerializer
-  filter_classes = filters.AssessmentFilterSet
-  permission_classes = (
-    permissions.IsAuthenticated,
-  )
+  def save_form(self, request, form):
+    instance = form.save(commit=False)
+    instance.assessor = request.user
+    instance.save()
+    return instance
 
 class AssessmentRequestViewSet(CustomModelViewSet):
   model = models.AssessmentRequest
+  form = forms.AssessmentRequestForm
   queryset = models.AssessmentRequest.objects.all()
   serializer_class = serializers.AssessmentRequestSerializer
   filter_classes = filters.AssessmentRequestFilterSet
-  permission_classes = (
-    permissions.IsAuthenticatedOrReadOnly,
-    IsRequestorOrAssessorOrReadOnly,
-  )
+  permission_classes = [
+    permissions.AssessmentRequestPermissions,
+  ]
+
+  def save_form(self, request, form):
+    instance = form.save(commit=False)
+    instance.requestor = request.user
+    instance.save()
+    return instance
 
 class ScoreViewSet(
     mixins.ListModelMixin,

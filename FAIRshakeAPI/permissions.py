@@ -1,25 +1,30 @@
 from rest_framework import permissions
+from . import models
 
-class IsAuthorOrReadOnly(permissions.BasePermission):
+class IdentifiablePermissions(permissions.BasePermission):
   def has_object_permission(self, request, view, obj):
-    '''
-    Ensure user is a registered author of this digital object.
-    '''
-    return any([
-      request.method in permissions.SAFE_METHODS,
-      all([
-        obj.authors,
-        obj.authors.filter(id=request.user.id).exists(),
-      ]),
-    ])
+    if view.action == 'add':
+      print(view.action)
+      return request.user.is_authenticated()
+    elif request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
+      return True
+    else:
+      return obj.authors and obj.authors.filter(id=request.user.id).exists()
 
-class IsRequestorOrAssessorOrReadOnly(permissions.BasePermission):
+class AssessmentPermissions(permissions.BasePermission):
   def has_object_permission(self, request, view, obj):
-    '''
-    Ensure user is a registered author of this digital object.
-    '''
-    return any([
-      request.method in permissions.SAFE_METHODS,
-      obj.requestor == request.user,
-      obj.assessment.assessor == request.user,
-    ])
+    if view.action == 'add':
+      return request.user.is_authenticated()
+    elif request.method in permissions.SAFE_METHODS or view.action in ['modify', 'delete']:
+      return True
+    else:
+      return obj.assessor == request.user
+
+class AssessmentRequestPermissions(permissions.BasePermission):
+  def has_object_permission(self, request, view, obj):
+    if view.action == 'add':
+      return request.user.is_authenticated()
+    elif request.method in permissions.SAFE_METHODS or view.action not in ['modify', 'delete']:
+      return True
+    else:
+      return obj.requestor == request.user

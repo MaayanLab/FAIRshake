@@ -42,3 +42,8 @@ class AssessmentForm(forms.ModelForm):
   project = AutoCompleteSelectField('projects', required=True, help_text=None)
   target = AutoCompleteSelectField('digital_objects', required=True, help_text=None)
   rubric = AutoCompleteSelectField('rubrics', required=True, help_text=None)
+
+class AssessmentRequestForm(forms.ModelForm):
+  class Meta:
+    model = models.Assessment
+    fields = '__all__'

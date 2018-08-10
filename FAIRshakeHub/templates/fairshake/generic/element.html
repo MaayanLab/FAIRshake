@@ -4,7 +4,6 @@
     <div class="panel-body text-center">
       <div class="image-container">
         <a href="{% url model|add:'-detail' item.id %}" class="image-link">
-          <span class="helper"></span>
           <img
             {% if item.image %}
               src="{{ item.image }}"
@@ -13,10 +12,10 @@
             {% endif %}
           />
         </a>
-        {% if model == "digitalobject" %}
+        {% if model == "digital_object" %}
           <div>
             <a
-              href="#"
+              href="{% url 'assessment-add' %}?target={{ item.id }}&{{ parent_model }}={{ parent_item.id }}"
               class="btn btn-xs"
               style="padding:5px;border:2px solid #428bca;display:inline-block;position: absolute;top: 10px; left: 25px; box-shadow: 0 0 4px 4px white;"
             >
@@ -25,9 +24,9 @@
           </div>
         {% endif %}
         <div
-            class="insignia embed-image"
-            style="width: 40px; height: 40px;"
-            data-target='{ "{{ model }}": {{ item.id }} }'
+          class="insignia embed-image"
+          style="width: 40px; height: 40px;"
+          data-target='{ "{{ model }}": {{ item.id }} }'
         />
       </div>
       <div class="caption text-left">
@@ -56,12 +55,12 @@
           </div>
         </div>
         <div style="position:absolute;bottom:25px;right:25px;">
-              <a href="#">
-                <span
-                  class="glyphicon glyphicon-edit"
-                  style="font-size:20px;color:#666666;"
-                />
-              </a>
+          <a href="{% url model|add:'-modify' item.id %}">
+            <span
+              class="glyphicon glyphicon-edit"
+              style="font-size:20px;color:#666666;"
+            />
+          </a>
         </div>
       </div>
     </div>
