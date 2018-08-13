@@ -10,13 +10,22 @@ Available at http://fairshake.cloud/
 - FAIRshakeAPI: The primary API facilitator, is enabled with the other API components
 
 ## Development
+
+### Setup
+Python 3 is required to run this project.
+
+Install all dependencies into your environment.
+```bash
+pip install -r requirements.txt
+```
+
 ### Django Shell
 ipython is recommended: `pip install ipython`
 `./manage.py shell`
 
 ### Django Live Reloading Server
 In separate terminals execute these commands and then navigate to <http://localhost:8000/>.
-```python
+```bash
 ./manage.py runserver
 ./manage.py livereload
 ```
@@ -29,9 +38,9 @@ docker-compose build
 ## Production
 ### Secret values
 For the docker-compose to work properly in production, `/ssl/` should have the following files:
-- `cert.crt`
-- `my.cnf`
-- `cert.key`
+- `my.cnf`: mysql configuration file with production database credentials
+- `cert.key`: SSL Private Key
+- `cert.crt`: SSL CA Signed Public Key
 
 ### Docker deployment
 ```bash
