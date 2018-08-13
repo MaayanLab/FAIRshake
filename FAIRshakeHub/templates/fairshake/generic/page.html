@@ -15,6 +15,6 @@
   {% if action == 'list' %}
     <h1 class="text-left">{{ model|unslugify }}</h1>
   {% endif %}
-  {% include "fairshake/generic/"|add:action|add:".html" %}
+  {% select_template "fairshake/"|add:model|add:"/"|add:action|add:".html" "fairshake/generic/"|add:action|add:".html" %}
 </div>
 {% endblock %}

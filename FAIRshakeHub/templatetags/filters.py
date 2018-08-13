@@ -21,3 +21,7 @@ def unslugify(v):
 @register.filter
 def limit(text, amount):
   return ''.join(text[:amount]) + '...' if len(text) > amount else text
+
+@register.simple_tag(takes_context=True)
+def select_template(context, *L):
+  return template.loader.select_template(L).render(context.flatten())
