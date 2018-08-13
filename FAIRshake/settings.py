@@ -21,7 +21,12 @@ BASE_URL = 'v2'
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', '^r26!v-me2p&1(qaqr1m@h1n*@$t-57f!4sd9f$d3)xnk&kj9)')
+SECRET_KEY_FILE = os.environ.get(
+    'SECRET_KEY_FILE',
+    '/ssl/secret.txt' if os.path.isfile('/ssl/secret.txt') else None
+)
+
+SECRET_KEY = '^r26!v-me2p&1(qaqr1m@h1n*@$t-57f!4sd9f$d3)xnk&kj9)' if SECRET_KEY_FILE is None else open(SECRET_KEY_FILE, 'r').read()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

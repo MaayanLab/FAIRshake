@@ -39,6 +39,7 @@ docker-compose build
 ### Secret values
 For the docker-compose to work properly in production, `/ssl/` should have the following files:
 - `my.cnf`: mysql configuration file with production database credentials
+- `secret.txt`: Secret key for production (random private string of characters)
 - `cert.key`: SSL Private Key
 - `cert.crt`: SSL CA Signed Public Key
 
