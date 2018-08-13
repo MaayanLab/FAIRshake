@@ -110,12 +110,12 @@ define(function(require) {
         .attr('viewBox', '0 0 1 1')
 
     var n_scores = Object.keys(scores).length
-    var scores_sq = nearest_sq(n_scores)
+    var scores_sq = n_scores > 0 ? nearest_sq(n_scores) : 3
     var abs_unit = 1 / scores_sq
     Object.keys(scores).forEach(function (rubric, i) {
       var score = scores[rubric]
       var n_score = Object.keys(score).length
-      var summary_sq = nearest_sq(n_score)
+      var summary_sq = n_score > 0 ? nearest_sq(n_score) : 3
       var abs_x = (i % scores_sq) * abs_unit
       var abs_y = Math.floor(i / scores_sq) * abs_unit
       var local_unit = 1 / (scores_sq * summary_sq)
