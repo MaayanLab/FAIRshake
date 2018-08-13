@@ -5,7 +5,7 @@ import coreschema
 from . import serializers, filters, models, forms, permissions
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
-from django import shortcuts
+from django import shortcuts, forms as django_forms
 from django.conf import settings
 from django.db.models import Q
 from drf_yasg import openapi
@@ -127,7 +127,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     detail=False, methods=['get', 'post'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def add(self, request, pk=None):
+  def add(self, request, pk=None, **kwargs):
     if request.method == 'GET':
       return response.Response()
     form_cls = self.get_form()
@@ -212,6 +212,27 @@ class AssessmentViewSet(CustomModelViewSet):
     instance.assessor = request.user
     instance.save()
     return instance
+
+  def get_list_template_context(self, request, context):
+    context = super().get_list_template_context(request, context)
+    form = forms.AssessmentForm(request.GET)
+    assessment = form.save(commit=False)
+    assessment.assessor = request.user
+    answers = []
+    for metric in assessment.rubric.metrics.all():
+      answers.append({
+        'metric': metric,
+        'answer': models.Answer(
+          assessment=assessment,
+          metric=metric,
+        ),
+      })
+
+    return dict(context,
+      item=assessment,
+      form=form,
+      forms=answers,
+    )
 
 class AssessmentRequestViewSet(CustomModelViewSet):
   model = models.AssessmentRequest

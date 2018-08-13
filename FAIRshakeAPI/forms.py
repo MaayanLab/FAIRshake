@@ -37,9 +37,12 @@ class MetricForm(forms.ModelForm):
 class AssessmentForm(forms.ModelForm):
   class Meta:
     model = models.Assessment
-    fields = '__all__'
-  
-  project = AutoCompleteSelectField('projects', required=True, help_text=None)
+    exclude = (
+      'assessor',
+      'methodology',
+    )
+
+  project = AutoCompleteSelectField('projects', required=False, help_text=None)
   target = AutoCompleteSelectField('digital_objects', required=True, help_text=None)
   rubric = AutoCompleteSelectField('rubrics', required=True, help_text=None)
 

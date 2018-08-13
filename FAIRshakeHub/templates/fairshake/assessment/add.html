@@ -1,0 +1,17 @@
+{% load bootstrap %}
+{% load filters %}
+<form role="form" action="{% url model|add:'-add' %}" enctype="multipart/form-data" method="POST" novalidate>
+    <legend>{{ model|unslugify }} of {{ item.target.title }} with {{ item.rubric.title }} for {{ item.project.title }} </legend>
+    {% csrf_token %}
+    <div class="alert alert-danger" role="alert">
+      This evaluation form is under construction, it does not work yet.
+    </div>
+    {% for f in forms %}
+      {% with metric=f.metric answer=f.answer %}
+        {% include "fairshake/question_kinds/"|add:metric.type|add:".html" %}
+      {% endwith %}
+    {% endfor %}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>
