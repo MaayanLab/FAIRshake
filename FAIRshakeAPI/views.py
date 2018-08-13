@@ -36,61 +36,11 @@ class OrcidLogin(SocialLoginView):
   adapter_class = OrcidOAuth2Adapter
 
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
-  def get_detail_template_context(self, request, view, context):
-    paginator_cls = view.paginator.django_paginator_class
-    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    item = view.get_object()
-    form_cls = view.get_form()
-    form = form_cls(instance=item)
-
-    return {
-      'model': view.get_model_name(),
-      'action': view.action,
-      'item': item,
-      'form': form,
-      'children': {
-        child: paginator_cls(
-          child_queryset,
-          page_size,
-        ).get_page(
-          request.GET.get('page')
-        )
-        for child, child_queryset in item.children().items()
-      },
-    }
-  
-  def get_list_template_context(self, request, view, context):
-    paginator_cls = view.paginator.django_paginator_class
-    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    form_cls = view.get_form()
-    form = form_cls(request.GET)
-
-    return {
-      'model': view.get_model_name(),
-      'action': view.action,
-      'form': form,
-      'items': paginator_cls(
-        view.filter_queryset(
-          view.get_queryset()
-        ),
-        page_size,
-      ).get_page(
-        request.GET.get('page')
-      ),
-    }
-
   def get_template_context(self, data, renderer_context):
     context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context) or {}
     view = renderer_context['view']
     request = view.request
-
-    return dict(context,
-      **self.get_detail_template_context(
-        request, view, context
-      ) if view.detail else self.get_list_template_context(
-        request, view, context
-      ),
-    )
+    return view.get_template_context(request, context)
 
 class CustomModelViewSet(viewsets.ModelViewSet):
   renderer_classes = [
@@ -121,6 +71,58 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
   def get_template_names(self):
     return ['fairshake/generic/page.html']
+  
+  def get_detail_template_context(self, request, context):
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+    item = self.get_object()
+    form_cls = self.get_form()
+    form = form_cls(instance=item)
+
+    return {
+      'model': self.get_model_name(),
+      'action': self.action,
+      'item': item,
+      'form': form,
+      'children': {
+        child: paginator_cls(
+          child_queryset,
+          page_size,
+        ).get_page(
+          request.GET.get('page')
+        )
+        for child, child_queryset in item.children().items()
+      },
+    }
+  
+  def get_list_template_context(self, request, context):
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+    form_cls = self.get_form()
+    form = form_cls(request.GET)
+
+    return {
+      'model': self.get_model_name(),
+      'action': self.action,
+      'form': form,
+      'items': paginator_cls(
+        self.filter_queryset(
+          self.get_queryset()
+        ),
+        page_size,
+      ).get_page(
+        request.GET.get('page')
+      ),
+    }
+
+  def get_template_context(self, request, context):
+    return dict(context,
+      **self.get_detail_template_context(
+        request, context
+      ) if self.detail else self.get_list_template_context(
+        request, context
+      ),
+    )
 
   @decorators.action(
     detail=False, methods=['get', 'post'],
@@ -227,7 +229,7 @@ class AssessmentRequestViewSet(CustomModelViewSet):
     instance.requestor = request.user
     instance.save()
     return instance
-
+  
 class ScoreViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
