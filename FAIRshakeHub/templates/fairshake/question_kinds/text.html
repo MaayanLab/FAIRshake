@@ -3,9 +3,30 @@
         <h3>{{ metric.title }}</h3>
         <p>{{ metric.description }}</p>
     </label>
-    <div class="col-10">
-        <textarea class="form-control textfield" id="{{ metric.id }}" name="{{ metric.id }}" required>
-            {% if answer %}{{ answer.value }}{% endif %}
-        </textarea>
+    <div class="row">
+        {% with model="metric" item=metric %}
+            {% include "fairshake/generic/element.html" %}
+        {% endwith %}
+        <div class="col-sm-6">
+            <textarea
+                class="form-control textfield"
+                name="{{ metric.id }}"
+                placeholder="Insert text"
+                rows="5"
+                required
+            >{{ answer.value }}</textarea>
+            <textarea
+                name="{{ metric.id }}-url-comment"
+                class="form-control textfield"
+                placeholder="Enter URLs, if applicable and available. Separate URLs by spaces or new lines."
+                rows="3"
+            >{{ answer.url_comment }}</textarea>
+            <textarea
+                name="{{ metric.id }}-comment"
+                class="form-control textfield"
+                placeholder="Please explain or describe your answer."
+                rows="5"
+            >{{ answer.comment }}</textarea>
+        </div>
     </div>
 </div>
