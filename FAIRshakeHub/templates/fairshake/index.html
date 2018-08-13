@@ -1,14 +1,14 @@
 {% extends "fairshake/base.html" %}
 
-{% block style %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'style/index.css' %}" />
-{% endblock %}
-
 {% block header %}
   {% with active_page="index" %}
     {{ block.super }}
   {% endwith %}
+
+  {% block style %}
+      {{ block.super }}
+      <link rel="stylesheet" href="{% static 'style/index.css' %}" />
+  {% endblock %}
 {% endblock %}
 
 {% block content %}
@@ -56,7 +56,4 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block script %}
 {% endblock %}
