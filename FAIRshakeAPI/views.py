@@ -24,7 +24,6 @@ schema_view = get_schema_view(
     ),
     license=openapi.License(name='Apache 2.0 License'),
   ),
-  validators=['flex', 'ssv'],
   public=True,
   permission_classes=[drf_permissions.AllowAny],
 )
@@ -71,7 +70,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
   def get_template_names(self):
     return ['fairshake/generic/page.html']
-  
+
   def get_detail_template_context(self, request, context):
     paginator_cls = self.paginator.django_paginator_class
     page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
@@ -94,7 +93,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
         for child, child_queryset in item.children().items()
       },
     }
-  
+
   def get_list_template_context(self, request, context):
     paginator_cls = self.paginator.django_paginator_class
     page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
