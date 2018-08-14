@@ -23,11 +23,13 @@
             </a>
           </div>
         {% endif %}
-        <div
-          class="insignia embed-image"
-          style="width: 40px; height: 40px;"
-          data-target='{ "{{ model }}": {{ item.id }} }'
-        />
+        {% if model != "metric" %}
+          <div
+            class="insignia embed-image"
+            style="width: 40px; height: 40px;"
+            data-target='{ "{{ model }}": {{ item.id }} }'
+          />
+        {% endif %}
       </div>
       <div class="caption text-left">
         <p class="item-title" style="margin-right:60px;">
