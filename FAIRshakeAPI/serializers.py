@@ -92,6 +92,7 @@ class AssessmentResponseSerializer(serializers.ModelSerializer):
       'timestamp',
       'methodology',
     )
+    swagger_schema_fields = {'title': 'AssessmentResponse'}
 
 class AssessmentRequestSerializer(serializers.ModelSerializer):
   assessment = AssessmentResponseSerializer()
