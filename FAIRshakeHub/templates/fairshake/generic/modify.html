@@ -1,11 +1,11 @@
 {% load bootstrap %}
 {% load filters %}
-<form role="form" action="{% url model|add:'-modify' pk=item.id %}" enctype="multipart/form-data" method="POST" novalidate>
+<form role="form" action="{% url model|add:'-modify' item.id %}" enctype="multipart/form-data" method="POST" novalidate>
     <legend>{{ model|unslugify }}</legend>
     {% csrf_token %}
     {{ form|bootstrap }}
     <div class="form-group">
       <button type="submit" class="btn btn-primary">Submit</button>
-      <a href="{% url model|add:'-delete' pk=item.id %}" type="text" class="btn btn-danger">Delete</a>
+      <a href="{% url model|add:'-delete' item.id %}" type="text" class="btn btn-danger">Delete</a>
     </div>
 </form>

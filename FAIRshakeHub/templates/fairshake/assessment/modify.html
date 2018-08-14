@@ -1,6 +1,6 @@
 {% load bootstrap %}
 {% load filters %}
-<form role="form" action="{% url model|add:'-add' %}" enctype="multipart/form-data" method="POST" novalidate>
+<form role="form" action="{% url model|add:'-modify' item.id %}" enctype="multipart/form-data" method="POST" novalidate>
     <legend>
       {{ model|unslugify }}
       of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>

@@ -16,14 +16,14 @@ class IdentifiablePermissions(permissions.BasePermission):
 
 class AssessmentPermissions(IdentifiablePermissions):
   def has_object_permission(self, request, view, obj):
-    if request.method in permissions.SAFE_METHODS or view.action in ['modify', 'delete']:
+    if request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
       return True
     else:
       return obj.assessor == request.user
 
 class AssessmentRequestPermissions(IdentifiablePermissions):
   def has_object_permission(self, request, view, obj):
-    if request.method in permissions.SAFE_METHODS or view.action not in ['modify', 'delete']:
+    if request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
       return True
     else:
       return obj.requestor == request.user

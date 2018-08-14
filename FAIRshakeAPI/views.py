@@ -145,11 +145,12 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def modify(self, request, pk=None):
-    self.check_object_permissions(request, self.get_object())
+    item = self.get_object()
+    self.check_object_permissions(request, item)
     if request.method == 'GET':
       return response.Response()
     form_cls = self.get_form()
-    form = form_cls(request.POST, instance=shortcuts.get_object_or_404(self.get_model(), id=pk))
+    form = form_cls(request.POST, instance=item)
     instance = self.save_form(request, form)
     return shortcuts.redirect(
       self.get_model_name()+'-detail',
@@ -161,8 +162,8 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     methods=['get'],
   )
   def delete(self, request, pk=None):
-    self.check_object_permissions(request, self.get_object())
-    item = shortcuts.get_object_or_404(self.get_model(), pk=pk)
+    item = self.get_object()
+    self.check_object_permissions(request, item)
     item.delete()
     return shortcuts.redirect(
       self.get_model_name()+'-list'
@@ -211,30 +212,77 @@ class AssessmentViewSet(CustomModelViewSet):
     )
 
   def save_form(self, request, form):
-    instance = form.save(commit=False)
-    instance.assessor = request.user
-    instance.save()
-    return instance
-
-  def get_list_template_context(self, request, context):
-    context = super().get_list_template_context(request, context)
-    form = forms.AssessmentForm(request.GET)
     assessment = form.save(commit=False)
     assessment.assessor = request.user
-    answers = []
-    for metric in assessment.rubric.metrics.all():
-      answers.append({
-        'metric': metric,
-        'answer': models.Answer(
+    assessment.methodology = 'user'
+    assessment.save()
+    if not assessment.answer:
+      for metric in assessment.rubric.metrics.all():
+        answer = models.Answer(
           assessment=assessment,
           metric=metric,
-        ),
+        )
+        assessment.answers.add(answer)
+    assessment.save()
+
+    for answer in assessment.answers.all():
+        answer_form = forms.AnswerForm(
+          request.POST,
+          instance=answer,
+          prefix=answer.metric.id,
+        )
+        answer_form.save()
+
+    return assessment
+
+  def get_detail_template_context(self, request, context):
+    context = super().get_list_template_context(request, context)
+    assessment = self.get_object()
+    assessment_form = forms.AssessmentForm(instance=assessment)
+
+    answers = []
+    for answer in assessment.answers.all():
+      answer_form = forms.AnswerForm(
+        prefix=answer.metric.id,
+        instance=answer,
+      )
+      answers.append({
+        'form': answer_form,
+        'instance': answer,
       })
 
     return dict(context,
+      form=assessment_form,
       item=assessment,
-      form=form,
-      forms=answers,
+      answers=answers,
+    )
+
+  def get_list_template_context(self, request, context):
+    context = super().get_list_template_context(request, context)
+    assessment_form = forms.AssessmentForm(request.GET)
+    assessment = assessment_form.save(commit=False)
+    assessment.assessor = request.user
+
+    answers = []
+    for metric in assessment.rubric.metrics.all():
+      answer = models.Answer(
+        assessment=assessment,
+        metric=metric,
+      )
+      answer_form = forms.AnswerForm(
+        request.GET,
+        prefix=metric.id,
+        instance=answer,
+      )
+      answers.append({
+        'form': answer_form,
+        'instance': answer,
+      })
+
+    return dict(context,
+      form=assessment_form,
+      item=assessment,
+      answers=answers,
     )
 
 class AssessmentRequestViewSet(CustomModelViewSet):
