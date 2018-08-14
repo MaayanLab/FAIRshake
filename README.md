@@ -24,7 +24,7 @@ ipython is recommended: `pip install ipython`
 `./manage.py shell`
 
 ### Django Live Reloading Server
-In separate terminals execute these commands and then navigate to <http://localhost:8000/>.
+In separate terminals execute these commands and then navigate to <http://localhost:8000/v2/>.
 ```bash
 ./manage.py runserver
 ./manage.py livereload
@@ -34,6 +34,15 @@ In separate terminals execute these commands and then navigate to <http://localh
 ```bash
 docker-compose build
 ```
+
+### Database migrations
+Django keeps track of database migrations. When modifying `models` it is imperative to create and apply migrations on all old databases. Migrations can be safely removed if they have been applied to all independent databases (for that reason, it's probably better to just not remove them).
+```bash
+./manage.py makemigrations
+./manage.py migrate
+```
+
+Note that this will try but not always succeed to detect renamed fields and such and migrate the backend database accordingly. If it is unable to, it may require manual intervention. For more information https://docs.djangoproject.com/en/2.0/topics/migrations/.
 
 ## Production
 ### Secret values
