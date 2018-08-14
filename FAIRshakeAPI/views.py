@@ -128,6 +128,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def add(self, request, pk=None, **kwargs):
+    self.check_permissions(request)
     if request.method == 'GET':
       return response.Response()
     form_cls = self.get_form()
@@ -144,6 +145,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def modify(self, request, pk=None):
+    self.check_object_permissions(request, self.get_object())
     if request.method == 'GET':
       return response.Response()
     form_cls = self.get_form()
@@ -159,6 +161,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     methods=['get'],
   )
   def delete(self, request, pk=None):
+    self.check_object_permissions(request, self.get_object())
     item = shortcuts.get_object_or_404(self.get_model(), pk=pk)
     item.delete()
     return shortcuts.redirect(
@@ -249,7 +252,7 @@ class AssessmentRequestViewSet(CustomModelViewSet):
     instance.requestor = request.user
     instance.save()
     return instance
-  
+
 class ScoreViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
