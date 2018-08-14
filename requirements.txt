@@ -12,7 +12,7 @@ Django==2.0.7
 djangorestframework
 drf-yasg
 dynamic-rest
-mysqlclient
 Pillow
+pymysql
 swagger-spec-validator
 uwsgi

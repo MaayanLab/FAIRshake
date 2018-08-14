@@ -3,6 +3,12 @@ import os
 import sys
 
 if __name__ == "__main__":
+    try:
+        import MySQLdb
+    except:
+        import pymysql
+        pymysql.install_as_MySQLdb()
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "FAIRshake.settings")
     try:
         from django.core.management import execute_from_command_line
