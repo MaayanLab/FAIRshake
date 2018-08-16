@@ -3,12 +3,16 @@ from . import models
 
 class IdentifiablePermissions(permissions.BasePermission):
   def has_permission(self, request, view):
+    if request.user.is_staff:
+      return True
     if view.action == 'add':
       return request.user.is_authenticated
     else:
       return request.method in permissions.SAFE_METHODS
 
   def has_object_permission(self, request, view, obj):
+    if request.user.is_staff:
+      return True
     if request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
       return True
     else:
@@ -16,6 +20,8 @@ class IdentifiablePermissions(permissions.BasePermission):
 
 class AssessmentPermissions(IdentifiablePermissions):
   def has_object_permission(self, request, view, obj):
+    if request.user.is_staff:
+      return True
     if request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
       return True
     else:
@@ -23,6 +29,8 @@ class AssessmentPermissions(IdentifiablePermissions):
 
 class AssessmentRequestPermissions(IdentifiablePermissions):
   def has_object_permission(self, request, view, obj):
+    if request.user.is_staff:
+      return True
     if request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
       return True
     else:
