@@ -6,6 +6,6 @@
     {{ form|bootstrap }}
     <div class="form-group">
       <button type="submit" class="btn btn-primary">Submit</button>
-      <a href="{% url model|add:'-delete' item.id %}" type="text" class="btn btn-danger">Delete</a>
+      <a href="{% url model|add:'-remove' item.id %}" type="text" class="btn btn-danger">Delete</a>
     </div>
 </form>

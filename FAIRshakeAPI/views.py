@@ -161,7 +161,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     detail=True,
     methods=['get'],
   )
-  def delete(self, request, pk=None):
+  def remove(self, request, pk=None):
     item = self.get_object()
     self.check_object_permissions(request, item)
     item.delete()
