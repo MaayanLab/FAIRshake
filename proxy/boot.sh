@@ -6,7 +6,7 @@ diskroot=/proxy
 sslroot=/ssl
 log=$diskroot/error.log
 
-servername=localhost
+servername=fairshake.cloud
 webroot=
 
 function setup {
@@ -67,7 +67,7 @@ http {
             proxy_set_header   X-Forwarded-Host \$server_name;
         }
 
-        location ~ ^/(v2|static/v2|api/v2)/ {
+        location ~ ^/v2/ {
             include            /etc/nginx/uwsgi_params;
             uwsgi_pass         django:8080;
             proxy_redirect     off;
@@ -75,6 +75,16 @@ http {
             proxy_set_header   X-Real-IP \$remote_addr;
             proxy_set_header   X-Forwarded-For \$proxy_add_x_forwarded_for;
             proxy_set_header   X-Forwarded-Host \$server_name;
+        }
+
+        location ~ ^/static/v2/ {
+            rewrite ^/static/v2/(.*)$ https://\$server_name/v2/static/\$1 redirect;
+        }
+        location ~ ^/api/v2/ {
+            rewrite ^/api/v2/$ https://\$server_name/v2/swagger/ redirect;
+            rewrite ^/api/v2/(.+)$ https://\$server_name/v2/\$1 redirect;
+            rewrite ^/api/v2/coreapi/(.*)$ https://\$server_name/v2/coreapi/\$1 redirect;
+            rewrite ^/api/v2/static/(.*)$ https://\$server_name/v2/static/\$1 redirect;
         }
     }
 }
