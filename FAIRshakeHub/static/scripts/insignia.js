@@ -2,14 +2,8 @@ require.config({
   paths: {
     d3: 'https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min',
     tippy: 'https://unpkg.com/tippy.js@2.5.2/dist/tippy.all.min',
-    coreapi: [
-      window.location.protocol + '//' + window.location.host + '/v2/static/rest_framework/js/coreapi-0.1.1',
-      'https://fairshake.cloud/v2/static/rest_framework/js/coreapi-0.1.1',
-    ],
-    schema: [
-      window.location.protocol + '//' + window.location.host + '/v2/coreapi/schema',
-      'https://fairshake.cloud/v2/coreapi/schema',
-    ],
+    coreapi: 'https://fairshake.cloud/v2/static/rest_framework/js/coreapi-0.1.1',
+    schema: 'https://fairshake.cloud/v2/coreapi/schema',
   },
   shims: {
     schema: ['coreapi']
@@ -173,9 +167,9 @@ define(function(require) {
     var coreapi = window.coreapi = require('coreapi')
     require(['schema'], function() {
       var schema = window.schema
-      var client = new coreapi.Client()
+      var client = new window.coreapi.Client()
       client
-        .action(schema, ['v2', 'score', 'list'], params)
+        .action(schema, ['score', 'list'], params)
         .then(function (results) {
           build_svg(
             container,
