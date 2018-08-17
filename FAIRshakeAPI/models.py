@@ -27,6 +27,14 @@ class IdentifiableModelMixin(models.Model):
   
   def model_name(self):
     return self._meta.verbose_name_raw
+  
+  def has_object_permissions(self, request, view):
+    if request.user.is_staff:
+      return True
+    if request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
+      return True
+    else:
+      return self.authors and self.authors.filter(id=request.user.id).exists()
 
   def __str__(self):
     return '{title} ({id})'.format(id=self.id, title=self.title)
@@ -97,6 +105,14 @@ class AssessmentRequest(models.Model):
   requestor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True, default='')
   timestamp = models.DateTimeField(auto_now_add=True)
 
+  def has_object_permissions(self, request, view):
+    if request.user.is_staff:
+      return True
+    if request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
+      return True
+    else:
+      return self.requestor == request.user
+
   def __str__(self):
     return 'Request by Requestor[{requestor}] for Assessment[{assessment}] ({id})'.format(
       id=self.id,
@@ -121,6 +137,14 @@ class Assessment(models.Model):
   ))
   assessor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True)
   timestamp = models.DateTimeField(auto_now_add=True)
+
+  def has_object_permissions(self, request, view):
+    if request.user.is_staff:
+      return True
+    if request.method in permissions.SAFE_METHODS and view.action not in ['modify', 'delete']:
+      return True
+    else:
+      return self.assessor == request.user
 
   def __str__(self):
     return '{methodology} assessment on Target[{target}] for Project[{project}] with Rubric[{rubric}] ({id})'.format(
@@ -150,6 +174,9 @@ class Answer(models.Model):
       return 0
     else:
       return -1
+
+  def has_object_permissions(self, request, view):
+    return self.assessment.has_object_permissions(request, view)
 
   def __str__(self):
     return 'Answer to Metric[{metric}] for assessment[{assessment}]: {answer} ({id})'.format(

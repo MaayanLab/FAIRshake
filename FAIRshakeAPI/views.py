@@ -2,7 +2,8 @@
 
 import coreapi
 import coreschema
-from . import serializers, filters, models, forms, permissions
+from . import serializers, filters, models, forms
+from .permissions import ModelDefinedPermissions
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from django import shortcuts, forms as django_forms
@@ -11,7 +12,7 @@ from django.db.models import Q
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_auth.registration.views import SocialLoginView
-from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions as drf_permissions
+from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
 
 schema_view = get_schema_view(
   openapi.Info(
@@ -25,7 +26,7 @@ schema_view = get_schema_view(
     license=openapi.License(name='Apache 2.0 License'),
   ),
   public=True,
-  permission_classes=[drf_permissions.AllowAny],
+  permission_classes=[permissions.AllowAny],
 )
 
 class GithubLogin(SocialLoginView):
@@ -47,9 +48,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     CustomTemplateHTMLRenderer,
     renderers.BrowsableAPIRenderer,
   ]
-  permission_classes = [
-    permissions.IdentifiablePermissions,
-  ]
+  permission_classes = [ModelDefinedPermissions,]
 
   def get_model(self):
     return self.model
@@ -198,9 +197,6 @@ class AssessmentViewSet(CustomModelViewSet):
   form = forms.AssessmentForm
   serializer_class = serializers.AssessmentSerializer
   filter_classes = filters.AssessmentFilterSet
-  permission_classes = [
-    permissions.AssessmentPermissions,
-  ]
 
   def get_queryset(self):
     if self.request.user.is_anonymous:
@@ -291,9 +287,6 @@ class AssessmentRequestViewSet(CustomModelViewSet):
   queryset = models.AssessmentRequest.objects.all()
   serializer_class = serializers.AssessmentRequestSerializer
   filter_classes = filters.AssessmentRequestFilterSet
-  permission_classes = [
-    permissions.AssessmentRequestPermissions,
-  ]
 
   def save_form(self, request, form):
     instance = form.save(commit=False)
