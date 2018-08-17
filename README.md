@@ -19,6 +19,8 @@ Install all dependencies into your environment.
 pip install -r requirements.txt
 ```
 
+Note that `mysqlclient` is the recommended client but `pymysql` can be used as a fallback.
+
 ### Django Shell
 ipython is recommended: `pip install ipython`
 `./manage.py shell`
@@ -48,6 +50,7 @@ Note that this will try but not always succeed to detect renamed fields and such
 ### Secret values
 For the docker-compose to work properly in production, `/ssl/` should have the following files:
 - `my.cnf`: mysql configuration file with production database credentials
+  - This file can be specified with `MYSQL_CONFIG` environment variable
 - `secret.txt`: Secret key for production (random private string of characters)
 - `cert.key`: SSL Private Key
 - `cert.crt`: SSL CA Signed Public Key
