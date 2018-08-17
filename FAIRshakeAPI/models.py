@@ -60,6 +60,7 @@ class Project(IdentifiableModelMixin):
   class Meta:
     verbose_name = 'project'
     verbose_name_plural = 'projects'
+    ordering = ['-id']
 
 class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
@@ -105,6 +106,7 @@ class DigitalObject(IdentifiableModelMixin):
   class Meta:
     verbose_name = 'digital_object'
     verbose_name_plural = 'digital_objects'
+    ordering = ['-id']
 
 class AssessmentRequest(models.Model):
   id = models.AutoField(primary_key=True)
@@ -136,6 +138,7 @@ class AssessmentRequest(models.Model):
   class Meta:
     verbose_name = 'assessment_request'
     verbose_name_plural = 'assessment_requests'
+    ordering = ['-id']
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
@@ -177,6 +180,7 @@ class Assessment(models.Model):
   class Meta:
     verbose_name = 'assessment'
     verbose_name_plural = 'assessments'
+    ordering = ['-id']
 
 class Answer(models.Model):
   id = models.AutoField(primary_key=True)
@@ -208,6 +212,7 @@ class Answer(models.Model):
   class Meta:
     verbose_name = 'answer'
     verbose_name_plural = 'answers'
+    ordering = ['-id']
 
 class Metric(IdentifiableModelMixin):
   type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
@@ -236,6 +241,7 @@ class Metric(IdentifiableModelMixin):
   class Meta:
     verbose_name = 'metric'
     verbose_name_plural = 'metrics'
+    ordering = ['-id']
 
 class Rubric(IdentifiableModelMixin):
   license = models.CharField(max_length=255, blank=True, null=False, default='')
@@ -251,8 +257,10 @@ class Rubric(IdentifiableModelMixin):
   class Meta:
     verbose_name = 'rubric'
     verbose_name_plural = 'rubrics'
+    ordering = ['-id']
 
 class Author(AbstractUser):
   class Meta:
     verbose_name = 'author'
     verbose_name_plural = 'authors'
+    ordering = ['-id']

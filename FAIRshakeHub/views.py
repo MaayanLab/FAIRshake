@@ -23,7 +23,6 @@ def index(request):
     items,
     page_size,
   )
-  print(q,len(items))
 
   return render(request, 'fairshake/index.html', dict(
       query=q,
