@@ -49,18 +49,24 @@ class IdentifiableModelMixin(models.Model):
   class Meta:
     abstract = True
 
+class Author(AbstractUser):
+  class Meta:
+    verbose_name = 'author'
+    verbose_name_plural = 'authors'
+    ordering = ['-id']
+
 class Project(IdentifiableModelMixin):
   digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
-
-  def children(self):
-    return OrderedDict([
-      ('digital_object', self.digital_objects.all()),
-    ])
   
   class Meta:
     verbose_name = 'project'
     verbose_name_plural = 'projects'
     ordering = ['-id']
+
+  class MetaEx:
+    children = [
+      'digital_objects',
+    ]
 
 class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
@@ -69,76 +75,61 @@ class DigitalObject(IdentifiableModelMixin):
 
   rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
-  def score(self, projects=None, rubrics=None):
-    '''
-    Generate aggregate scores on a per-rubric and per-metric basis.
-    '''
-    scores = {}
-
-    for assessment in Assessment.objects.filter(
-      target=self.id,
-      rubric__in=rubrics,
-      project__in=projects,
-    ):
-      if scores.get(assessment.rubric.id) is None:
-        scores[assessment.rubric.id] = {}
-      for answer in Answer.objects.filter(
-        assessment=assessment.id,
-      ):
-        if scores[assessment.rubric.id].get(answer.metric.id) is None:
-          scores[assessment.rubric.id][answer.metric.id] = []
-        scores[assessment.rubric.id][answer.metric.id].append(answer.value())
-
-    return {
-      rubric: {
-        metric: sum(value)/len(value)
-        for metric, value in score.items()
-      }
-      for rubric, score in scores.items()
-    }
-
-  def children(self):
-    return OrderedDict([
-      ('project', self.projects.all()),
-      ('rubric', self.rubrics.all()),
-    ])
-
   class Meta:
     verbose_name = 'digital_object'
     verbose_name_plural = 'digital_objects'
     ordering = ['-id']
 
-class AssessmentRequest(models.Model):
-  id = models.AutoField(primary_key=True)
-  assessment = models.OneToOneField('Assessment', on_delete=models.CASCADE, related_name='request')
-  requestor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True, default='')
-  timestamp = models.DateTimeField(auto_now_add=True)
+  class MetaEx:
+    children = [
+      'projects',
+      'rubrics',
+    ]
 
-  def has_permission(self, user, perm):
-    if perm in ['list', 'retrieve']:
-      return True
-    elif perm in ['create', 'add']:
-      return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
-      if self is None:
-        return user.is_authenticated
-      else:
-        return (self and self.requestor == user) or user.is_staff
-    else:
-      logging.warning('perm %s not handled' % (perm))
-      return user.is_staff
+class Rubric(IdentifiableModelMixin):
+  license = models.CharField(max_length=255, blank=True, null=False, default='')
 
-  def __str__(self):
-    return 'Request by Requestor[{requestor}] for Assessment[{assessment}] ({id})'.format(
-      id=self.id,
-      assessment=self.assessment,
-      requestor=self.requestor,
-    )
+  metrics = models.ManyToManyField('Metric', blank=True, related_name='rubrics')
 
   class Meta:
-    verbose_name = 'assessment_request'
-    verbose_name_plural = 'assessment_requests'
+    verbose_name = 'rubric'
+    verbose_name_plural = 'rubrics'
     ordering = ['-id']
+
+  class MetaEx:
+    children = [
+      'metrics',
+      'digital_objects',
+    ]
+
+class Metric(IdentifiableModelMixin):
+  type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
+    ('yesnobut', 'Yes no or but question'),
+    ('text', 'Simple textbox input'),
+    ('url', 'A url input'),
+  ))
+
+  license = models.CharField(max_length=255, blank=True, null=False, default='')
+
+  rationale = models.TextField(blank=True, null=False, default='')
+  principle = models.CharField(max_length=16, blank=True, null=False, default='', choices=(
+    ('F', 'Findability',),
+    ('A', 'Accessibility',),
+    ('I', 'Interoperability',),
+    ('R', 'Reusability',),
+  ))
+  fairmetrics = models.CharField(max_length=255, blank=True, null=False, default='')
+  fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
+
+  class Meta:
+    verbose_name = 'metric'
+    verbose_name_plural = 'metrics'
+    ordering = ['-id']
+
+  class MetaEx:
+    children = [
+      'rubrics',
+    ]
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
@@ -182,6 +173,11 @@ class Assessment(models.Model):
     verbose_name_plural = 'assessments'
     ordering = ['-id']
 
+  class MetaEx:
+    children = [
+      'answers',
+    ]
+
 class Answer(models.Model):
   id = models.AutoField(primary_key=True)
   assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='answers')
@@ -214,53 +210,34 @@ class Answer(models.Model):
     verbose_name_plural = 'answers'
     ordering = ['-id']
 
-class Metric(IdentifiableModelMixin):
-  type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
-    ('yesnobut', 'Yes no or but question'),
-    ('text', 'Simple textbox input'),
-    ('url', 'A url input'),
-  ))
+class AssessmentRequest(models.Model):
+  id = models.AutoField(primary_key=True)
+  assessment = models.OneToOneField('Assessment', on_delete=models.CASCADE, related_name='request')
+  requestor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True, default='')
+  timestamp = models.DateTimeField(auto_now_add=True)
 
-  license = models.CharField(max_length=255, blank=True, null=False, default='')
+  def has_permission(self, user, perm):
+    if perm in ['list', 'retrieve']:
+      return True
+    elif perm in ['create', 'add']:
+      return user.is_authenticated or user.is_staff
+    elif perm in ['modify', 'remove', 'delete']:
+      if self is None:
+        return user.is_authenticated
+      else:
+        return (self and self.requestor == user) or user.is_staff
+    else:
+      logging.warning('perm %s not handled' % (perm))
+      return user.is_staff
 
-  rationale = models.TextField(blank=True, null=False, default='')
-  principle = models.CharField(max_length=16, blank=True, null=False, default='', choices=(
-    ('F', 'Findability',),
-    ('A', 'Accessibility',),
-    ('I', 'Interoperability',),
-    ('R', 'Reusability',),
-  ))
-  fairmetrics = models.CharField(max_length=255, blank=True, null=False, default='')
-  fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
-
-  def children(self):
-    return {
-      'rubric': self.rubrics.all(),
-    }
-
-  class Meta:
-    verbose_name = 'metric'
-    verbose_name_plural = 'metrics'
-    ordering = ['-id']
-
-class Rubric(IdentifiableModelMixin):
-  license = models.CharField(max_length=255, blank=True, null=False, default='')
-
-  metrics = models.ManyToManyField('Metric', blank=True, related_name='rubrics')
-
-  def children(self):
-    return OrderedDict([
-      ('metric', self.metrics.all()),
-      ('digital_object', self.digital_objects.all()),
-    ])
+  def __str__(self):
+    return 'Request by Requestor[{requestor}] for Assessment[{assessment}] ({id})'.format(
+      id=self.id,
+      assessment=self.assessment,
+      requestor=self.requestor,
+    )
 
   class Meta:
-    verbose_name = 'rubric'
-    verbose_name_plural = 'rubrics'
-    ordering = ['-id']
-
-class Author(AbstractUser):
-  class Meta:
-    verbose_name = 'author'
-    verbose_name_plural = 'authors'
+    verbose_name = 'assessment_request'
+    verbose_name_plural = 'assessment_requests'
     ordering = ['-id']

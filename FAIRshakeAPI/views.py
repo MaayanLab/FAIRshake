@@ -56,6 +56,11 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   def get_model_name(self):
     return self.get_model()._meta.verbose_name_raw
   
+  def get_model_children(self, obj):
+    for child in self.get_model().MetaEx.children:
+      child_attr = getattr(obj, child)
+      yield (child_attr.model._meta.verbose_name_raw, child_attr.all())
+
   def get_form(self):
     return self.form
 
@@ -84,12 +89,12 @@ class CustomModelViewSet(viewsets.ModelViewSet):
       'form': form,
       'children': {
         child: paginator_cls(
-          child_queryset,
+          child_attr,
           page_size,
         ).get_page(
           request.GET.get('page')
         )
-        for child, child_queryset in item.children().items()
+        for child, child_attr in self.get_model_children(item)
       },
     }
 
