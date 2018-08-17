@@ -6,15 +6,7 @@ class ModelDefinedPermissions(permissions.BasePermission):
   '''
 
   def has_permission(self, request, view):
-    if request.user.is_staff:
-      return True
-    if view.action in ['add', 'create']:
-      return request.user.is_authenticated
-    else:
-      return request.method in permissions.SAFE_METHODS
+    return view.get_model().has_permission(None, request.user, view.action)
 
   def has_object_permission(self, request, view, obj):
-    if request.user.is_staff:
-      return True
-    else:
-      return obj.has_object_permission(request, view)
+    return obj.has_permission(request.user, view.action)

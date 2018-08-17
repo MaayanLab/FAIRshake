@@ -145,7 +145,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   )
   def modify(self, request, pk=None):
     item = self.get_object()
-    self.check_object_permissions(request, item)
     if request.method == 'GET':
       return response.Response()
     form_cls = self.get_form()

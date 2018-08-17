@@ -12,8 +12,8 @@
             {% endif %}
           />
         </a>
-        {% if model == "digital_object" %}
-          <div>
+        {% if model == "digital_object" and user.is_authenticated %}
+        <div>
             <a
               href="{% url 'assessment-add' %}?target={{ item.id }}&{{ parent_model }}={{ parent_item.id }}&rubric=11"
               class="btn btn-xs"
@@ -56,6 +56,8 @@
             </div>
           </div>
         </div>
+        {% has_permission item 'modify' as edit_perm %}
+        {% if edit_perm %}
         <div style="position:absolute;bottom:25px;right:25px;">
           <a href="{% url model|add:'-modify' item.id %}">
             <span
@@ -64,6 +66,7 @@
             />
           </a>
         </div>
+        {% endif %}
       </div>
     </div>
   </div>

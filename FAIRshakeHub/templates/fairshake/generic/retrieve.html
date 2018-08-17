@@ -46,7 +46,7 @@
       </p>
     {% endif %}
   </div>
-    {% if model == "digital_object" %}
+    {% if model == "digital_object" and user.is_authenticated %}
     <div>
       <a
         href="{% url 'assessment-add' %}?target={{ item.id }}"
@@ -57,16 +57,19 @@
       </a>
     </div>
     {% endif %}
-    <div>
-      <a
-        href="{% url model|add:'-modify' item.id %}"
-      >
-        <span
-          class="glyphicon glyphicon-edit"
-          style="font-size:20px;position:absolute;top:0;right:15%;"
-        />
-      </a>
-    </div>
+    {% has_permission item 'modify' as edit_perm %}
+    {% if edit_perm %}
+      <div>
+        <a
+          href="{% url model|add:'-modify' item.id %}"
+        >
+          <span
+            class="glyphicon glyphicon-edit"
+            style="font-size:20px;position:absolute;top:0;right:15%;"
+          />
+        </a>
+      </div>
+    {% endif %}
   </div>
   <div class="container">
   {% with parent_model=model parent_item=item %}
