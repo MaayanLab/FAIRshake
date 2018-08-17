@@ -53,7 +53,7 @@ class Author(AbstractUser):
   class Meta:
     verbose_name = 'author'
     verbose_name_plural = 'authors'
-    ordering = ['-id']
+    ordering = ['id']
 
 class Project(IdentifiableModelMixin):
   digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
@@ -61,7 +61,7 @@ class Project(IdentifiableModelMixin):
   class Meta:
     verbose_name = 'project'
     verbose_name_plural = 'projects'
-    ordering = ['-id']
+    ordering = ['id']
 
   class MetaEx:
     children = [
@@ -78,7 +78,7 @@ class DigitalObject(IdentifiableModelMixin):
   class Meta:
     verbose_name = 'digital_object'
     verbose_name_plural = 'digital_objects'
-    ordering = ['-id']
+    ordering = ['id']
 
   class MetaEx:
     children = [
@@ -94,7 +94,7 @@ class Rubric(IdentifiableModelMixin):
   class Meta:
     verbose_name = 'rubric'
     verbose_name_plural = 'rubrics'
-    ordering = ['-id']
+    ordering = ['id']
 
   class MetaEx:
     children = [
@@ -124,7 +124,7 @@ class Metric(IdentifiableModelMixin):
   class Meta:
     verbose_name = 'metric'
     verbose_name_plural = 'metrics'
-    ordering = ['-id']
+    ordering = ['id']
 
   class MetaEx:
     children = [
@@ -171,7 +171,7 @@ class Assessment(models.Model):
   class Meta:
     verbose_name = 'assessment'
     verbose_name_plural = 'assessments'
-    ordering = ['-id']
+    ordering = ['id']
 
   class MetaEx:
     children = [
@@ -208,7 +208,7 @@ class Answer(models.Model):
   class Meta:
     verbose_name = 'answer'
     verbose_name_plural = 'answers'
-    ordering = ['-id']
+    ordering = ['id']
 
 class AssessmentRequest(models.Model):
   id = models.AutoField(primary_key=True)
@@ -240,4 +240,4 @@ class AssessmentRequest(models.Model):
   class Meta:
     verbose_name = 'assessment_request'
     verbose_name_plural = 'assessment_requests'
-    ordering = ['-id']
+    ordering = ['id']
