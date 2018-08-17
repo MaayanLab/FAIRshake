@@ -4,11 +4,12 @@
 .socialaccount_provider {
   display: inline;
 }
-.socialaccount_provider.github::before {
+.socialaccount_provider.github {
   display: block;
-  content: url('/static/v2/image/socialaccount/github.png');
+  content: url('/v2/static/image/socialaccount/github.png');
 }
-.socialaccount_provider.orcid::before {
+.socialaccount_provider.orcid {
   display: block;
-  content: url('/static/v2/image/socialaccount/orcid.png');
+  content: url('/v2/static/image/socialaccount/orcid.png');
+  padding: 10px;
 }
