@@ -236,7 +236,18 @@ LOGOUT_ON_PASSWORD_CHANGE = False
 CORS_ORIGIN_ALLOW_ALL = True
 
 SWAGGER_SETTINGS = {
-   'DEFAULT_GENERATOR_CLASS': 'FAIRshakeAPI.schema.CustomSchemaGenerator',
+    'DEFAULT_GENERATOR_CLASS': 'FAIRshakeAPI.schema.CustomSchemaGenerator',
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic',
+        },
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'schema': 'token',
+        },
+    },
 }
 
 GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-6277639-33'
