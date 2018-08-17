@@ -9,6 +9,7 @@ from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from django import shortcuts, forms as django_forms
 from django.conf import settings
 from django.db.models import Q
+from django.core.cache import cache
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_auth.registration.views import SocialLoginView
@@ -233,6 +234,11 @@ class AssessmentViewSet(CustomModelViewSet):
         )
         answer_form.save()
 
+    cache.delete_many([
+      ','.join(map('='.join, request.GET.items())),
+      *map('='.join, request.GET.items()),
+    ])
+
     return assessment
 
   def get_detail_template_context(self, request, context):
@@ -313,28 +319,35 @@ class ScoreViewSet(
     '''
     Generate aggregate scores on a per-rubric and per-metric basis.
     '''
-    scores = {}
-    metrics = {}
+    key = ','.join(map('='.join,request.GET.items()))
+    result = cache.get(key)
 
-    for assessment in self.filter_queryset(self.get_queryset()):
-      if scores.get(assessment.rubric.id) is None:
-        scores[assessment.rubric.id] = {}
-      for answer in models.Answer.objects.filter(
-        assessment=assessment.id,
-      ):
-        if metrics.get(answer.metric.id) is None:
-          metrics[answer.metric.id] = answer.metric.title
-        if scores[assessment.rubric.id].get(answer.metric.id) is None:
-          scores[assessment.rubric.id][answer.metric.id] = []
-        scores[assessment.rubric.id][answer.metric.id].append(answer.value())
+    if result is None:
+      scores = {}
+      metrics = {}
 
-    return response.Response({
-      'scores': {
-        rubric: {
-          metric: sum(value)/len(value)
-          for metric, value in score.items()
-        }
-        for rubric, score in scores.items()
-      },
-      'metrics': metrics,
-    })
+      for assessment in self.filter_queryset(self.get_queryset()):
+        if scores.get(assessment.rubric.id) is None:
+          scores[assessment.rubric.id] = {}
+        for answer in models.Answer.objects.filter(
+          assessment=assessment.id,
+        ):
+          if metrics.get(answer.metric.id) is None:
+            metrics[answer.metric.id] = answer.metric.title
+          if scores[assessment.rubric.id].get(answer.metric.id) is None:
+            scores[assessment.rubric.id][answer.metric.id] = []
+          scores[assessment.rubric.id][answer.metric.id].append(answer.value())
+
+      result = {
+        'scores': {
+          rubric: {
+            metric: sum(value)/len(value)
+            for metric, value in score.items()
+          }
+          for rubric, score in scores.items()
+        },
+        'metrics': metrics,
+      }
+      cache.set(key, result, 60 * 60)
+
+    return response.Response(result)
