@@ -3,37 +3,39 @@ from FAIRshakeAPI import models
 from ajax_select.fields import AutoCompleteSelectMultipleField, AutoCompleteSelectField
 from . import fields
 
-# TODO: build these fields with `model.children`
+class IdentifiableForm(forms.ModelForm):
+  def __init__(self, *args, **kwargs):
+    super(IdentifiableForm, self).__init__(*args, **kwargs)
 
-class ProjectForm(forms.ModelForm):
+    for child in self.Meta.model.MetaEx.children:
+      self.fields[child] = AutoCompleteSelectMultipleField(
+        child,
+        required=False,
+        help_text=None,
+      )
+
+  class Meta:
+    abstract = True
+
+class ProjectForm(IdentifiableForm):
   class Meta:
     model = models.Project
     exclude = ('authors',)
-  
-  digital_objects = AutoCompleteSelectMultipleField('digital_objects', required=False, help_text=None)
 
-class DigitalObjectForm(forms.ModelForm):
+class DigitalObjectForm(IdentifiableForm):
   class Meta:
     model = models.DigitalObject
     exclude = ('authors',)
-  
-  projects = AutoCompleteSelectMultipleField('projects', required=False, help_text=None)
-  rubrics = AutoCompleteSelectMultipleField('rubrics', required=False, help_text=None)
 
-class RubricForm(forms.ModelForm):
+class RubricForm(IdentifiableForm):
   class Meta:
     model = models.Rubric
     exclude = ('authors',)
-  
-  metrics = AutoCompleteSelectMultipleField('metrics', required=False, help_text=None)
-  digital_objects = AutoCompleteSelectMultipleField('digital_objects', required=False, help_text=None)
 
-class MetricForm(forms.ModelForm):
+class MetricForm(IdentifiableForm):
   class Meta:
     model = models.Metric
     exclude = ('authors',)
-  
-  rubrics = AutoCompleteSelectMultipleField('rubrics', required=False, help_text=None)
 
 class AssessmentForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
