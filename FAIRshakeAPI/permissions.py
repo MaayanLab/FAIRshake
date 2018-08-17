@@ -5,7 +5,7 @@ class IdentifiablePermissions(permissions.BasePermission):
   def has_permission(self, request, view):
     if request.user.is_staff:
       return True
-    if view.action == 'add':
+    if view.action in ['add', 'create']:
       return request.user.is_authenticated
     else:
       return request.method in permissions.SAFE_METHODS
