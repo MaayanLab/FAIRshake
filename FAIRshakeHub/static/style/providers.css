@@ -13,3 +13,8 @@
   content: url('/v2/static/image/socialaccount/orcid.png');
   padding: 10px;
 }
+.socialaccount_provider.globus {
+  display: block;
+  content: url('/v2/static/image/socialaccount/globus.png');
+  padding: 10px;
+}
