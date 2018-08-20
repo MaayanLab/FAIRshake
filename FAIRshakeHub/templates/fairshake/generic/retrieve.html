@@ -16,11 +16,6 @@
       <span class="label" style="background-color:#666666;color:white;font-size:10px;display:inline-block;vertical-align:middle;">{{ item.type }}</span>
     {% endif %}
     <p>{{ item.description }}</p>
-    <div
-      class="insignia"
-      style="width: 40px; height: 40px; padding: 10px;"
-      data-target='{ "{{ model }}": {{ item.id }} }'
-    />
     {% if item.principle %}
       <p><strong>Principle: </strong>{{ item.principle }}</p>
     {% endif %}
@@ -45,6 +40,11 @@
         {% endfor %}
       </p>
     {% endif %}
+    <div
+      class="insignia"
+      style="width: 80px; height: 80px; padding: 10px;"
+      data-target='{ "{{ model }}": {{ item.id }} }'
+    />
   </div>
     {% if model == "digital_object" and user.is_authenticated %}
     <div>
