@@ -17,10 +17,12 @@ from django.urls import include, path
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from des import urls as des_urls
 
 urlpatterns = [
     path(settings.BASE_URL + '/' + '', include('FAIRshakeHub.urls')),
     path(settings.BASE_URL + '/' + '', include('FAIRshakeAPI.urls')),
     path(settings.BASE_URL + '/' + 'admin/', admin.site.urls),
     path(settings.BASE_URL + '/' + 'accounts/', include('allauth.urls')),
+    path(settings.BASE_URL + '/' + 'internal/django-des/', include(des_urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

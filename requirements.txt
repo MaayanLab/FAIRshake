@@ -3,6 +3,7 @@ django-ajax-selects
 django-analytical
 django-bootstrap-form
 django-cors-headers
+django-des
 django-extensions
 django-filter
 django-livereload-server

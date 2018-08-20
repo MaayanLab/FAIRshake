@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
+    'des',
     'drf_yasg',
     'rest_auth',
     'rest_auth.registration',
@@ -253,3 +254,5 @@ SWAGGER_SETTINGS = {
 GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-6277639-33'
 GOOGLE_ANALYTICS_DISPLAY_ADVERTISING = False
 GOOGLE_ANALYTICS_SITE_SPEED = True
+
+EMAIL_BACKEND = 'des.backends.ConfiguredEmailBackend'

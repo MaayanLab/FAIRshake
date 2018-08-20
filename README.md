@@ -55,6 +55,9 @@ For the docker-compose to work properly in production, `/ssl/` should have the f
 - `cert.key`: SSL Private Key
 - `cert.crt`: SSL CA Signed Public Key
 
+### Email
+Can be configured by the administrator [here](http://localhost:8000/v2/admin/des/dynamicemailconfiguration/). If using gmail, ensure you [allow less secure apps](https://myaccount.google.com/lesssecureapps).
+
 ### Docker deployment
 ```bash
 docker-compose up
