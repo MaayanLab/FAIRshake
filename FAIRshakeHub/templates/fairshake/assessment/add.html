@@ -1,31 +1,31 @@
 {% load bootstrap %}
 {% load filters %}
 <form role="form" action="{% url model|add:'-add' %}" enctype="multipart/form-data" method="POST" novalidate>
-    <legend>
-      {{ model|unslugify }}
-      of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>
-      with <a href="{% url 'rubric-detail' item.rubric.id %}">{{ item.rubric.title }}</a>
-      {% if item.project %}
-        for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
-      {% endif %}
-    </legend>
-    {% csrf_token %}
-    <div class="alert alert-danger" role="alert">
-      This evaluation form is under construction, it does not work yet.
-    </div>
-    {{ form|bootstrap }}
-    {% for answer in answers %}
-      <div class="row">
-        {% with model="metric" item=answer.instance.metric %}
-          {% include "fairshake/generic/element.html" %}
-        {% endwith %}
-        <div class="col-sm-6 col-md-9">
-          <h4>{{ answer.instance.metric.title }}</h4>
-          {{ answer.form|bootstrap_inline }}
-        </div>
+  <legend>
+    {{ model|unslugify }}
+    of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>
+    with <a href="{% url 'rubric-detail' item.rubric.id %}">{{ item.rubric.title }}</a>
+    {% if item.project %}
+      for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
+    {% endif %}
+  </legend>
+  {% csrf_token %}
+  <div class="alert alert-danger" role="alert">
+    This evaluation form is under construction, it does not work yet.
+  </div>
+  {{ form|bootstrap }}
+  {% for answer in answers %}
+    <div class="row">
+      {% with model="metric" item=answer.instance.metric %}
+        {% include "fairshake/generic/element.html" %}
+      {% endwith %}
+      <div class="col-sm-6 col-md-9">
+        <h4>{{ answer.instance.metric.title }}</h4>
+        {{ answer.form|bootstrap_inline }}
       </div>
-    {% endfor %}
-    <div class="form-group">
-      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
+  {% endfor %}
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
 </form>
