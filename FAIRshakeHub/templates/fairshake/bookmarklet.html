@@ -4,11 +4,6 @@
     {% with active_page="bookmarklet" %}
         {{ block.super }}
     {% endwith %}
-
-    {% block style %}
-        {{ block.super }}
-        <link rel="stylesheet" href="{% static 'style/bookmarklet.css' %}" />
-    {% endblock %}
 {% endblock %}
 
 {% block content %}

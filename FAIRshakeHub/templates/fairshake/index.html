@@ -4,11 +4,6 @@
   {% with active_page="index" %}
     {{ block.super }}
   {% endwith %}
-
-  {% block style %}
-      {{ block.super }}
-      <link rel="stylesheet" href="{% static 'style/index.css' %}" />
-  {% endblock %}
 {% endblock %}
 
 {% block content %}
