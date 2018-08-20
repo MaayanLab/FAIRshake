@@ -17,6 +17,7 @@ from django.urls import include, path
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from ajax_select import urls as ajax_select_urls
 from des import urls as des_urls
 
 urlpatterns = [
@@ -25,4 +26,5 @@ urlpatterns = [
     path(settings.BASE_URL + '/' + 'admin/', admin.site.urls),
     path(settings.BASE_URL + '/' + 'accounts/', include('allauth.urls')),
     path(settings.BASE_URL + '/' + 'internal/django-des/', include(des_urls)),
+    path(settings.BASE_URL + '/' + 'internal/ajax_select/', include(ajax_select_urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
