@@ -15,6 +15,16 @@ from drf_yasg.views import get_schema_view
 from rest_auth.registration.views import SocialLoginView
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
 
+def callback_or_redirect(request, *args, **kwargs):
+  callback = request.GET.get('callback', None)
+  if callback is None:
+    return shortcuts.redirect(
+      *args,
+      **kwargs,
+    )
+  else:
+    return shortcuts.redirect(callback)
+
 schema_view = get_schema_view(
   openapi.Info(
     title='FAIRshake API v2',
@@ -139,7 +149,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     form_cls = self.get_form()
     form = form_cls(request.POST)
     instance = self.save_form(request, form)
-    return shortcuts.redirect(
+    return callback_or_redirect(request,
       self.get_model_name()+'-detail',
       pk=instance.id,
     )
@@ -156,7 +166,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     form_cls = self.get_form()
     form = form_cls(request.POST, instance=item)
     instance = self.save_form(request, form)
-    return shortcuts.redirect(
+    return callback_or_redirect(request,
       self.get_model_name()+'-detail',
       pk=pk,
     )
@@ -169,7 +179,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     item = self.get_object()
     self.check_object_permissions(request, item)
     item.delete()
-    return shortcuts.redirect(
+    return callback_or_redirect(request,
       self.get_model_name()+'-list'
     )
 

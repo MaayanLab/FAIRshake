@@ -1,6 +1,6 @@
 {% load bootstrap %}
 {% load filters %}
-<form role="form" action="{% url model|add:'-modify' item.id %}" enctype="multipart/form-data" method="POST" novalidate>
+<form role="form" action="{{ request.get_full_path }}" enctype="multipart/form-data" method="POST" novalidate>
     <legend>{{ model|unslugify }}</legend>
     {% csrf_token %}
     {{ form|bootstrap }}
