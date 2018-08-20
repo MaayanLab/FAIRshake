@@ -83,17 +83,34 @@
 <div id="content">{% block content %}{% endblock %}</div>
 <div id="footer">
   {% block footer %}
-    <ul class="footer-block">
-      <div>
-        <a href="https://nihdatacommons.us/" target="_blank">Team Nitrogen, KC1, DCPPC</a>
+    <div class="row">
+      <div class="col-sm-6">
+        <ul class="footer-block">
+          <div>
+            <a href="https://nihdatacommons.us/" target="_blank">Team Nitrogen, KC1, DCPPC</a>
+          </div>
+          <div>
+            <a href="http://icahn.mssm.edu/research/labs/maayan-laboratory" target="_blank">Ma'ayan Laboratory of Computational Systems Biology</a>
+          </div>
+          <div>
+            <a href="http://icahn.mssm.edu/" target="_blank">Icahn School of Medicine at Mount Sinai</a>
+          </div>
+        </ul>
       </div>
-      <div>
-        <a href="http://icahn.mssm.edu/research/labs/maayan-laboratory" target="_blank">Ma'ayan Laboratory of Computational Systems Biology</a>
+      <div class="col-sm-6">
+        <ul class="footer-block">
+          <div>
+            <a href="{% url 'api_documentation' %}">API Documentation</a>
+          </div>
+          <div>
+            <a href="{% url 'terms_of_service' %}">Terms of Service</a>
+          </div>
+          <div>
+            <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+          </div>
+        </ul>
       </div>
-      <div>
-        <a href="http://icahn.mssm.edu/" target="_blank">Icahn School of Medicine at Mount Sinai</a>
-      </div>
-    </ul>
+    </div>
   {% endblock %}
 </div>
 {% block script %}
