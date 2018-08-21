@@ -187,12 +187,13 @@ class Answer(models.Model):
   url_comment = models.TextField(blank=True, null=False, default='')
 
   def value(self):
-    if self.answer != '' and self.answer != 'no':
-      return 1
-    elif self.comment != '' or self.url_comment != '':
-      return 0
-    else:
-      return -1
+    return {
+      'yes': 1,
+      'yesbut': 0.75,
+      'nobut': 0.25,
+      'no': 0,
+      '': 0,
+    }.get(self.answer, 1)
 
   def has_permission(self, user, perm):
     return (self and self.assessment.has_permission(user, perm)) or user.is_staff

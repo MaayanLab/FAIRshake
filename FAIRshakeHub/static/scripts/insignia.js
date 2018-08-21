@@ -176,7 +176,7 @@ define(function(require) {
             results.scores,
             {
               tooltips: function(rubric, metric, score) {
-                return 'Score: ' + ((score + 1) * 50).toFixed(0) + '%<br />' + results.metrics[metric]
+                return 'Score: ' + (score * 100).toFixed(0) + '%<br />' + results.metrics[metric]
               },
               links: function(rubric, metric, score) {
                 return 'https://fairshake.cloud/v2/metric/' + metric + '/'
