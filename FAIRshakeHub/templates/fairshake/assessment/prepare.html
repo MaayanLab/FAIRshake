@@ -5,6 +5,8 @@
     {{ model|unslugify }}
   </legend>
 
+  <div class="alert alert-info" role="alert">We couldn't automatically determine everything needed to perform an assessment, please complete the form to proceed</div>
+
   {% if request.GET.callback %}
     <input style="display: none;" type="text" name="callback" value="{{ request.GET.callback }}" />
   {% endif %}
