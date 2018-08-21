@@ -263,7 +263,7 @@ class AssessmentViewSet(CustomModelViewSet):
       if not projects:
         projects = search.ProjectSearchVector().query(project or "")
 
-      if targets.count() == 1 and rubrics.count() == 1:
+      if request.GET.get('prepare') is None and targets.count() == 1 and rubrics.count() == 1:
         if projects.count() == 1:
           assessment_form = forms.AssessmentForm(dict(request.GET, **{
             'target': targets.first().id,
