@@ -88,7 +88,7 @@ define(function(require) {
 
     var color = settings.color !== undefined ? settings.color :
       d3.scaleLinear()
-        .domain([-1, 1])
+        .domain([0, 1])
         .interpolate(d3.interpolateRgb)
         .range([
           d3.rgb(255, 0, 0),
