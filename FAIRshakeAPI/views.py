@@ -402,3 +402,23 @@ class ScoreViewSet(
       cache.set(key, result, 60 * 60)
 
     return response.Response(result)
+
+  @decorators.action(
+    detail=False, methods=['get'],
+  )
+  def hist(self, request):
+    '''
+    Generate histogram of answers
+    '''
+    key = 'hist-'+','.join(map('='.join,request.GET.items()))
+    answers = cache.get(key)
+
+    if answers is None:
+      answers = {}
+      for assessment in self.filter_queryset(self.get_queryset()):
+        for answer in assessment.answers.all():
+          value = answer.value()
+          answers[value] = answers.get(value, 0) + 1
+      cache.set(key, answers, 60 * 60)
+      
+    return response.Response(answers)
