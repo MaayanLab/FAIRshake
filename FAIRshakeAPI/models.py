@@ -243,10 +243,10 @@ class Author(AbstractUser):
     result = super().delete(*args, **kwargs)
 
     # Clean orphans
-    Project.objects.filter(authors=None).delete()
-    DigitalObject.objects.filter(authors=None).delete()
-    Rubric.objects.filter(authors=None).delete()
-    Metric.objects.filter(authors=None).delete()
+    # Project.objects.filter(authors=None).delete()
+    # DigitalObject.objects.filter(authors=None).delete()
+    # Rubric.objects.filter(authors=None).delete()
+    # Metric.objects.filter(authors=None).delete()
 
     return result
 
