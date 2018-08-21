@@ -1,0 +1,17 @@
+{% load bootstrap %}
+{% load filters %}
+<form role="form" action="{% url model|add:'-add' %}" enctype="multipart/form-data" method="GET" novalidate>
+  <legend>
+    {{ model|unslugify }}
+  </legend>
+
+  {% if request.GET.callback %}
+    <input style="display: none;" type="text" name="callback" value="{{ request.GET.callback }}" />
+  {% endif %}
+
+  {{ form|bootstrap }}
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Confirm</button>
+  </div>
+</form>

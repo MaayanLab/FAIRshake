@@ -8,6 +8,13 @@
     {% if item.project %}
       for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
     {% endif %}
+    &nbsp;
+    <a href="{{ request.get_full_path }}&prepare">
+      <span
+        class="glyphicon glyphicon-edit"
+        style="font-size:20px;color:#666666;"
+      />
+    </a>
   </legend>
   {% csrf_token %}
   <div class="alert alert-danger" role="alert">

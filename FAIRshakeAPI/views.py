@@ -2,12 +2,13 @@
 
 import coreapi
 import coreschema
-from . import serializers, filters, models, forms
+from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from django import shortcuts, forms as django_forms
 from django.conf import settings
+from django.forms import ModelChoiceField
 from django.db.models import Q
 from django.core.cache import cache
 from drf_yasg import openapi
@@ -252,7 +253,6 @@ class AssessmentViewSet(CustomModelViewSet):
     return assessment
 
   def get_detail_template_context(self, request, context):
-    context = super().get_list_template_context(request, context)
     assessment = self.get_object()
     assessment_form = forms.AssessmentForm(instance=assessment)
 
@@ -267,15 +267,36 @@ class AssessmentViewSet(CustomModelViewSet):
         'instance': answer,
       })
 
-    return dict(context,
-      form=assessment_form,
-      item=assessment,
-      answers=answers,
-    )
+    return dict(context, **{
+      'model': self.get_model_name(),
+      'action': self.action,
+      'form': assessment_form,
+      'item': assessment,
+      'answers': answers,
+    })
 
   def get_list_template_context(self, request, context):
-    context = super().get_list_template_context(request, context)
     assessment_form = forms.AssessmentForm(request.GET)
+    if not assessment_form.is_valid() or request.GET.get('prepare') is not None:
+      target = request.GET.get('target')
+      targets = search.DigitalObjectSearchVector().query(target)
+
+      rubric = request.GET.get('rubric')
+      rubrics = search.RubricSearchVector().query(rubric)
+
+      project = request.GET.get('project')
+      projects = search.ProjectSearchVector().query(project)
+
+      assessment_form.fields['target'] = ModelChoiceField(queryset=targets, required=True)
+      assessment_form.fields['rubric'] = ModelChoiceField(queryset=rubrics, required=True)
+      assessment_form.fields['project'] = ModelChoiceField(queryset=projects, required=False)
+
+      return {
+        'model': self.get_model_name(),
+        'action': 'prepare',
+        'form': assessment_form,
+      }
+
     assessment = assessment_form.save(commit=False)
     assessment.assessor = request.user
 
@@ -295,11 +316,14 @@ class AssessmentViewSet(CustomModelViewSet):
         'instance': answer,
       })
 
-    return dict(context,
-      form=assessment_form,
-      item=assessment,
-      answers=answers,
-    )
+    return dict(context, **{
+      'model': self.get_model_name(),
+      'action': self.action,
+      'form': assessment_form,
+      'item': assessment,
+      'answers': answers,
+    })
+
 
 class AssessmentRequestViewSet(CustomModelViewSet):
   model = models.AssessmentRequest
