@@ -21,8 +21,15 @@ class SearchVector:
       )
     )
 
+def safe_id(q):
+  try:
+    return Q(id=int(q))
+  except:
+    return Q()
+
 class IdentifiableSearchVector(SearchVector):
   filters = [
+    safe_id,
     lambda q: Q(title__icontains=q),
     lambda q: Q(url__icontains=q),
     lambda q: Q(description__icontains=q),

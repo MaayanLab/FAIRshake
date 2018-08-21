@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.conf import settings
-from . import search
+from FAIRshakeAPI import search
 
 def index(request):
   ''' FAIRshakeHub Home Page
