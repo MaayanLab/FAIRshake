@@ -13,7 +13,13 @@
     </div>
     <h3 class="helper" style="margin-top:10px;"><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h3>
     {% if item.type %}
-      <span class="label" style="background-color:#666666;color:white;font-size:10px;display:inline-block;vertical-align:middle;">{{ item.type }}</span>
+      <span class="label" style="background-color:#666666;color:white;font-size:10px;display:inline-block;vertical-align:middle;">
+        {% if model == "digital_object" %}
+          {{ item.type }}
+        {% else %}
+          {{ model }}
+        {% endif %}
+      </span>
     {% endif %}
     <p>{{ item.description }}</p>
     {% if item.principle %}

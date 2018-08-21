@@ -40,7 +40,11 @@
             class="label"
             style="background-color:#666666;color:white;font-size:10px;position:absolute;top:164px;right:25px;"
           >
-            {{ item.type }}
+            {% if model == "project" %}
+              project
+            {% else %}
+              {{ item.type }}
+            {% endif %}
           </span>
         {% endif %}
         <p>{{ item.description|limit:80 }}</p>
