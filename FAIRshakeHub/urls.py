@@ -7,4 +7,5 @@ urlpatterns = [
     path('api_documentation/', views.api_documentation, name='api_documentation'),
     path('terms_of_service/', views.terms_of_service, name='terms_of_service'),
     path('privacy_policy/', views.privacy_policy, name='privacy_policy'),
+    path('accounts/delete/', views.account_delete, name='account_delete'),
 ]

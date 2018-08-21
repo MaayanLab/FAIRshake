@@ -24,6 +24,9 @@
     <a href="{{ connections_url }}">{% trans 'Connected Accounts' %}</a>
   </li>
   {% endif %}
+  <li class="{% block account_nav_delete %}{% endblock %}">
+    <a href="{% url 'account_delete' %}">{% trans 'Delete Account' %}</a>
+  </li>
 </ul>
 {% block account_content %}
 {% endblock %}

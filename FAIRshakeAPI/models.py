@@ -49,12 +49,6 @@ class IdentifiableModelMixin(models.Model):
   class Meta:
     abstract = True
 
-class Author(AbstractUser):
-  class Meta:
-    verbose_name = 'author'
-    verbose_name_plural = 'authors'
-    ordering = ['id']
-
 class Project(IdentifiableModelMixin):
   digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
   
@@ -241,4 +235,22 @@ class AssessmentRequest(models.Model):
   class Meta:
     verbose_name = 'assessment_request'
     verbose_name_plural = 'assessment_requests'
+    ordering = ['id']
+
+class Author(AbstractUser):
+  def delete(self, *args, **kwargs):
+    # Delete user (cascade)
+    result = super().delete(*args, **kwargs)
+
+    # Clean orphans
+    Project.objects.filter(authors=None).delete()
+    DigitalObject.objects.filter(authors=None).delete()
+    Rubric.objects.filter(authors=None).delete()
+    Metric.objects.filter(authors=None).delete()
+
+    return result
+
+  class Meta:
+    verbose_name = 'author'
+    verbose_name_plural = 'authors'
     ordering = ['id']

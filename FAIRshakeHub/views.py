@@ -3,6 +3,19 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from FAIRshakeAPI import search
 
+from allauth.account.views import LogoutView
+class DeleteAccountView(LogoutView):
+  template_name = "account/delete.html"
+  redirect_field_name = "next"
+
+  def logout(self):
+    user = self.request.user
+    if user.is_authenticated:
+      user.delete()
+    return super().logout()
+
+account_delete = DeleteAccountView.as_view()
+
 def index(request):
   ''' FAIRshakeHub Home Page
   '''
