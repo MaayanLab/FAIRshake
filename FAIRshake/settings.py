@@ -53,7 +53,6 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_auth',
     'rest_auth.registration',
-    'rest_auth_ex',
     'bootstrapform',
     'livereload',
     'corsheaders',
@@ -65,6 +64,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.orcid',
     'allauth.socialaccount.providers.globus',
+    'extensions.ajax_select_ex',
+    'extensions.allauth_ex',
+    'extensions.drf_yasg_ex',
+    'extensions.rest_auth_ex',
     'FAIRshakeHub',
     'FAIRshakeAPI',
 ]
@@ -122,8 +125,9 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'FAIRshakeHub', 'templates', ),
-            os.path.join(BASE_DIR, 'FAIRshakeHub', 'templates', 'allauth',),
+            os.path.join(BASE_DIR, 'FAIRshakeHub', 'templates',),
+            os.path.join(BASE_DIR, 'extensions', 'allauth_ex', 'templates',),
+            os.path.join(BASE_DIR, 'extensions', 'ajax_select_ex', 'templates',),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -238,7 +242,7 @@ LOGOUT_ON_PASSWORD_CHANGE = False
 CORS_ORIGIN_ALLOW_ALL = True
 
 SWAGGER_SETTINGS = {
-    'DEFAULT_GENERATOR_CLASS': 'FAIRshakeAPI.schema.CustomSchemaGenerator',
+    'DEFAULT_GENERATOR_CLASS': 'extensions.drf_yasg_ex.schema.CustomSchemaGenerator',
     'SECURITY_DEFINITIONS': {
         'Basic': {
             'type': 'basic',

@@ -24,7 +24,9 @@ urlpatterns = [
     path(settings.BASE_URL + '/' + '', include('FAIRshakeHub.urls')),
     path(settings.BASE_URL + '/' + '', include('FAIRshakeAPI.urls')),
     path(settings.BASE_URL + '/' + 'admin/', admin.site.urls),
-    path(settings.BASE_URL + '/' + 'accounts/', include('allauth.urls')),
+    path(settings.BASE_URL + '/' + 'accounts/', include('extensions.allauth_ex.urls')),
+    path(settings.BASE_URL + '/' + 'auth/', include('extensions.rest_auth_ex.urls')),
+    path(settings.BASE_URL + '/' + 'swagger/', include('extensions.drf_yasg_ex.urls')),
     path(settings.BASE_URL + '/' + 'internal/django-des/', include(des_urls)),
     path(settings.BASE_URL + '/' + 'internal/ajax_select/', include(ajax_select_urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

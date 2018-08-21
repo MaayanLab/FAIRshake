@@ -8,6 +8,7 @@ Available at http://fairshake.cloud/
 - FAIRshake: The django project settings
 - FAIRshakeHub: The website itself, gets all of its information from FAIRshakeAPI
 - FAIRshakeAPI: The primary API facilitator, is enabled with the other API components
+- extensions: Extensions to dependent libraries
 
 ## Development
 

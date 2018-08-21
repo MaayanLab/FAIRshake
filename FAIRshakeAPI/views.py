@@ -1,19 +1,12 @@
 # TODO: split up into abstract API implementations
 
-import coreapi
-import coreschema
 from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
-from allauth.socialaccount.providers.orcid.views import OrcidOAuth2Adapter
 from django import shortcuts, forms as django_forms
 from django.conf import settings
-from django.forms import ModelChoiceField
-from django.db.models import Q
 from django.core.cache import cache
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-from rest_auth.registration.views import SocialLoginView
+from django.db.models import Q
+from django.forms import ModelChoiceField
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
 
 def callback_or_redirect(request, *args, **kwargs):
@@ -25,27 +18,6 @@ def callback_or_redirect(request, *args, **kwargs):
     )
   else:
     return shortcuts.redirect(callback)
-
-schema_view = get_schema_view(
-  openapi.Info(
-    title='FAIRshake API v2',
-    default_version='v2',
-    description='A web interface for the scoring of biomedical digital objects by user evaluation according to the FAIR data principles: Findability, Accessibility, Interoperability, and Reusability',
-    terms_of_service='https://fairshake.cloud/',
-    contact=openapi.Contact(
-      email='avi.maayan@mssm.edu',
-    ),
-    license=openapi.License(name='Apache 2.0 License'),
-  ),
-  public=True,
-  permission_classes=[permissions.AllowAny],
-)
-
-class GithubLogin(SocialLoginView):
-  adapter_class = GitHubOAuth2Adapter
-
-class OrcidLogin(SocialLoginView):
-  adapter_class = OrcidOAuth2Adapter
 
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
