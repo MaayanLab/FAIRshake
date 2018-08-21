@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_auth',
     'rest_auth.registration',
+    'rest_auth_ex',
     'bootstrapform',
     'livereload',
     'corsheaders',
