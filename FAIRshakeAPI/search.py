@@ -3,6 +3,9 @@ from FAIRshakeAPI import models
 from functools import reduce
 
 class SearchVector:
+  def __init__(self, qs=None):
+    self.queryset = qs or self.get_model().objects.all()
+
   def get_model(self):
     return self.model
   
@@ -10,7 +13,7 @@ class SearchVector:
     return getattr(self, 'filters', [])
 
   def get_queryset(self):
-    return getattr(self, 'queryset', self.get_model().objects.all())
+    return self.queryset
 
   def query(self, q):
     return self.get_queryset().filter(

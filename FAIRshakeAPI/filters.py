@@ -1,8 +1,48 @@
 import django_filters as filters
-from . import models
+import logging
+from . import models, search
 
 class AllInFilter(filters.AllValuesFilter, filters.BaseInFilter):
   pass
+
+class IdentifiableFilterSet(filters.FilterSet):
+  id = AllInFilter()
+  authors = AllInFilter()
+  q = filters.CharFilter(field_name='id', method='filter_query')
+
+  def get_search_vector(self):
+    return self.__class__.Meta.search_vector
+
+  def filter_query(self, qs, name, q):
+    return self.get_search_vector()(qs).query(q)
+
+  class Meta:
+    abstract = True
+
+class DigitalObjectFilterSet(IdentifiableFilterSet):
+  class Meta:
+    model = models.DigitalObject
+    search_vector = search.DigitalObjectSearchVector
+    fields = '__all__'
+
+class MetricFilterSet(IdentifiableFilterSet):
+  class Meta:
+    model = models.Metric
+    search_vector = search.MetricSearchVector
+    fields = '__all__'
+
+class ProjectFilterSet(IdentifiableFilterSet):
+  class Meta:
+    model = models.Project
+    search_vector = search.ProjectSearchVector
+    fields = '__all__'
+
+class RubricFilterSet(IdentifiableFilterSet):
+  class Meta:
+    model = models.Rubric
+    search_vector = search.RubricSearchVector
+    fields = '__all__'
+
 
 class AnswerFilterSet(filters.FilterSet):
   id = AllInFilter()
@@ -26,30 +66,6 @@ class AuthorFilterSet(filters.FilterSet):
   id = AllInFilter()
   class Meta:
     model = models.Author
-    fields = '__all__'
-
-class DigitalObjectFilterSet(filters.FilterSet):
-  id = AllInFilter()
-  class Meta:
-    model = models.DigitalObject
-    fields = '__all__'
-
-class MetricFilterSet(filters.FilterSet):
-  id = AllInFilter()
-  class Meta:
-    model = models.Metric
-    fields = '__all__'
-
-class ProjectFilterSet(filters.FilterSet):
-  id = AllInFilter()
-  class Meta:
-    model = models.Project
-    fields = '__all__'
-
-class RubricFilterSet(filters.FilterSet):
-  id = AllInFilter()
-  class Meta:
-    model = models.Rubric
     fields = '__all__'
 
 class ScoreFilterSet(filters.FilterSet):
