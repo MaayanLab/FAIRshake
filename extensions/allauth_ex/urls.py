@@ -6,4 +6,5 @@ urlpatterns = [
   path('delete/', views.account_delete, name='account_delete'),
   path('github/', views.GithubLogin.as_view(), name='github_auth'),
   path('orcid/', views.OrcidLogin.as_view(), name='orcid_auth'),
+  path('globus/', views.GlobusLogin.as_view(), name='globus_auth'),
 ]
