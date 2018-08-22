@@ -13,6 +13,19 @@ class IdentifiableForm(forms.ModelForm):
         required=False,
         help_text=None,
       )
+  
+  def save(self, *args, commit=True, **kwargs):
+    ''' Explicitly add children for children in the reverse direction.
+    '''
+    instance = super(IdentifiableForm, self).save(self, *args, **kwargs)
+    if commit:
+      for child in self.Meta.model.MetaEx.children:
+        child_attr = getattr(instance, child)
+        if child_attr.reverse:
+          child_attr.clear()
+          for obj in self.cleaned_data[child]:
+            child_attr.add(obj)
+    return instance
 
   class Meta:
     abstract = True

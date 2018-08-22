@@ -6,16 +6,16 @@
   {% if user.is_authenticated %}
     <div class="col-md-3 col-sm-6">
       <div class="panel panel-default" style="height: 320px">
-        <div class="panel-body text-center">
-          <a href="{% url model|add:'-add' %}">
+        <a href="{% url model|add:'-add' %}{% if parent_model %}?{{ parent_model }}s={{ parent_item.id }}{% endif %}">
+          <div class="panel-body text-center">
             <div class="image-container">
               <img src="{% static 'image/plus.png' %}" style="max-width:50%; max-height:50%;"/>
             </div>
-          </a>
-          <div class="caption text-left">
-            <p class="item-title" style="text-align:center;"><a href="{% url model|add:'-add' %}">Create New {{ model|unslugify }}</a></p>
+            <div class="caption text-left">
+              <p class="item-title" style="text-align:center;">Create New {{ model|unslugify }}</p>
+            </div>
           </div>
-        </div>
+        </a>
       </div>
     </div>
   {% endif %}
