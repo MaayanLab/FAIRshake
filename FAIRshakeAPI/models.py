@@ -29,6 +29,16 @@ class IdentifiableModelMixin(models.Model):
   def model_name(self):
     return self._meta.verbose_name_raw
   
+  def attrs(self):
+    return {
+      'title': self.title,
+      'url': self.url,
+      'description': self.description,
+      'image': self.image,
+      'tags': self.tags,
+      'type': self.type,
+    }
+  
   def has_permission(self, user, perm):
     if perm in ['list', 'retrieve']:
       return True
