@@ -66,6 +66,7 @@ class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
   title = models.CharField(max_length=255, blank=True, null=False, default='')
   url = models.CharField(max_length=255, blank=False)
+  fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
 
   rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
@@ -113,7 +114,6 @@ class Metric(IdentifiableModelMixin):
     ('R', 'Reusability',),
   ))
   fairmetrics = models.CharField(max_length=255, blank=True, null=False, default='')
-  fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
 
   class Meta:
     verbose_name = 'metric'
