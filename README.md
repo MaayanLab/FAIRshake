@@ -62,4 +62,23 @@ Can be configured by the administrator [here](http://localhost:8000/v2/admin/des
 ### Docker deployment
 ```bash
 docker-compose up
-````
+```
+
+## Troubleshooting
+
+### MySQL issues
+Errors involving mysql trying to load from /tmp/sock arrise when `MYSQL_CONFIG` environment variable is being read, but the file on the other end is problematic.
+1. You're not using an absolute path, so django, running perhaps elsewhere, can't find it. Try: `export MYSQL_CONFIG=$(pwd)/ssl/my.cnf`
+  - Verify that it's accessible at the environment variable with `cat $MYSQL_CONFIG`
+2. Your configuration file has loose permissions, Try: `chmod 644 ssl/my.cnf` before trying again.
+3. Your configuration is malformed.
+
+### Database issues
+In general, if the database has changed (and there are new migration files), if you're running a local database you may need to apply new migrations with `./manage.py migrate`.
+
+### Dependency issues
+First try re-executing `pip install -r requirements.txt`.
+
+In the worst case you may need to rebuild your environment from nothing (starting from scratch, and installing dependencies again).
+
+I recommend `pyenv` for managing isolated python environments.
