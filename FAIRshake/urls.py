@@ -20,6 +20,12 @@ from django.conf.urls.static import static
 from ajax_select import urls as ajax_select_urls
 from des import urls as des_urls
 
+if not settings.DEBUG:
+    handler400 = 'FAIRshakeHub.views.handler400'
+    handler403 = 'FAIRshakeHub.views.handler403'
+    handler404 = 'FAIRshakeHub.views.handler404'
+    handler500 = 'FAIRshakeHub.views.handler500'
+
 urlpatterns = [
     path(settings.BASE_URL + '/' + '', include('FAIRshakeHub.urls')),
     path(settings.BASE_URL + '/' + '', include('FAIRshakeAPI.urls')),
