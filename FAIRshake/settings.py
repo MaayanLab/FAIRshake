@@ -28,8 +28,7 @@ SECRET_KEY_FILE = os.environ.get(
 
 SECRET_KEY = '^r26!v-me2p&1(qaqr1m@h1n*@$t-57f!4sd9f$d3)xnk&kj9)' if SECRET_KEY_FILE is None else open(SECRET_KEY_FILE, 'r').read()
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False)
 
 ALLOWED_HOSTS = ['localhost', 'fairshake.cloud']
 
