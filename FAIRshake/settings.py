@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import re
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -112,6 +114,14 @@ LOGGING = {
         },
     },
 }
+
+IGNORABLE_404_URLS = [
+  re.compile(r'^/apple-touch-icon.*\.png$'),
+  re.compile(r'^/favicon\.ico$'),
+  re.compile(r'^/robots\.txt$'),
+  re.compile(r'\.(php|cgi)$'),
+  re.compile(r'^/phpmyadmin/'),
+]
 
 CACHES = {
     'default': {
@@ -260,3 +270,8 @@ GOOGLE_ANALYTICS_DISPLAY_ADVERTISING = False
 GOOGLE_ANALYTICS_SITE_SPEED = True
 
 EMAIL_BACKEND = 'des.backends.ConfiguredEmailBackend'
+
+SERVER_EMAIL = 'danieljbclarkemssm@gmail.com'
+ADMINS = [
+  ('Daniel', 'danieljbclarkemssm@gmail.com',),
+]
