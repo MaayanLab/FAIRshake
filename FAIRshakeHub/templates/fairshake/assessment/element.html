@@ -1,0 +1,26 @@
+{% load filters %}
+<li style="white-space: nowrap; display: table;">
+  <div style="display: table-row;">
+    <div
+      class="insignia"
+      style="display: table-cell; width: 40px; height: 40px;"
+      data-target='{ "id": "{{ item.id }}" }'
+    >
+    </div>
+    <div style="display: table-cell; vertical-align: middle; padding-left: 10px;">
+      {{ model|unslugify }}
+      of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>
+      with <a href="{% url 'rubric-detail' item.rubric.id %}">{{ item.rubric.title }}</a>
+      {% if item.project %}
+        for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
+      {% endif %}
+      &nbsp;
+      <a href="{% url model|add:'-modify' item.id %}">
+        <span
+          class="glyphicon glyphicon-edit"
+          style="font-size:20px;color:#666666;"
+        />
+      </a>
+    </div>
+  </div>
+</li>

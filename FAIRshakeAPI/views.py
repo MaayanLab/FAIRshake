@@ -223,96 +223,96 @@ class AssessmentViewSet(CustomModelViewSet):
     ])
 
     return assessment
+  
+  def get_template_context(self, request, context):
+    if self.action in ['modify']:
+      assessment = self.get_object()
+      assessment_form = forms.AssessmentForm(instance=assessment)
 
-  def get_detail_template_context(self, request, context):
-    assessment = self.get_object()
-    assessment_form = forms.AssessmentForm(instance=assessment)
+      answers = []
+      for answer in assessment.answers.all():
+        answer_form = forms.AnswerForm(
+          prefix=answer.metric.id,
+          instance=answer,
+        )
+        answers.append({
+          'form': answer_form,
+          'instance': answer,
+        })
 
-    answers = []
-    for answer in assessment.answers.all():
-      answer_form = forms.AnswerForm(
-        prefix=answer.metric.id,
-        instance=answer,
-      )
-      answers.append({
-        'form': answer_form,
-        'instance': answer,
+      return dict(context, **{
+        'model': self.get_model_name(),
+        'action': self.action,
+        'form': assessment_form,
+        'item': assessment,
+        'answers': answers,
       })
+    elif self.action in ['add']:
+      assessment_form = forms.AssessmentForm(request.GET)
+      if not assessment_form.is_valid() or request.GET.get('prepare') is not None:
+        target = request.GET.get('target')
+        targets = search.DigitalObjectSearchVector().query(target or "")
 
-    return dict(context, **{
-      'model': self.get_model_name(),
-      'action': self.action,
-      'form': assessment_form,
-      'item': assessment,
-      'answers': answers,
-    })
+        rubric = request.GET.get('rubric')
+        rubrics = targets.first().rubrics if targets.count() == 1 and not rubric else None
+        if not rubrics:
+          rubrics = search.RubricSearchVector().query(rubric or "")
 
-  def get_list_template_context(self, request, context):
-    assessment_form = forms.AssessmentForm(request.GET)
-    if not assessment_form.is_valid() or request.GET.get('prepare') is not None:
-      target = request.GET.get('target')
-      targets = search.DigitalObjectSearchVector().query(target or "")
+        project = request.GET.get('project')
+        projects = targets.first().projects if targets.count() == 1 and not project else None
+        if not projects:
+          projects = search.ProjectSearchVector().query(project or "")
 
-      rubric = request.GET.get('rubric')
-      rubrics = targets.first().rubrics if targets.count() == 1 and not rubric else None
-      if not rubrics:
-        rubrics = search.RubricSearchVector().query(rubric or "")
-
-      project = request.GET.get('project')
-      projects = targets.first().projects if targets.count() == 1 and not project else None
-      if not projects:
-        projects = search.ProjectSearchVector().query(project or "")
-
-      if request.GET.get('prepare') is None and targets.count() == 1 and rubrics.count() == 1:
-        if projects.count() == 1:
-          assessment_form = forms.AssessmentForm(dict(request.GET, **{
-            'target': targets.first().id,
-            'rubric': rubrics.first().id,
-            'project': projects.first().id if projects else None,
-          }))
+        if request.GET.get('prepare') is None and targets.count() == 1 and rubrics.count() == 1:
+          if projects.count() == 1:
+            assessment_form = forms.AssessmentForm(dict(request.GET, **{
+              'target': targets.first().id,
+              'rubric': rubrics.first().id,
+              'project': projects.first().id if projects else None,
+            }))
+          else:
+            aessment_form = forms.AssessmentForm(dict(request.GET, **{
+              'target': targets.first().id,
+              'rubric': rubrics.first().id,
+            }))
         else:
-          aessment_form = forms.AssessmentForm(dict(request.GET, **{
-            'target': targets.first().id,
-            'rubric': rubrics.first().id,
-          }))
-      else:
-        assessment_form.fields['target'] = ModelChoiceField(queryset=targets, required=True)
-        assessment_form.fields['rubric'] = ModelChoiceField(queryset=rubrics, required=True)
-        assessment_form.fields['project'] = ModelChoiceField(queryset=projects, required=False)
+          assessment_form.fields['target'] = ModelChoiceField(queryset=targets, required=True)
+          assessment_form.fields['rubric'] = ModelChoiceField(queryset=rubrics, required=True)
+          assessment_form.fields['project'] = ModelChoiceField(queryset=projects, required=False)
 
-        return {
-          'model': self.get_model_name(),
-          'action': 'prepare',
-          'form': assessment_form,
-        }
+          return {
+            'model': self.get_model_name(),
+            'action': 'prepare',
+            'form': assessment_form,
+          }
 
-    assessment = assessment_form.save(commit=False)
-    assessment.assessor = request.user
+      assessment = assessment_form.save(commit=False)
+      assessment.assessor = request.user
 
-    answers = []
-    for metric in assessment.rubric.metrics.all():
-      answer = models.Answer(
-        assessment=assessment,
-        metric=metric,
-      )
-      answer_form = forms.AnswerForm(
-        request.GET,
-        prefix=metric.id,
-        instance=answer,
-      )
-      answers.append({
-        'form': answer_form,
-        'instance': answer,
+      answers = []
+      for metric in assessment.rubric.metrics.all():
+        answer = models.Answer(
+          assessment=assessment,
+          metric=metric,
+        )
+        answer_form = forms.AnswerForm(
+          request.GET,
+          prefix=metric.id,
+          instance=answer,
+        )
+        answers.append({
+          'form': answer_form,
+          'instance': answer,
+        })
+
+      return dict(context, **{
+        'model': self.get_model_name(),
+        'action': self.action,
+        'form': assessment_form,
+        'item': assessment,
+        'answers': answers,
       })
-
-    return dict(context, **{
-      'model': self.get_model_name(),
-      'action': self.action,
-      'form': assessment_form,
-      'item': assessment,
-      'answers': answers,
-    })
-
+    return super().get_template_context(request, context)
 
 class AssessmentRequestViewSet(CustomModelViewSet):
   model = models.AssessmentRequest
