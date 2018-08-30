@@ -248,33 +248,53 @@ class AssessmentViewSet(CustomModelViewSet):
       })
     elif self.action in ['add']:
       assessment_form = forms.AssessmentForm(request.GET)
-      if not assessment_form.is_valid() or request.GET.get('prepare') is not None:
+      prepare = request.GET.get('prepare')
+      if not assessment_form.is_valid() or prepare is not None:
         target = request.GET.get('target')
-        targets = search.DigitalObjectSearchVector().query(target or "")
-
         rubric = request.GET.get('rubric')
-        rubrics = targets.first().rubrics if targets.count() == 1 and not rubric else None
-        if not rubrics:
-          rubrics = search.RubricSearchVector().query(rubric or "")
-
         project = request.GET.get('project')
-        projects = targets.first().projects if targets.count() == 1 and not project else None
-        if not projects:
-          projects = search.ProjectSearchVector().query(project or "")
+        q = request.GET.get('q', '')
 
-        if request.GET.get('prepare') is None and targets.count() == 1 and rubrics.count() == 1:
-          if projects.count() == 1:
-            assessment_form = forms.AssessmentForm(dict(request.GET, **{
-              'target': targets.first().id,
-              'rubric': rubrics.first().id,
-              'project': projects.first().id if projects else None,
-            }))
-          else:
-            aessment_form = forms.AssessmentForm(dict(request.GET, **{
-              'target': targets.first().id,
-              'rubric': rubrics.first().id,
-            }))
+        if target is not None:
+          targets = models.DigitalObject.objects.filter(id=target)
         else:
+          targets = search.DigitalObjectSearchVector().query(q)
+
+        if rubric is not None:
+          rubrics = models.Rubric.objects.filter(id=target)
+        else:
+          rubrics = None
+          if target is not None:
+            rubrics = targets.first().rubrics.all()
+          if rubrics is None or not rubrics.exists():
+            rubrics = models.Rubric.objects.all()
+          if rubrics.count() == 1:
+            rubric = rubrics.first().id
+
+        if project is not None:
+          projects = models.Project.objects.filter(id=project)
+        else:
+          projects = None
+          if target is not None:
+            projects = targets.first().projects.all()
+          if projects is None or projects.exists():
+            projects = models.Project.objects.all()
+          if projects.count() == 1:
+            project = projects.first().id
+
+        if project is not None:
+          assessment_form = forms.AssessmentForm(dict(request.GET, **{
+            'target': targets.first().id,
+            'rubric': rubrics.first().id,
+            'project': projects.first().id,
+          }))
+        else:
+          assessment_form = forms.AssessmentForm(dict(request.GET, **{
+            'target': targets.first().id,
+            'rubric': rubrics.first().id,
+          }))
+
+        if prepare is not None or not assessment_form.is_valid():
           assessment_form.fields['target'] = ModelChoiceField(queryset=targets, required=True)
           assessment_form.fields['rubric'] = ModelChoiceField(queryset=rubrics, required=True)
           assessment_form.fields['project'] = ModelChoiceField(queryset=projects, required=False)
