@@ -200,14 +200,13 @@ class AssessmentViewSet(CustomModelViewSet):
     assessment.assessor = request.user
     assessment.methodology = 'user'
     assessment.save()
-    if not assessment.answer:
+    if not assessment.answers.exists():
       for metric in assessment.rubric.metrics.all():
         answer = models.Answer(
           assessment=assessment,
           metric=metric,
         )
-        assessment.answers.add(answer)
-    assessment.save()
+        answer.save()
 
     for answer in assessment.answers.all():
         answer_form = forms.AnswerForm(
@@ -225,7 +224,7 @@ class AssessmentViewSet(CustomModelViewSet):
     return assessment
   
   def get_template_context(self, request, context):
-    if self.action in ['modify']:
+    if self.action in ['modify', 'retrieve']:
       assessment = self.get_object()
       assessment_form = forms.AssessmentForm(instance=assessment)
 
