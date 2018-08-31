@@ -22,6 +22,15 @@ pip install -r requirements.txt
 
 Note that `mysqlclient` is the recommended client but `pymysql` can be used as a fallback.
 
+### Environment setup
+```bash
+# Run in debugging mode, show errors and host staticfiles locally
+export DEBUG=1
+
+# Specify location of mysql config file for production database
+export MYSQL_CONFIG=$(pwd)/ssl/my.cnf
+```
+
 ### Django Shell
 ipython is recommended: `pip install ipython`
 `./manage.py shell`
