@@ -71,6 +71,7 @@ http {
         ssl_prefer_server_ciphers on;
         ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
 
+        include /etc/nginx/mime.types;
         charset utf-8;
         client_max_body_size 20M;
         sendfile on;
@@ -85,6 +86,9 @@ http {
             proxy_set_header   X-Real-IP \$remote_addr;
             proxy_set_header   X-Forwarded-For \$proxy_add_x_forwarded_for;
             proxy_set_header   X-Forwarded-Host \$server_name;
+        }
+        location /static/ {
+            alias $diskroot/static/;
         }
         location ~ ^/v2/ {
             rewrite ^/v2/(.*)$ https://\$server_name/\$1 redirect;
