@@ -2,8 +2,8 @@ require.config({
   paths: {
     d3: 'https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min',
     tippy: 'https://unpkg.com/tippy.js@2.5.2/dist/tippy.all.min',
-    coreapi: 'https://fairshake.cloud/v2/static/rest_framework/js/coreapi-0.1.1',
-    schema: 'https://fairshake.cloud/v2/coreapi/schema',
+    coreapi: 'https://fairshake.cloud/static/rest_framework/js/coreapi-0.1.1',
+    schema: 'https://fairshake.cloud/coreapi/schema',
   },
   shims: {
     schema: ['coreapi']
@@ -179,7 +179,7 @@ define(function(require) {
                 return 'Score: ' + (score * 100).toFixed(0) + '%<br />' + results.metrics[metric]
               },
               links: function(rubric, metric, score) {
-                return 'https://fairshake.cloud/v2/metric/' + metric + '/'
+                return 'https://fairshake.cloud/metric/' + metric + '/'
               },
             }
           )
