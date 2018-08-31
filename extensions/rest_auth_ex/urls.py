@@ -9,7 +9,7 @@ from rest_auth.views import (
 from .views import UserDetailsViewEx
 
 urlpatterns = [
-    path('registration/', include('rest_auth.registration.urls')),
+    path('registration/', include('extensions.rest_auth_ex.registration.urls')),
     # URLs that do not require a session or valid token
     url(r'^password/reset/$', PasswordResetView.as_view(),
         name='rest_password_reset'),

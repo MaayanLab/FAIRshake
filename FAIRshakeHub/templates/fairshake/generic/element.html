@@ -13,7 +13,7 @@
           />
         </a>
         {% if model == "digital_object" and user.is_authenticated %}
-        <div>
+          <div>
             <a
               href="{% url 'assessment-add' %}?target={{ item.id }}{% if parent_model %}&{{ parent_model }}={{ parent_item.id }}{% endif %}"
               class="btn btn-xs"
@@ -28,7 +28,7 @@
             class="insignia embed-image"
             style="width: 40px; height: 40px;"
             data-target='{ "{{ model }}": {{ item.id }} }'
-          />
+          ></div>
         {% endif %}
       </div>
       <div class="caption text-left">
@@ -67,7 +67,7 @@
             <span
               class="glyphicon glyphicon-edit"
               style="font-size:20px;color:#666666;"
-            />
+            ></span>
           </a>
         </div>
         {% endif %}

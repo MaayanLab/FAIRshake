@@ -15,6 +15,7 @@ ADD requirements.txt /requirements.txt
 RUN pip3 install -Ivr /requirements.txt && \
     pip3 install -Iv uwsgi
 
+ENV CONFIG=/ssl/config.py
 VOLUME /ssl
 EXPOSE 80
 EXPOSE 443

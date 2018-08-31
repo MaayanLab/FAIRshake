@@ -44,3 +44,16 @@ def terms_of_service(request):
 
 def privacy_policy(request):
   return render(request, 'fairshake/privacy_policy.html')
+
+def handler(code, message):
+  def _handler(request):
+    return render(request, 'fairshake/error.html', dict(
+      code=code,
+      message=message,
+    ))
+  return _handler
+
+handler400 = handler(400, 'Bad Request')
+handler403 = handler(403, 'Permission Denied')
+handler404 = handler(404, 'Page not Found')
+handler500 = handler(500, 'Server error')

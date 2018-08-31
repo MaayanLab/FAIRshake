@@ -11,11 +11,12 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import re
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-BASE_URL = 'v2'
+BASE_URL = ''
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -28,8 +29,7 @@ SECRET_KEY_FILE = os.environ.get(
 
 SECRET_KEY = '^r26!v-me2p&1(qaqr1m@h1n*@$t-57f!4sd9f$d3)xnk&kj9)' if SECRET_KEY_FILE is None else open(SECRET_KEY_FILE, 'r').read()
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False)
 
 ALLOWED_HOSTS = ['localhost', 'fairshake.cloud']
 
@@ -76,6 +76,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -113,6 +114,14 @@ LOGGING = {
         },
     },
 }
+
+IGNORABLE_404_URLS = [
+  re.compile(r'^/apple-touch-icon.*\.png$'),
+  re.compile(r'^/favicon\.ico$'),
+  re.compile(r'^/robots\.txt$'),
+  re.compile(r'\.(php|cgi)$'),
+  re.compile(r'^/phpmyadmin/'),
+]
 
 CACHES = {
     'default': {
@@ -210,7 +219,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/' + BASE_URL + '/static/'
+STATIC_URL = '/' + BASE_URL + 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -228,11 +237,11 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-LOGIN_URL = '/' + BASE_URL + '/accounts/login/'
-LOGOUT_URL = '/' + BASE_URL + '/accounts/logout/'
+LOGIN_URL = '/' + BASE_URL + 'accounts/login/'
+LOGOUT_URL = '/' + BASE_URL + 'accounts/logout/'
 
-LOGIN_REDIRECT_URL = '/' + BASE_URL + '/'
-LOGOUT_REDIRECT_URL = '/' + BASE_URL + '/'
+LOGIN_REDIRECT_URL = '/' + BASE_URL
+LOGOUT_REDIRECT_URL = '/' + BASE_URL
 
 ACCOUNT_LOGIN_REDIRECT_URL = LOGIN_REDIRECT_URL
 ACCOUNT_LOGOUT_REDIRECT_URL = LOGOUT_REDIRECT_URL
@@ -261,3 +270,8 @@ GOOGLE_ANALYTICS_DISPLAY_ADVERTISING = False
 GOOGLE_ANALYTICS_SITE_SPEED = True
 
 EMAIL_BACKEND = 'des.backends.ConfiguredEmailBackend'
+
+SERVER_EMAIL = 'danieljbclarkemssm@gmail.com'
+ADMINS = [
+  ('Daniel', 'danieljbclarkemssm@gmail.com',),
+]

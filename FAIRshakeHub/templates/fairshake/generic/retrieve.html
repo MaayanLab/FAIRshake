@@ -50,7 +50,7 @@
       class="insignia"
       style="width: 80px; height: 80px; padding: 10px;"
       data-target='{ "{{ model }}": {{ item.id }} }'
-    />
+    ></div>
   </div>
     {% if model == "digital_object" and user.is_authenticated %}
     <div>
@@ -72,7 +72,7 @@
           <span
             class="glyphicon glyphicon-edit"
             style="font-size:20px;position:absolute;top:0;right:15%;"
-          />
+          ></span>
         </a>
       </div>
     {% endif %}

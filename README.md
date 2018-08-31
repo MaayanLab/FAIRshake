@@ -22,12 +22,21 @@ pip install -r requirements.txt
 
 Note that `mysqlclient` is the recommended client but `pymysql` can be used as a fallback.
 
+### Environment setup
+```bash
+# Run in debugging mode, show errors and host staticfiles locally
+export DEBUG=1
+
+# Specify location of mysql config file for production database
+export MYSQL_CONFIG=$(pwd)/ssl/my.cnf
+```
+
 ### Django Shell
 ipython is recommended: `pip install ipython`
 `./manage.py shell`
 
 ### Django Live Reloading Server
-In separate terminals execute these commands and then navigate to <http://localhost:8000/v2/>.
+In separate terminals execute these commands and then navigate to <http://localhost:8000/>.
 ```bash
 ./manage.py runserver
 ./manage.py livereload
@@ -57,7 +66,7 @@ For the docker-compose to work properly in production, `/ssl/` should have the f
 - `cert.crt`: SSL CA Signed Public Key
 
 ### Email
-Can be configured by the administrator [here](http://localhost:8000/v2/admin/des/dynamicemailconfiguration/). If using gmail, ensure you [allow less secure apps](https://myaccount.google.com/lesssecureapps).
+Can be configured by the administrator [here](http://localhost:8000/admin/des/dynamicemailconfiguration/). If using gmail, ensure you [allow less secure apps](https://myaccount.google.com/lesssecureapps).
 
 ### Docker deployment
 ```bash

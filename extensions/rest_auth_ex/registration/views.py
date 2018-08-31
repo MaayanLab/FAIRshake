@@ -1,0 +1,1 @@
+from allauth.account.views import ConfirmEmailView
