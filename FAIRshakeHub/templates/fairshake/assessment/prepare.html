@@ -1,0 +1,19 @@
+{% load bootstrap %}
+{% load filters %}
+<form role="form" action="{% url model|add:'-add' %}" enctype="multipart/form-data" method="GET" novalidate>
+  <legend>
+    {{ model|unslugify }}
+  </legend>
+
+  <div class="alert alert-info" role="alert">We couldn't automatically determine everything needed to perform an assessment, please complete the form to proceed</div>
+
+  {% if request.GET.callback %}
+    <input style="display: none;" type="text" name="callback" value="{{ request.GET.callback }}" />
+  {% endif %}
+
+  {{ form|bootstrap }}
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Confirm</button>
+  </div>
+</form>

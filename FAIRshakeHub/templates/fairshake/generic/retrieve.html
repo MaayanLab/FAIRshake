@@ -1,0 +1,91 @@
+{% load filters %}
+<div class="row">
+  <div class="col-lg-offset-1 col-lg-10 col-sm-12" align="center">
+  <div class="caption" align="center">
+    <div style="position: relative;width:280px;height:280px;" class="image-container">
+      <img style="max-width:200px;max-height:200px;"
+        {% if item.image %}
+          src="{{ item.image }}"
+        {% else %}
+          src="{% static 'image/digital_object.png' %}"
+        {% endif %}
+      />
+    </div>
+    <h3 class="helper" style="margin-top:10px;"><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h3>
+    {% if item.type %}
+      <span class="label" style="background-color:#666666;color:white;font-size:10px;display:inline-block;vertical-align:middle;">
+        {% if model == "digital_object" %}
+          {{ item.type }}
+        {% else %}
+          {{ model }}
+        {% endif %}
+      </span>
+    {% endif %}
+    <p>{{ item.description }}</p>
+    {% if item.principle %}
+      <p><strong>Principle: </strong>{{ item.principle }}</p>
+    {% endif %}
+    {% if item.rationale %}
+      <p><strong>Rationale: </strong>{{ item.rationale }}</p>
+    {% endif %}
+    {% if item.fairmetrics %}
+      <p><strong>FAIR Metrics: </strong>{{ item.fairmetrics }}</p>
+    {% endif %}
+    {% if item.fairsharing %}
+      <p><strong>FAIRSharing: </strong>{{ item.fairsharing }}</p>
+    {% endif %}
+    {% if item.license %}
+      <p><strong>License: </strong>{{ item.license }}</p>
+    {% endif %}
+    {% if item.tags %}
+      <p>
+        <strong>Tags:</strong>
+        {% for tag in item.tags_as_list %}
+          <span class="glyphicon glyphicon-tag"></span>
+          {{ tag }}
+        {% endfor %}
+      </p>
+    {% endif %}
+    <div
+      class="insignia"
+      style="width: 80px; height: 80px; padding: 10px;"
+      data-target='{ "{{ model }}": {{ item.id }} }'
+    ></div>
+  </div>
+    {% if model == "digital_object" and user.is_authenticated %}
+    <div>
+      <a
+        href="{% url 'assessment-add' %}?target={{ item.id }}"
+        class="btn btn-xs"
+        style="padding:5px;border:2px solid #428bca;position:absolute;top:0; left:13%; box-shadow: 0 0 4px 4px white;"
+      >
+        Assess
+      </a>
+    </div>
+    {% endif %}
+    {% has_permission item 'modify' as edit_perm %}
+    {% if edit_perm %}
+      <div>
+        <a
+          href="{% url model|add:'-modify' item.id %}"
+        >
+          <span
+            class="glyphicon glyphicon-edit"
+            style="font-size:20px;position:absolute;top:0;right:15%;"
+          ></span>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+  <div class="container">
+  {% with parent_model=model parent_item=item %}
+    {% for model, items in children.items %}
+      <div class="col-xs-12">
+        <hr />
+        <h2>Associated {{ model|unslugify }}s</h2>
+        {% include "fairshake/generic/list.html" %}
+      </div>
+    {% endfor %}
+    </div>
+  {% endwith %}
+</div>

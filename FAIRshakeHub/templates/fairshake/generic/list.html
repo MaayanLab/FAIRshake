@@ -1,0 +1,23 @@
+{% load filters %}
+<div class="row">
+  {% for item in items %}
+    {% include "fairshake/generic/element.html" %}
+  {% endfor %}
+  {% if user.is_authenticated %}
+    <div class="col-md-3 col-sm-6">
+      <div class="panel panel-default" style="height: 320px">
+        <a href="{% url model|add:'-add' %}{% if parent_model %}?{{ parent_model }}s={{ parent_item.id }}{% endif %}">
+          <div class="panel-body text-center">
+            <div class="image-container">
+              <img src="{% static 'image/plus.png' %}" style="max-width:50%; max-height:50%;" />
+            </div>
+            <div class="caption text-left">
+              <p class="item-title" style="text-align:center;">Create New {{ model|unslugify }}</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  {% endif %}
+  {% include "fairshake/generic/page_nav.html" %}
+</div>

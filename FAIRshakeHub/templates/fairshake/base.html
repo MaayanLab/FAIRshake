@@ -1,0 +1,144 @@
+{% load google_analytics %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>FAIRshake</title>
+  {% block head %}
+    <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    {% block style %}
+      <link rel="stylesheet" href="{% static 'style/base.css' %}" />
+    {% endblock %}
+
+    {% google_analytics %}
+  {% endblock %}
+</head>
+<body>
+<div id="header">
+  {% block header %}
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a id="navbar-logo" class="navbar-brand" href="{% url 'index' %}" style="display: table;">
+            <div style="display: table-row; vertical-align: middle;">
+              <div style="display: inline-block; width: 25px">
+                <svg width="100%" height="100%" preserveAspectRatio="xMinYMin" viewBox="0 0 1 1"><rect fill="rgb(0, 0, 255)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0" y="0"></rect><rect fill="rgb(32, 0, 223)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0.3333333333333333" y="0"></rect><rect fill="rgb(64, 0, 191)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0.6666666666666666" y="0"></rect><rect fill="rgb(96, 0, 159)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0" y="0.3333333333333333"></rect><rect fill="rgb(128, 0, 128)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0.3333333333333333" y="0.3333333333333333"></rect><rect fill="rgb(159, 0, 96)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0.6666666666666666" y="0.3333333333333333"></rect><rect fill="rgb(191, 0, 64)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0" y="0.6666666666666666"></rect><rect fill="rgb(223, 0, 32)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0.3333333333333333" y="0.6666666666666666"></rect><rect fill="rgb(255, 0, 0)" height="0.3333333333333333" stroke="#ffffff" stroke-width="0.025" width="0.3333333333333333" x="0.6666666666666666" y="0.6666666666666666"></rect></svg>
+              </div>
+              <div style="display: table-cell; vertical-align: middle; padding-left: 10px">
+                FAIRshake
+              </div>
+            </div>
+          </a>
+        </div>
+        <ul class="nav navbar-nav navbar-left">
+          <li{% if active_page == "projects" %} class="active"{% endif %}>
+            <a href="{% url 'project-list' %}">Projects</a>
+          </li>
+          <li{% if active_page == "rubrics" %} class="active"{% endif %}>
+            <a href="{% url 'rubric-list' %}">Rubrics</a>
+          </li>
+          <li{% if active_page == "chrome_extension" %} class="active"{% endif %}>
+            <a href="{% url 'chrome_extension' %}">Install Chrome Extension</a>
+          </li>
+          <li{% if active_page == "bookmarklet" %} class="active"{% endif %}>
+            <a href="{% url 'bookmarklet' %}">Install Bookmarklet</a>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          {% if not user.is_authenticated %}
+            <li{% if active_page == "login" %} class="active"{% endif %}>
+              <a href="{% url 'account_login' %}">Login</a>
+            </li>
+            <li{% if active_page == "register" %} class="active"{% endif %}>
+              <a href="{% url 'account_signup' %}">Sign up</a>
+            </li>
+          {% else %}
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle headx" data-toggle="dropdown" role="button"
+                aria-haspopup="true"
+                aria-expanded="false">{{ user.email }} ({{ user.username }})</a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="{% url 'assessment-list' %}">User assessments</a>
+                </li>
+                <li>
+                  <a href="{% url 'account_email' %}">Settings</a>
+                </li>
+                <li role="separator" class="divider" />
+                <li>
+                  <a href="{% url 'account_logout' %}">Logout</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+  {% endblock %}
+</div>
+<div id="content">{% block content %}{% endblock %}</div>
+<div id="footer">
+  {% block footer %}
+    <div class="row">
+      <div class="col-sm-6">
+        <ul class="footer-block">
+          <div>
+            <a href="https://nihdatacommons.us/" target="_blank">Team Nitrogen, KC1, DCPPC</a>
+          </div>
+          <div>
+            <a href="http://icahn.mssm.edu/research/labs/maayan-laboratory" target="_blank">Ma'ayan Laboratory of Computational Systems Biology</a>
+          </div>
+          <div>
+            <a href="http://icahn.mssm.edu/" target="_blank">Icahn School of Medicine at Mount Sinai</a>
+          </div>
+        </ul>
+      </div>
+      <div class="col-sm-6">
+        <ul class="footer-block">
+          <div>
+            <a href="{% url 'api_documentation' %}">API Documentation</a>
+          </div>
+          <!-- <div>
+            <a href="{% url 'terms_of_service' %}">Terms of Service</a>
+          </div> -->
+          <div>
+            <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+          </div>
+        </ul>
+      </div>
+    </div>
+  {% endblock %}
+</div>
+{% block script %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script>
+  function render_insignia(q) {
+    if (q === undefined)
+      q = $('.insignia')
+    q.each(function (ind, ele) {
+      var $ele = $(ele)
+      if($ele.attr('data-rendered') != 'true') {
+        require(['{% static "scripts/insignia.js" %}'], function (insignia) {
+          insignia.build_svg_from_score(
+            ele,
+            JSON.parse($ele.attr('data-target')),
+          )
+          $ele.attr('data-rendered', 'true')
+          $ele.show()
+        })
+      }
+    })
+  }
+  $(document).ready(function() {
+    render_insignia()
+  })
+  </script>
+{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js"></script>
+</body>
+</html>

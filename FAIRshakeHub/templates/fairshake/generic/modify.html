@@ -1,0 +1,11 @@
+{% load bootstrap %}
+{% load filters %}
+<form role="form" action="{{ request.get_full_path }}" enctype="multipart/form-data" method="POST" novalidate>
+  <legend>{{ model|unslugify }}</legend>
+  {% csrf_token %}
+  {{ form|bootstrap }}
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <a href="{% url model|add:'-remove' item.id %}" type="text" class="btn btn-danger">Delete</a>
+  </div>
+</form>

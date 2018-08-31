@@ -1,7 +1,7 @@
-__pycache__/
-*.DS_Store
-.gitignore
+__pycache__
+.DS_Store
 .idea/
-config.py
 *.pyc
+db.sqlite3
+my.cnf
 ssl/

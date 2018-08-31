@@ -1,0 +1,20 @@
+{% extends "fairshake/base.html" %}
+{% load filters %}
+
+{% block header %}
+  {% with active_page=model|add:'s' %}
+    {{ block.super }}
+  {% endwith %}
+  {% if action == 'add' or action == 'modify' %}
+    {{ form.media }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% if action == 'list' %}
+    <h1 class="text-left">{{ model|unslugify }}</h1>
+  {% endif %}
+  {% select_template "fairshake/"|add:model|add:"/"|add:action|add:".html" "fairshake/generic/"|add:action|add:".html" %}
+</div>
+{% endblock %}

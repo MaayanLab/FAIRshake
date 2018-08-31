@@ -1,0 +1,51 @@
+{% extends "fairshake/base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1 class="project-head text-left">API Documentation</h1>
+  <div class="alert alert-info" role="alert">
+    This list is under construction, more detailed descriptions and more complete tutorials will be provided in the future.
+  </div>
+  <h4>Endpoints</h4>
+  <ul>
+    <li>
+      <a href="/swagger/">Swagger UI</a>
+      <ul>
+        <li>
+          <a href="/swagger/swagger.json">
+            swagger.json
+          </a>
+        </li>
+        <li>
+          <a href="/swagger/swagger.yml">
+            swagger.yml
+          </a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="/?format=api">Django Rest Framework API Explorer</a>
+    </li>
+    <li>
+      <a href="/coreapi/">CoreAPI UI</a>
+    </li>
+    <li>
+      <a href="http://smart-api.info/ui/8113167e81987d36b707ae4aa795b17e">SmartAPI</a>
+    </li>
+  </ul>
+
+  <h4>Tutorials</h4>
+  <ul>
+    <li>
+      <a href="https://github.com/Nitrogen-DCPPC/FAIRshake/blob/openapi-django/tutorial.ipynb">
+        Python API Access with OpenAPI
+      </a>
+    </li>
+    <li>
+      <a href="http://jsfiddle.net/tybx32gu/17/">
+        Insignia JS Fiddle Example
+      </a>
+    </li>
+  </ul>
+</div>
+{% endblock %}
