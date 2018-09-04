@@ -31,7 +31,11 @@ SECRET_KEY = '^r26!v-me2p&1(qaqr1m@h1n*@$t-57f!4sd9f$d3)xnk&kj9)' if SECRET_KEY_
 
 DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = ['localhost', 'fairshake.cloud']
+ALLOWED_HOSTS = [
+    'localhost',
+    'fairshake.cloud',
+    'www.fairshake.cloud',
+]
 
 SITE_ID = 1
 
@@ -106,11 +110,18 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
+        'null': {
+            'class': 'logging.NullHandler',
+        },
     },
     'loggers': {
         'mozilla_django_oidc': {
             'handlers': ['console'],
             'level': 'DEBUG',
+        },
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
         },
     },
 }
