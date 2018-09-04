@@ -1,7 +1,11 @@
-#!/bin/env python manage.py shell
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "FAIRshake.settings")
+import django
+django.setup()
+
 from FAIRshakeAPI import models
 
-import db
+from scripts import db
 sess = db.get_db_session('TODO_DB_URI')
 
 me = models.Author.objects.get(id=1)
@@ -19,8 +23,7 @@ for p in sess.query(db.Project):
     title=p.project_name,
     description=p.project_description,
     image=p.project_img,
-    type='test',
-    tags='test',
+    tags='DCPPC',
   )
   new_p.save()
   new_p.authors.add(me)
@@ -34,7 +37,7 @@ for d in sess.query(db.Resource):
     url=d.url,
     description=d.description,
     type=old_t_to_new_t[d.resource_type],
-    tags='test',
+    tags='DCPPC',
   )
   new_d.save()
   new_d.authors.add(me)
@@ -50,7 +53,7 @@ for rip in sess.query(db.ResourceInProject):
 tool_rubric = models.Rubric(
   title='The FAIRshake tool rubric.',
   description='An initial rubric for asking quesitons about tools.',
-  tags='test fairshake',
+  tags='DCPPC fairshake',
   type='tool',
   license='MIT',
 )
@@ -59,7 +62,7 @@ tool_rubric.authors.add(me)
 dataset_rubric = models.Rubric(
   title='The FAIRshake dataset rubric.',
   description='An initial dataset for asking quesitons about datasets.',
-  tags='test fairshake',
+  tags='DCPPC fairshake',
   type='data',
   license='MIT',
 )
@@ -68,7 +71,7 @@ dataset_rubric.authors.add(me)
 repo_rubric = models.Rubric(
   title='The FAIRshake repository rubric.',
   description='An initial rubric for asking quesitons about repositories.',
-  tags='test fairshake',
+  tags='DCPPC fairshake',
   type='repo',
   license='MIT',
 )
@@ -99,7 +102,7 @@ for q in sess.query(db.Question):
   m = models.Metric(
     title=q.content,
     type='yesnobut',
-    tags='test fairshake',
+    tags='DCPPC fairshake',
     license='MIT',
     principle=q_to_principle(q),
   )
@@ -108,12 +111,10 @@ for q in sess.query(db.Question):
   r.metrics.add(m)
   q_to_m[q.q_id] = m.id
 
-
 # Resource type to rubric
 for d in old_d_to_new_d.values():
   obj = models.DigitalObject.objects.get(id=d)
   obj.rubrics.add(type_to_rubric[obj.type])
-
 
 # Evaluation to Assessment
 assessments = {}
@@ -128,9 +129,9 @@ for e in sess.query(db.Evaluation):
       ],
       methodology='test',
       assessor=me,
-      requestor=me,
     )
   )
+  assessments[(e.user_id, e.resource_id,)] = assess
   assess.save()
   answer = models.Answer(
     assessment=assess,
@@ -140,3 +141,9 @@ for e in sess.query(db.Evaluation):
     url_comment=e.url_comment or '',
   )
   answer.save()
+
+# If only one project exists, attach it to assessment
+for assessment in models.Assessment.objects.all():
+  if assessment.target.projects.count() == 1:
+    assessment.project = assessment.target.projects.first()
+    assessment.save()
