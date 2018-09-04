@@ -99,9 +99,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication'
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100,
+    # TODO: fix pagination handling so these values can be different
+    'PAGE_SIZE': 11,
     'VIEW_PAGE_SIZE': 11,
-    'SEARCH_PAGE_SIZE': 12,
+    'SEARCH_PAGE_SIZE': 11,
 }
 
 LOGGING = {
