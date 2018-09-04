@@ -33,7 +33,7 @@
       </div>
       <div class="caption text-left">
         <p class="item-title" style="margin-right:60px;">
-          <a href="{{ item.url }}" target=_blank>{{ item.title|limit:45 }}</a>
+          {{ item.title|limit:45 }}
         </p>
         {% if item.type %}
           <span
@@ -47,17 +47,15 @@
             {% endif %}
           </span>
         {% endif %}
-        <p>{{ item.description|limit:80 }}</p>
+        <p>{{ item.description|limit:100 }}</p>
         <div style="position:absolute;bottom:30px;margin-right:60px;">
-          <div>
-            <div style="font-size:10px;color:gray;margin-top:5px;">
-              {% if item.tags %}
-                {% for tag in item.tags_as_list %}
-                  <span class="glyphicon glyphicon-tag"></span>
-                    {{ tag }}
-                {% endfor %}
-              {% endif %}
-            </div>
+          <div style="font-size:10px;color:gray;margin-top:5px;">
+            {% if item.tags %}
+              {% for tag in item.tags_as_list %}
+                <span class="glyphicon glyphicon-tag"></span>
+                  {{ tag }}
+              {% endfor %}
+            {% endif %}
           </div>
         </div>
         {% has_permission item 'modify' as edit_perm %}

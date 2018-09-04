@@ -11,7 +11,7 @@
         {% endif %}
       />
     </div>
-    <h3 class="helper" style="margin-top:10px;"><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h3>
+    <h3 class="helper" style="margin-top:10px;">{{ item.title }}</h3>
     {% if item.type %}
       <span class="label" style="background-color:#666666;color:white;font-size:10px;display:inline-block;vertical-align:middle;">
         {% if model == "digital_object" %}
@@ -44,6 +44,12 @@
           <span class="glyphicon glyphicon-tag"></span>
           {{ tag }}
         {% endfor %}
+      </p>
+    {% endif %}
+    {% if item.url %}
+      <p>
+        <strong>URL:</strong>
+        <a href="{{ item.url }}">{{ item.url|limit:50 }}</a>
       </p>
     {% endif %}
     <div
