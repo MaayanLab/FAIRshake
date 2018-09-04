@@ -34,6 +34,13 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   ]
   permission_classes = [ModelDefinedPermissions,]
 
+  def get_object(self):
+    ''' For some reason I needed to rewrite this, the upstream version is weird.
+    '''
+    obj = shortcuts.get_object_or_404(self.get_model(), **self.kwargs)
+    self.check_object_permissions(self.request, obj)
+    return obj
+
   def get_model(self):
     return self.model
   
@@ -185,6 +192,7 @@ class AssessmentViewSet(CustomModelViewSet):
   form = forms.AssessmentForm
   serializer_class = serializers.AssessmentSerializer
   filter_classes = filters.AssessmentFilterSet
+  lookup_field = 'pk'
 
   def get_queryset(self):
     if self.request.user.is_anonymous:
@@ -194,7 +202,7 @@ class AssessmentViewSet(CustomModelViewSet):
       | Q(project__authors=self.request.user)
       | Q(assessor=self.request.user)
     )
-
+  
   def save_form(self, request, form):
     assessment = form.save(commit=False)
     assessment.assessor = request.user
