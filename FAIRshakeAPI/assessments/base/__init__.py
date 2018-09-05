@@ -45,7 +45,7 @@ class Assessment:
               if k not in want
             ]
             # Put additional wants in the front and this want on the back
-            want = additional_wants + want + current_want
+            want = additional_wants + want + [current_want]
             # Put the current_want in can't get, if we reach it again but still can't get it
             #  we have to drop it.
             cant_get.append(want)
@@ -58,7 +58,7 @@ class Assessment:
             # Perform assessment
             results = assessment.perform(current_have)
             # Warn if assessment isn't actually working properly
-            if list(results.keys()) != assessment.outputs
+            if list(results.keys()) != assessment.outputs:
               logging.warn(
                 assessment.__name__ + "'s output is malformed"
               )
