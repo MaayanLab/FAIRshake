@@ -157,21 +157,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     return callback_or_redirect(request,
       self.get_model_name()+'-list'
     )
-  
-  @decorators.action(
-    detail=True,
-    methods=['get'],
-    renderer_classes=[CustomTemplateHTMLRenderer],
-  )
-  def stats(self, request, pk=None):
-    item = self.get_object()
-    self.check_object_permissions(request, item)
-    return response.Response()
-  
-  def get_stats_template_context(self, request, context):
-    return dict(context, **{
-      'item': self.get_object(),
-    })
 
 class DigitalObjectViewSet(CustomModelViewSet):
   model = models.DigitalObject
@@ -190,6 +175,42 @@ class ProjectViewSet(CustomModelViewSet):
   form = forms.ProjectForm
   serializer_class = serializers.ProjectSerializer
   filter_class = filters.ProjectFilterSet
+  
+  @decorators.action(
+    detail=True,
+    methods=['get'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def stats(self, request, pk=None):
+    item = self.get_object()
+    self.check_object_permissions(request, item)
+    return response.Response()
+  
+  def get_stats_template_context(self, request, context):
+    from .stats import (
+      SingleQuery,
+      DigitalObjectBarBreakdown,
+      QuestionBreakdown,
+      RubricsInProjectsOverlay,
+      RubricPieChart,
+      BarGraphs,
+    )
+    item = self.get_object()
+    return dict(context, **{
+      'item': self.get_object(),
+      'plots': [
+        plot
+        for plots in [
+          RubricPieChart(item.assessments),
+          RubricsInProjectsOverlay(
+            models.Answer.objects.filter(assessment__project__id=item.id),
+            item.id,
+          ),
+          DigitalObjectBarBreakdown(item)
+        ]
+        for plot in plots
+      ]
+    })
 
 class RubricViewSet(CustomModelViewSet):
   model = models.Rubric

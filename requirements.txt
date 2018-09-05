@@ -13,5 +13,7 @@ djangorestframework
 drf-yasg
 dynamic-rest
 https://github.com/pennersr/django-allauth/archive/master.zip
+numpy
+plotly
 pymysql
 swagger-spec-validator

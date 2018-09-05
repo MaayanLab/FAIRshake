@@ -57,12 +57,14 @@
       style="width: 80px; height: 80px; padding: 10px;"
       data-target='{ "{{ model }}": {{ item.id }} }'
     ></div>
-    <a
-      class="btn btn-primary"
-      href="{% url model|add:'-stats' item.id %}"
-    >
-      View Analytics
-    </a>
+    {% if model == "project" %}
+      <a
+        class="btn btn-primary"
+        href="{% url model|add:'-stats' item.id %}"
+      >
+        View Analytics
+      </a>
+    {% endif %}
   </div>
     {% if model == "digital_object" and user.is_authenticated %}
     <div>
