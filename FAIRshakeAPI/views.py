@@ -71,8 +71,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     form = form_cls(instance=item)
 
     return {
-      'model': self.get_model_name(),
-      'action': self.action,
       'item': item,
       'form': form,
       'children': {
@@ -93,8 +91,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     form = form_cls(request.GET)
 
     return {
-      'model': self.get_model_name(),
-      'action': self.action,
       'form': form,
       'items': paginator_cls(
         self.filter_queryset(
@@ -108,11 +104,13 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
   def get_template_context(self, request, context):
     return dict(context,
-      **self.get_detail_template_context(
-        request, context
-      ) if self.detail else self.get_list_template_context(
-        request, context
-      ),
+      model=self.get_model_name(),
+      action=self.action,
+      **getattr(self, 'get_%s_template_context' % (self.action),
+        getattr(self, 'get_%s_template_context' % ('detail' if self.detail else 'list'),
+          lambda *args: args
+        )
+      )(request, context),
     )
 
   @decorators.action(
@@ -159,6 +157,21 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     return callback_or_redirect(request,
       self.get_model_name()+'-list'
     )
+  
+  @decorators.action(
+    detail=True,
+    methods=['get'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def stats(self, request, pk=None):
+    item = self.get_object()
+    self.check_object_permissions(request, item)
+    return response.Response()
+  
+  def get_stats_template_context(self, request, context):
+    return dict(context, **{
+      'item': self.get_object(),
+    })
 
 class DigitalObjectViewSet(CustomModelViewSet):
   model = models.DigitalObject
@@ -244,8 +257,6 @@ class AssessmentViewSet(CustomModelViewSet):
         })
 
       return dict(context, **{
-        'model': self.get_model_name(),
-        'action': self.action,
         'form': assessment_form,
         'item': assessment,
         'answers': answers,
@@ -329,8 +340,6 @@ class AssessmentViewSet(CustomModelViewSet):
         })
 
       return dict(context, **{
-        'model': self.get_model_name(),
-        'action': self.action,
         'form': assessment_form,
         'item': assessment,
         'answers': answers,

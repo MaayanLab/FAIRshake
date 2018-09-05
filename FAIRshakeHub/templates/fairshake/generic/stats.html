@@ -1,0 +1,51 @@
+<div class="col-lg-8 col-sm-12">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Distribution of selections
+    </div>
+    <div class="panel-body">
+      <div id="graph_a" style="width: 100%;"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load("current", {packages:["corechart"]});
+  google.charts.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var labels = {
+      0.: 'No',
+      0.25: 'No, but',
+      0.75: 'Yes, but',
+      1.: 'Yes',
+    }
+    $.ajax({
+      url: '/score/hist/?{{ model }}={{ item.id }}',
+      dataType: 'json',
+      async: true
+    }).then(function (jsonData) {
+      var data = google.visualization.arrayToDataTable(
+        [['Score', 'Count']].concat(
+          Object.keys(jsonData).sort(function (a, b) {
+            return a > b
+          }).map(function(key) {
+            return [labels[key], jsonData[key]]
+          })
+        )
+      )
+
+      var options = {
+        hAxis: {
+          title: 'Count',
+        },
+        vAxis: {
+          title: 'Score',
+        }
+      };
+  
+      var chart = new google.visualization.ColumnChart(document.getElementById('graph_a'));
+      chart.draw(data, options);
+    })
+  }
+</script>
