@@ -34,13 +34,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   ]
   permission_classes = [ModelDefinedPermissions,]
 
-  def get_object(self):
-    ''' For some reason I needed to rewrite this, the upstream version is weird.
-    '''
-    obj = shortcuts.get_object_or_404(self.get_model(), **self.kwargs)
-    self.check_object_permissions(self.request, obj)
-    return obj
-
   def get_model(self):
     return self.model
   
@@ -62,6 +55,10 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
   def get_queryset(self):
     return getattr(self, 'queryset', self.get_model().objects.all())
+  
+  def filter_queryset(self, qs):
+    ''' Ensure all resulting filter sets are distinct '''
+    return super().filter_queryset(qs).order_by(*self.get_model()._meta.ordering).distinct()
 
   def get_template_names(self):
     return ['fairshake/generic/page.html']
@@ -192,7 +189,6 @@ class AssessmentViewSet(CustomModelViewSet):
   form = forms.AssessmentForm
   serializer_class = serializers.AssessmentSerializer
   filter_classes = filters.AssessmentFilterSet
-  lookup_field = 'pk'
 
   def get_queryset(self):
     if self.request.user.is_anonymous:
@@ -202,7 +198,7 @@ class AssessmentViewSet(CustomModelViewSet):
       | Q(project__authors=self.request.user)
       | Q(assessor=self.request.user)
     )
-  
+
   def save_form(self, request, form):
     assessment = form.save(commit=False)
     assessment.assessor = request.user
