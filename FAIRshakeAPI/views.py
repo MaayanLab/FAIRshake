@@ -187,28 +187,14 @@ class ProjectViewSet(CustomModelViewSet):
     return response.Response()
   
   def get_stats_template_context(self, request, context):
-    from .stats import (
-      SingleQuery,
-      DigitalObjectBarBreakdown,
-      QuestionBreakdown,
-      RubricsInProjectsOverlay,
-      RubricPieChart,
-      BarGraphs,
-    )
     item = self.get_object()
     return dict(context, **{
       'item': self.get_object(),
       'plots': [
-        plot
-        for plots in [
-          RubricPieChart(item.assessments),
-          RubricsInProjectsOverlay(
-            models.Answer.objects.filter(assessment__project__id=item.id),
-            item.id,
-          ),
-          DigitalObjectBarBreakdown(item)
-        ]
-        for plot in plots
+        'TablePlot',
+        'RubricPieChart',
+        'RubricsInProjectsOverlay',
+        'DigitalObjectBarBreakdown',
       ]
     })
 
@@ -405,9 +391,7 @@ class ScoreViewSet(
       for assessment in self.filter_queryset(self.get_queryset()):
         if scores.get(assessment.rubric.id) is None:
           scores[assessment.rubric.id] = {}
-        for answer in models.Answer.objects.filter(
-          assessment=assessment.id,
-        ):
+        for answer in assessment.answers.all():
           if metrics.get(answer.metric.id) is None:
             metrics[answer.metric.id] = answer.metric.title
           if scores[assessment.rubric.id].get(answer.metric.id) is None:

@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.conf import settings
-from FAIRshakeAPI import search
+from django import http
+from FAIRshakeAPI import search, models, stats
 
 def index(request):
   ''' FAIRshakeHub Home Page
@@ -57,3 +58,19 @@ handler400 = handler(400, 'Bad Request')
 handler403 = handler(403, 'Permission Denied')
 handler404 = handler(404, 'Page not Found')
 handler500 = handler(500, 'Server error')
+
+def stats_view(request):
+  if request.GET.get('model') == 'project':
+    page = ''
+    for res in {
+      'TablePlot': lambda item: stats.TablePlot(item),
+      'RubricPieChart': lambda item: stats.RubricPieChart(item.assessments),
+      'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(
+        models.Answer.objects.filter(assessment__project__id=item.id),
+        item.id,
+      ),
+      'DigitalObjectBarBreakdown': lambda item: stats.DigitalObjectBarBreakdown(item),
+    }.get(request.GET.get('plot'))(models.Project.objects.get(id=request.GET.get('item'))):
+      page += res
+    return http.HttpResponse(page)
+  return http.HttpResponseNotFound()
