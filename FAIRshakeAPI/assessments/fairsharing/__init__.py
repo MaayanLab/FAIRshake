@@ -28,13 +28,34 @@ class Assessment:
       bsg_id=inputs['target:fairsharing']
     )
     return {
-      'target:url': results['data'].get('homepage'),
-      'target:description': results['data'].get('description'),
-      'target:title': results['data'].get('name'),
+      'target:url': {
+        'answer': results['data'].get('homepage'),
+        'comment': results['data'].get('homepage'),
+      },
+      'target:description': {
+        'answer': results['data'].get('description'),
+        'comment': results['data'].get('description'),
+      },
+      'target:title': {
+        'answer': results['data'].get('name'),
+        'comment': results['data'].get('name'),
+      },
+      'metric:9': {
+        'answer': 'yes' if results['data'].get('licence', 'nobut') else 'no',
+        'comment': results['data'].get('licence'),
+      },
+      'metric:60': {
+        'answer': 'yes' if results['data'].get('homepage', 'nobut') is not None else 'no',
+        'comment': results['data'].get('homepage'),
+      },
+      'metric:101': {
+        'answer': 'yes' if results['data'].get('taxonomies', 'notbut') else 'no',
+        'comment': results['data'].get('taxonomies'),
+      },
+      'metric:102': {
+        'answer': 'yes' if results['data'].get('domains', 'notbut') else 'no',
+        'comment': results['data'].get('domains'),
+      },
       # 'target:doi': results['data'].get('doi'),
-      'metric:9': 'yes' if results['data'].get('license') else 'no',
-      'metric:60': 'yes' if results['data'].get('homepage') is not None else 'no',
-      'metric:101': 'yes' if results['data']['taxonomies'] else 'no',
-      'metric:102': 'yes' if results['data']['domains'] else 'no',
       # 'target:authors': results['data'].get('maintainers'),
     }

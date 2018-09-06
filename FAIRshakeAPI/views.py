@@ -322,7 +322,8 @@ class AssessmentViewSet(CustomModelViewSet):
         )
         answer_form = forms.AnswerForm(
           dict(request.GET, **{
-            '%s-answer' % (metric.id): auto_assessment_results.get('metric:%d' % (metric.id)),
+            '%s-%s' % (metric.id, key): attr
+            for key, attr in auto_assessment_results.get('metric:%d' % (metric.id), {}).items()
           }),
           prefix=metric.id,
           instance=answer,
