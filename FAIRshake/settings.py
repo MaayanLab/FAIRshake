@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'ajax_select',
     'analytical',
+    'versions_tests',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

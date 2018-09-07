@@ -13,6 +13,7 @@ djangorestframework
 drf-yasg
 dynamic-rest
 https://github.com/pennersr/django-allauth/archive/master.zip
+https://github.com/swisscom/cleanerversion/archive/master.zip
 numpy
 plotly
 pymysql
