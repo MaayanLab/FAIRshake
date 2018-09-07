@@ -12,6 +12,8 @@ Django==2.0.7
 djangorestframework
 drf-yasg
 dynamic-rest
+extruct
 https://github.com/pennersr/django-allauth/archive/master.zip
+objectpath
 pymysql
 swagger-spec-validator
