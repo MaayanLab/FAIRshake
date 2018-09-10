@@ -19,6 +19,12 @@ def callback_or_redirect(request, *args, **kwargs):
   else:
     return shortcuts.redirect(callback)
 
+def get_or_create(model, **kwargs):
+  try:
+    return model.objects.current.get(**kwargs)
+  except:
+    return model.objects.create(**kwargs)
+
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
     context = super().get_template_context(data, renderer_context) or {}
@@ -39,19 +45,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   
   def get_model_name(self):
     return self.get_model()._meta.verbose_name_raw
-  
-  def get_model_children(self, obj):
-    for child in self.get_model().MetaEx.children:
-      child_attr = getattr(obj, child)
-      yield (child_attr.model._meta.verbose_name_raw, child_attr.current.all())
-
-  def get_form(self):
-    return self.form
-
-  def save_form(self, request, form):
-    instance = form.save()
-    instance.authors.add(request.user)
-    return instance
 
   def get_queryset(self):
     qs = getattr(self, 'queryset', None)
@@ -64,55 +57,37 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   def get_template_names(self):
     return ['fairshake/generic/page.html']
 
-  def get_detail_template_context(self, request, context):
-    paginator_cls = self.paginator.django_paginator_class
-    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    item = self.get_object()
-    form_cls = self.get_form()
-    form = form_cls(instance=item)
-
-    return {
-      'item': item,
-      'form': form,
-      'children': {
-        child: paginator_cls(
-          child_attr,
-          page_size,
-        ).get_page(
-          request.GET.get('page')
-        )
-        for child, child_attr in self.get_model_children(item)
-      },
-    }
-
-  def get_list_template_context(self, request, context):
-    paginator_cls = self.paginator.django_paginator_class
-    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    form_cls = self.get_form()
-    form = form_cls(request.GET)
-
-    return {
-      'form': form,
-      'items': paginator_cls(
-        self.filter_queryset(
-          self.get_queryset()
-        ),
-        page_size,
-      ).get_page(
-        request.GET.get('page')
-      ),
-    }
-
   def get_template_context(self, request, context):
-    return dict(context,
-      model=self.get_model_name(),
-      action=self.action,
-      **getattr(self, 'get_%s_template_context' % (self.action),
-        getattr(self, 'get_%s_template_context' % ('detail' if self.detail else 'list'),
-          lambda *args: args
-        )
-      )(request, context),
+    return getattr(
+      self,
+      'get_%s_template_context' % (self.action),
+      getattr(
+        self,
+        'get_%s_template_context' % ('detail' if self.detail else 'list'),
+        lambda request, context: context
+      )
+    )(
+      request,
+      dict(
+        context,
+        model=self.get_model_name(),
+        action=self.action,
+      ),
     )
+
+class IdentifiableModelViewSet(CustomModelViewSet):  
+  def get_form(self):
+    return self.form
+
+  def get_model_children(self, obj):
+    for child in self.get_model().MetaEx.children:
+      child_attr = getattr(obj, child)
+      yield (child_attr.model._meta.verbose_name_raw, child_attr.current.all())
+
+  def save_form(self, request, form):
+    instance = form.save()
+    instance.authors.add(request.user)
+    return instance
 
   @decorators.action(
     detail=False, methods=['get', 'post'],
@@ -159,19 +134,73 @@ class CustomModelViewSet(viewsets.ModelViewSet):
       self.get_model_name()+'-list'
     )
 
-class DigitalObjectViewSet(CustomModelViewSet):
+  def get_add_template_context(self, request, context):
+    form_cls = self.get_form()
+    form = form_cls(request.GET)
+
+    return dict(context, **{
+      'form': form,
+    })
+
+  def get_modify_template_context(self, request, context):
+    item = self.get_object()
+    form_cls = self.get_form()
+    form = form_cls(instance=item)
+
+    return dict(context, **{
+      'item': item,
+      'form': form,
+    })
+
+  def get_retrieve_template_context(self, request, context):
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+    item = self.get_object()
+
+    return dict(context, **{
+      'item': item,
+      'children': {
+        child: paginator_cls(
+          child_attr,
+          page_size,
+        ).get_page(
+          request.GET.get('page')
+        )
+        for child, child_attr in self.get_model_children(item)
+      },
+    })
+
+  def get_list_template_context(self, request, context):
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+    form_cls = self.get_form()
+    form = form_cls(request.GET)
+
+    return dict(context, **{
+      'form': form,
+      'items': paginator_cls(
+        self.filter_queryset(
+          self.get_queryset()
+        ),
+        page_size,
+      ).get_page(
+        request.GET.get('page')
+      ),
+    })
+
+class DigitalObjectViewSet(IdentifiableModelViewSet):
   model = models.DigitalObject
   form = forms.DigitalObjectForm
   serializer_class = serializers.DigitalObjectSerializer
   filter_class = filters.DigitalObjectFilterSet
 
-class MetricViewSet(CustomModelViewSet):
+class MetricViewSet(IdentifiableModelViewSet):
   model = models.Metric
   form = forms.MetricForm
   serializer_class = serializers.MetricSerializer
   filter_class = filters.MetricFilterSet
 
-class ProjectViewSet(CustomModelViewSet):
+class ProjectViewSet(IdentifiableModelViewSet):
   model = models.Project
   form = forms.ProjectForm
   serializer_class = serializers.ProjectSerializer
@@ -199,7 +228,7 @@ class ProjectViewSet(CustomModelViewSet):
       ]
     })
 
-class RubricViewSet(CustomModelViewSet):
+class RubricViewSet(IdentifiableModelViewSet):
   model = models.Rubric
   form = forms.RubricForm
   serializer_class = serializers.RubricSerializer
@@ -207,152 +236,146 @@ class RubricViewSet(CustomModelViewSet):
 
 class AssessmentViewSet(CustomModelViewSet):
   model = models.Assessment
-  form = forms.AssessmentForm
   serializer_class = serializers.AssessmentSerializer
   filter_classes = filters.AssessmentFilterSet
 
   def get_queryset(self):
     if self.request.user.is_anonymous:
       return models.Assessment.objects.none()
-    return models.Assessment.objects.filter(
+    return models.Assessment.objects.current.filter(
       Q(target__authors=self.request.user)
       | Q(project__authors=self.request.user)
       | Q(assessor=self.request.user)
     )
+  
+  def get_objects(self, request):
+    target_id = request.GET.get('target', None)
+    rubric_id = request.GET.get('rubric', None)
+    project_id = request.GET.get('project', None)
+
+    if target_id is None or rubric_id is None:
+      pass # TODO redirect to prepare
+
+    if project_id:
+      assessment = get_or_create(models.Assessment,
+        project=models.project.objects.get(id=project_id),
+        target=models.target.objects.get(id=target_id),
+        rubric=models.rubric.objects.get(id=rubric_id),
+        assessor=request.user,
+        methodology='user',
+      )
+    else:
+      assessment = get_or_create(models.Assessment,
+        target=models.target.objects.get(id=target_id),
+        rubric=models.rubric.objects.get(id=rubric_id),
+        assessor=request.user,
+        methodology='user',
+      )
+
+    answers = []
+    for metric in assessment.rubric.metrics.current.all():
+      answer = get_or_create(models.Answer,
+        assessment=assessment,
+        metric=metric,
+      )
+      answer_form = forms.AnswerForm(
+        dict(request.GET, **request.POST),
+        instance=answer,
+        prefix=answer.metric.id,
+      )
+      answers.append({
+        'form': answer_form,
+        'instance': answer,
+      })
+
+    return {
+      'assessment': assessment,
+      'answers': answers,
+    }
 
   def save_form(self, request, form):
-    assessment = form.save(commit=False)
-    assessment.assessor = request.user
-    assessment.methodology = 'user'
-    assessment.save()
-    if not assessment.answers.exists():
-      for metric in assessment.rubric.metrics.current.all():
-        answer = models.Answer(
-          assessment=assessment,
-          metric=metric,
-        )
-        answer.save()
-
-    for answer in assessment.answers.current.all():
-        answer_form = forms.AnswerForm(
-          request.POST,
-          instance=answer,
-          prefix=answer.metric.id,
-        )
-        answer_form.save()
+    item = self.get_objects(request)
+    for answer in item.answers:
+      answer['form'].save()
 
     cache.delete_many([
       ','.join(map('='.join, request.GET.items())),
       *map('='.join, request.GET.items()),
     ])
 
-    return assessment
-  
-  def get_template_context(self, request, context):
-    if self.action in ['modify', 'retrieve']:
-      assessment = self.get_object()
-      assessment_form = forms.AssessmentForm(instance=assessment)
+  @decorators.action(
+    detail=False, methods=['get'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def perform(self, request, **kwargs):
+    self.check_permissions(request)
 
-      answers = []
-      for answer in assessment.answers.current.all():
-        answer_form = forms.AnswerForm(
-          prefix=answer.metric.id,
-          instance=answer,
-        )
-        answers.append({
-          'form': answer_form,
-          'instance': answer,
-        })
+  @decorators.action(
+    detail=False, methods=['get'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def prepare(self, request, **kwargs):
+    self.check_permissions(request)
 
-      return dict(context, **{
-        'form': assessment_form,
-        'item': assessment,
-        'answers': answers,
-      })
-    elif self.action in ['add']:
-      assessment_form = forms.AssessmentForm(request.GET)
-      prepare = request.GET.get('prepare')
-      if not assessment_form.is_valid() or prepare is not None:
-        target = request.GET.get('target')
-        rubric = request.GET.get('rubric')
-        project = request.GET.get('project')
-        q = request.GET.get('q', '')
+  def get_detail_template_context(self, request, context):
+    item = self.get_objects(request)
+    return dict(context, **item)
 
-        if target is not None:
-          targets = models.DigitalObject.objects.filter(id=target)
-        else:
-          targets = search.DigitalObjectSearchVector().query(q)
+  def get_list_template_context(self, request, context):
+    # List rubric objects
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
 
-        if rubric is not None:
-          rubrics = models.Rubric.objects.filter(id=target)
-        else:
-          rubrics = None
-          if target is not None:
-            rubrics = targets.first().rubrics.current.all()
-          if rubrics is None or not rubrics.exists():
-            rubrics = models.Rubric.objects.current.all()
-          if rubrics.count() == 1:
-            rubric = rubrics.first().id
+    return dict(context, **{
+      'items': paginator_cls(
+        self.filter_queryset(
+          self.get_queryset()
+        ),
+        page_size,
+      ).get_page(
+        request.GET.get('page')
+      ),
+    })
 
-        if project is not None:
-          projects = models.Project.objects.filter(id=project)
-        else:
-          projects = None
-          if target is not None:
-            projects = targets.first().projects.current.all()
-          if projects is None or projects.exists():
-            projects = models.Project.objects.current.all()
-          if projects.count() == 1:
-            project = projects.first().id
+  def get_prepare_template_context(self, request, context):
+    if target is not None:
+      targets = models.DigitalObject.objects.filter(id=target)
+    else:
+      targets = search.DigitalObjectSearchVector().query(q)
 
-        if project is not None:
-          assessment_form = forms.AssessmentForm(dict(request.GET, **{
-            'target': targets.first().id,
-            'rubric': rubrics.first().id,
-            'project': projects.first().id,
-          }))
-        else:
-          assessment_form = forms.AssessmentForm(dict(request.GET, **{
-            'target': targets.first().id,
-            'rubric': rubrics.first().id,
-          }))
+    if rubric is not None:
+      rubrics = models.Rubric.objects.filter(id=target)
+    else:
+      rubrics = None
+      if target is not None:
+        rubrics = targets.first().rubrics.current.all()
+      if rubrics is None or not rubrics.exists():
+        rubrics = models.Rubric.objects.current.all()
+      if rubrics.count() == 1:
+        rubric = rubrics.first().id
 
-        if prepare is not None or not assessment_form.is_valid():
-          assessment_form.fields['target'] = ModelChoiceField(queryset=targets, required=True)
-          assessment_form.fields['rubric'] = ModelChoiceField(queryset=rubrics, required=True)
-          assessment_form.fields['project'] = ModelChoiceField(queryset=projects, required=False)
+    if project is not None:
+      projects = models.Project.objects.filter(id=project)
+    else:
+      projects = None
+      if target is not None:
+        projects = targets.first().projects.current.all()
+      if projects is None or projects.exists():
+        projects = models.Project.objects.current.all()
+      if projects.count() == 1:
+        project = projects.first().id
 
-          return {
-            'model': self.get_model_name(),
-            'action': 'prepare',
-            'form': assessment_form,
-          }
-
-      assessment = assessment_form.save(commit=False)
-      assessment.assessor = request.user
-
-      answers = []
-      for metric in assessment.rubric.metrics.current.all():
-        answer = models.Answer(
-          assessment=assessment,
-          metric=metric,
-        )
-        answer_form = forms.AnswerForm(
-          request.GET,
-          prefix=metric.id,
-          instance=answer,
-        )
-        answers.append({
-          'form': answer_form,
-          'instance': answer,
-        })
-
-      return dict(context, **{
-        'form': assessment_form,
-        'item': assessment,
-        'answers': answers,
-      })
-    return super().get_template_context(request, context)
+    if project is not None:
+      assessment_form = forms.AssessmentForm(dict(request.GET, **{
+        'target': targets.first().id,
+        'rubric': rubrics.first().id,
+        'project': projects.first().id,
+      }))
+    else:
+      assessment_form = forms.AssessmentForm(dict(request.GET, **{
+        'target': targets.first().id,
+        'rubric': rubrics.first().id,
+      }))
 
 class AssessmentRequestViewSet(CustomModelViewSet):
   model = models.AssessmentRequest

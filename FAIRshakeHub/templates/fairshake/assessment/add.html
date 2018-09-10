@@ -1,6 +1,12 @@
 {% load bootstrap %}
 {% load filters %}
-<form role="form" action="{% url model|add:'-add' %}" enctype="multipart/form-data" method="POST" novalidate>
+<form
+  role="form"
+  action="{% url model|add:'-add' %}?target={{ item.target.id }}&rubric={{ item.rubric.id }}{% if item.project %}&project={{ item.project.id }}{% endif %}"
+  enctype="multipart/form-data"
+  method="POST"
+  novalidate
+>
   <legend>
     {{ model|unslugify }}
     of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>
@@ -17,7 +23,6 @@
     </a>
   </legend>
   {% csrf_token %}
-  {{ form|bootstrap }}
   {% for answer in answers %}
     <div class="row">
       {% with model="metric" item=answer.instance.metric %}

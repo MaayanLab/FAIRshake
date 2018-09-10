@@ -33,37 +33,58 @@ class IdentifiableForm(forms.ModelForm):
 class ProjectForm(IdentifiableForm):
   class Meta:
     model = models.Project
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'digital_objects',
+    )
 
 class DigitalObjectForm(IdentifiableForm):
   class Meta:
     model = models.DigitalObject
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'fairsharing',
+      'rubrics',
+    )
 
 class RubricForm(IdentifiableForm):
   class Meta:
     model = models.Rubric
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'license',
+      'metrics',
+    )
 
 class MetricForm(IdentifiableForm):
   class Meta:
     model = models.Metric
-    exclude = ('authors',)
-
-class AssessmentForm(forms.ModelForm):
-  def __init__(self, *args, **kwargs):
-    super(AssessmentForm, self).__init__(*args, **kwargs)
-
-    self.fields['target'].widget = forms.HiddenInput()
-    self.fields['rubric'].widget = forms.HiddenInput()
-    self.fields['project'].widget = forms.HiddenInput()
-
-  class Meta:
-    model = models.Assessment
     fields = (
-      'target',
-      'rubric',
-      'project',
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'license',
+      'rationale',
+      'principle',
+      'fairmetrics',
     )
 
 class AnswerForm(forms.ModelForm):
