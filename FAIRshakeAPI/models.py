@@ -2,8 +2,7 @@ import logging
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
-from versions.models import Versionable
-from versions.fields import VersionedForeignKey, VersionedManyToManyField
+from extensions.versions_ex.models import VersionableEx as Versionable, VersionedForeignKey, VersionedManyToManyField
 
 class IdentifiableModelMixinNew(Versionable):
   title = models.CharField(max_length=255, blank=False)
