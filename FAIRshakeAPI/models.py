@@ -1,10 +1,11 @@
+import uuid
 import logging
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
 from extensions.versions_ex.models import VersionableEx as Versionable, VersionedForeignKey, VersionedManyToManyField
 
-class IdentifiableModelMixinNew(Versionable):
+class IdentifiableModelMixin(Versionable):
   title = models.CharField(max_length=255, blank=False)
   url = models.CharField(max_length=255, blank=True)
   # urls = ArrayField(models.CharField(max_length=255), blank=True)
@@ -50,8 +51,8 @@ class IdentifiableModelMixinNew(Versionable):
   class Meta:
     abstract = True
 
-class ProjectNew(IdentifiableModelMixinNew):
-  digital_objects = VersionedManyToManyField('DigitalObjectNew', blank=True, related_name='projects')
+class Project(IdentifiableModelMixin):
+  digital_objects = VersionedManyToManyField('DigitalObject', blank=True, related_name='projects')
   
   class Meta:
     verbose_name = 'project'
@@ -63,14 +64,14 @@ class ProjectNew(IdentifiableModelMixinNew):
       'digital_objects',
     ]
 
-class DigitalObjectNew(IdentifiableModelMixinNew):
+class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandatory, unlike the rest of the identifiables
   url = models.CharField(max_length=255, blank=False)
   # urls = ArrayField(models.CharField(max_length=255), blank=False)
   title = models.CharField(max_length=255, blank=True, null=False, default='')
   fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
 
-  rubrics = VersionedManyToManyField('RubricNew', blank=True, related_name='digital_objects')
+  rubrics = VersionedManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
   class Meta:
     verbose_name = 'digital_object'
@@ -83,10 +84,10 @@ class DigitalObjectNew(IdentifiableModelMixinNew):
       'rubrics',
     ]
 
-class RubricNew(IdentifiableModelMixinNew):
+class Rubric(IdentifiableModelMixin):
   license = models.CharField(max_length=255, blank=True, null=False, default='')
 
-  metrics = VersionedManyToManyField('MetricNew', blank=True, related_name='rubrics')
+  metrics = VersionedManyToManyField('Metric', blank=True, related_name='rubrics')
 
   class Meta:
     verbose_name = 'rubric'
@@ -99,7 +100,7 @@ class RubricNew(IdentifiableModelMixinNew):
       'digital_objects',
     ]
 
-class MetricNew(IdentifiableModelMixinNew):
+class Metric(IdentifiableModelMixin):
   type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
     ('yesnobut', 'Yes no or but question'),
     ('text', 'Simple textbox input'),
@@ -127,10 +128,10 @@ class MetricNew(IdentifiableModelMixinNew):
       'rubrics',
     ]
 
-class AssessmentNew(Versionable):
-  project = models.ForeignKey('ProjectNew', on_delete=models.SET_NULL, editable=False, blank=True, null=True, related_name='assessments')
-  target = models.ForeignKey('DigitalObjectNew', on_delete=models.CASCADE, editable=False, related_name='assessments')
-  rubric = models.ForeignKey('RubricNew', on_delete=models.CASCADE, editable=False, related_name='assessments')
+class Assessment(Versionable):
+  project = models.ForeignKey('Project', on_delete=models.SET_NULL, editable=False, blank=True, null=True, related_name='assessments')
+  target = models.ForeignKey('DigitalObject', on_delete=models.CASCADE, editable=False, related_name='assessments')
+  rubric = models.ForeignKey('Rubric', on_delete=models.CASCADE, editable=False, related_name='assessments')
   methodology = models.TextField(max_length=16, blank=True, choices=(
     ('self', 'Digital Object Creator Assessment'),
     ('user', 'Independent User Assessment'),
@@ -172,220 +173,9 @@ class AssessmentNew(Versionable):
       'answers',
     ]
 
-class AnswerNew(Versionable):
-  assessment = models.ForeignKey('AssessmentNew', on_delete=models.CASCADE, editable=False, related_name='answers')
-  metric = models.ForeignKey('MetricNew', on_delete=models.CASCADE, editable=False, related_name='answers')
-  answer = models.TextField(blank=True, null=False, default='')
-  comment = models.TextField(blank=True, null=False, default='')
-  url_comment = models.TextField(blank=True, null=False, default='')
-
-# yesnomaybe (depends on metric__type)
-  def value(self):
-    return {
-      'yes': 1,
-      'yesbut': 0.75,
-      'nobut': 0.25,
-      'no': 0,
-      '': 0,
-    }.get(self.answer, 1)
-  
-  def inverse(self):
-    return {
-      1: 'yes',
-      0.75: 'yesbut',
-      0.25: 'nobut',
-      0: 'no',
-    }.get(self.answer, 'yes')
-
-  def has_permission(self, user, perm):
-    return (self and self.assessment.has_permission(user, perm)) or user.is_staff
-
-  def __str__(self):
-    return 'Answer to Metric[{metric}] for assessment[{assessment}]: {answer} ({id})'.format(
-      id=self.id,
-      assessment=self.assessment,
-      metric=self.metric,
-      answer=self.answer,
-    )
-
-  class Meta:
-    verbose_name = 'answer'
-    verbose_name_plural = 'answers'
-    ordering = ['id']
-
-class IdentifiableModelMixin(models.Model):
-  id = models.AutoField(primary_key=True)
-
-  title = models.CharField(max_length=255, blank=False)
-  url = models.CharField(max_length=255, blank=True, null=False, default='')
-  description = models.TextField(blank=True, null=False, default='')
-  image = models.CharField(max_length=255, blank=True, null=False, default='')
-  tags = models.CharField(max_length=255, blank=True, null=False, default='')
-
-  type = models.CharField(max_length=16, blank=True, null=False, default='', choices=(
-    ('', 'Other'),
-    ('any', 'Any Digital Object'),
-    ('data', 'Dataset'),
-    ('repo', 'Repository'),
-    ('test', 'Test Object'),
-    ('tool', 'Tool'),
-  ))
-
-  authors = models.ManyToManyField('Author', blank=True)
-
-  def tags_as_list(self):
-    return self.tags.split()
-  
-  def model_name(self):
-    return self._meta.verbose_name_raw
-  
-  def has_permission(self, user, perm):
-    if perm in ['list', 'retrieve', 'stats']:
-      return True
-    elif perm in ['create', 'add']:
-      return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
-      if self is None:
-        return user.is_authenticated
-      else:
-        return (self.authors and self.authors.filter(id=user.id).exists()) or user.is_staff
-    else:
-      logging.warning('perm %s not handled' % (perm))
-      return user.is_staff
-
-  def __str__(self):
-    return '{title} ({id})'.format(id=self.id, title=self.title)
-
-  class Meta:
-    abstract = True
-
-class Project(IdentifiableModelMixin):
-  digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
-  
-  class Meta:
-    verbose_name = 'project'
-    verbose_name_plural = 'projects'
-    ordering = ['id']
-
-  class MetaEx:
-    children = [
-      'digital_objects',
-    ]
-
-class DigitalObject(IdentifiableModelMixin):
-  # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
-  title = models.CharField(max_length=255, blank=True, null=False, default='')
-  url = models.CharField(max_length=255, blank=False)
-  fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
-
-  rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
-
-  class Meta:
-    verbose_name = 'digital_object'
-    verbose_name_plural = 'digital_objects'
-    ordering = ['id']
-
-  class MetaEx:
-    children = [
-      'projects',
-      'rubrics',
-    ]
-
-class Rubric(IdentifiableModelMixin):
-  license = models.CharField(max_length=255, blank=True, null=False, default='')
-
-  metrics = models.ManyToManyField('Metric', blank=True, related_name='rubrics')
-
-  class Meta:
-    verbose_name = 'rubric'
-    verbose_name_plural = 'rubrics'
-    ordering = ['id']
-
-  class MetaEx:
-    children = [
-      'metrics',
-      'digital_objects',
-    ]
-
-class Metric(IdentifiableModelMixin):
-  type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
-    ('yesnobut', 'Yes no or but question'),
-    ('text', 'Simple textbox input'),
-    ('url', 'A url input'),
-  ))
-
-  license = models.CharField(max_length=255, blank=True, null=False, default='')
-
-  rationale = models.TextField(blank=True, null=False, default='')
-  principle = models.CharField(max_length=16, blank=True, null=False, default='', choices=(
-    ('F', 'Findability',),
-    ('A', 'Accessibility',),
-    ('I', 'Interoperability',),
-    ('R', 'Reusability',),
-  ))
-  fairmetrics = models.CharField(max_length=255, blank=True, null=False, default='')
-
-  class Meta:
-    verbose_name = 'metric'
-    verbose_name_plural = 'metrics'
-    ordering = ['id']
-
-  class MetaEx:
-    children = [
-      'rubrics',
-    ]
-
-class Assessment(models.Model):
-  id = models.AutoField(primary_key=True)
-  project = models.ForeignKey('Project', on_delete=models.SET_NULL, blank=True, null=True, related_name='assessments')
-  target = models.ForeignKey('DigitalObject', on_delete=models.CASCADE, related_name='assessments')
-  rubric = models.ForeignKey('Rubric', on_delete=models.CASCADE, related_name='assessments')
-  methodology = models.TextField(max_length=16, blank=True, choices=(
-    ('self', 'Digital Object Creator Assessment'),
-    ('user', 'Independent User Assessment'),
-    ('auto', 'Automatic Assessment'),
-    ('test', 'Test Assessment'),
-  ))
-  assessor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True)
-  timestamp = models.DateTimeField(auto_now_add=True)
-
-  def has_permission(self, user, perm):
-    if perm in ['list', 'retrieve']:
-      return True
-    elif perm in ['create', 'add']:
-      return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
-      if self is None:
-        return user.is_authenticated
-      else:
-        return (self and self.assessor == user) or user.is_staff
-    else:
-      logging.warning('perm %s not handled' % (perm))
-      return user.is_staff
-
-  def __str__(self):
-    return '{methodology} assessment on Target[{target}] for Project[{project}] with Rubric[{rubric}] ({id})'.format(
-      id=self.id,
-      project=self.project,
-      target=self.target,
-      rubric=self.rubric,
-      methodology=self.methodology
-    )
-
-  class Meta:
-    verbose_name = 'assessment'
-    verbose_name_plural = 'assessments'
-    ordering = ['id']
-
-  class MetaEx:
-    children = [
-      'answers',
-    ]
-
-class Answer(models.Model):
-  id = models.AutoField(primary_key=True)
-  assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='answers')
-  metric = models.ForeignKey('Metric', on_delete=models.CASCADE, related_name='answers')
+class Answer(Versionable):
+  assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, editable=False, related_name='answers')
+  metric = models.ForeignKey('Metric', on_delete=models.CASCADE, editable=False, related_name='answers')
   answer = models.TextField(blank=True, null=False, default='')
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
@@ -425,7 +215,7 @@ class Answer(models.Model):
     ordering = ['id']
 
 class AssessmentRequest(models.Model):
-  id = models.AutoField(primary_key=True)
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4)
   assessment = models.OneToOneField('Assessment', on_delete=models.CASCADE, related_name='request')
   requestor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True, default='')
   timestamp = models.DateTimeField(auto_now_add=True)

@@ -105,12 +105,23 @@ def migrate_db(forwards=None):
       )
       old_answer_2_new[answer] = new_answer
 
+    AssessmentRequest = apps.get_model('FAIRshakeAPI', 'AssessmentRequest' if forwards else 'AssessmentRequestNew')
+    AssessmentRequestNew = apps.get_model('FAIRshakeAPI', 'AssessmentRequestNew' if forwards else 'AssessmentRequest')
+    old_assessment_request_2_new = {}
+    for assessment_request in AssessmentRequest.objects.all():
+      new_assessment_request = AssessmentRequestNew.objects.create(
+        assessment=old_assessment_2_new[assessment_request.assessment],
+        requestor=assessment_request.requestor,
+        timestamp=assessment_request.timestamp,
+      )
+      old_assessment_request_2_new[assessment_request] = new_assessment_request
+
   return migrate
 
 class Migration(migrations.Migration):
 
   dependencies = [
-    ('FAIRshakeAPI', '0005_auto_20180910_1449'),
+    ('FAIRshakeAPI', '0005_auto_20180910_1752'),
   ]
 
   operations = [
