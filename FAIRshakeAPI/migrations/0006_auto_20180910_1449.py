@@ -2,12 +2,8 @@ from django.db import migrations, transaction
 
 def migrate_db(forwards=None):
   def migrate(apps, schema_editor):
-    if forwards:
-      Metric = apps.get_model('FAIRshakeAPI', 'Metric')
-      MetricNew = apps.get_model('FAIRshakeAPI', 'MetricNew')
-    else:
-      Metric = apps.get_model('FAIRshakeAPI', 'MetricNew')
-      MetricNew = apps.get_model('FAIRshakeAPI', 'Metric')
+    Metric = apps.get_model('FAIRshakeAPI', 'Metric' if forwards else 'MetricNew')
+    MetricNew = apps.get_model('FAIRshakeAPI', 'MetricNew' if forwards else 'Metric')
 
     old_metric_2_new = {}
     for metric in Metric.objects.all():
@@ -27,9 +23,9 @@ def migrate_db(forwards=None):
         new_metric.authors.add(author)
       old_metric_2_new[metric] = new_metric
 
+    Rubric = apps.get_model('FAIRshakeAPI', 'Rubric' if forwards else 'RubricNew')
+    RubricNew = apps.get_model('FAIRshakeAPI', 'RubricNew' if forwards else 'Rubric')
     old_rubric_2_new = {}
-    Rubric = apps.get_model('FAIRshakeAPI', 'Rubric')
-    RubricNew = apps.get_model('FAIRshakeAPI', 'RubricNew')
     for rubric in Rubric.objects.all():
       new_rubric = RubricNew.objects.create(
         title=rubric.title,
@@ -46,9 +42,9 @@ def migrate_db(forwards=None):
         new_rubric.metrics.add(old_metric_2_new[metric])
       old_rubric_2_new[rubric] = new_rubric
 
+    DigitalObject = apps.get_model('FAIRshakeAPI', 'DigitalObject' if forwards else 'DigitalObjectNew')
+    DigitalObjectNew = apps.get_model('FAIRshakeAPI', 'DigitalObjectNew' if forwards else 'DigitalObject')
     old_obj_2_new = {}
-    DigitalObject = apps.get_model('FAIRshakeAPI', 'DigitalObject')
-    DigitalObjectNew = apps.get_model('FAIRshakeAPI', 'DigitalObjectNew')
     for obj in DigitalObject.objects.all():
       new_obj = DigitalObjectNew.objects.create(
         title=obj.title,
@@ -65,9 +61,9 @@ def migrate_db(forwards=None):
         new_obj.rubrics.add(old_rubric_2_new[rubric])
       old_obj_2_new[obj] = new_obj
 
+    Project = apps.get_model('FAIRshakeAPI', 'Project' if forwards else 'ProjectNew')
+    ProjectNew = apps.get_model('FAIRshakeAPI', 'ProjectNew' if forwards else 'Project')
     old_project_2_new = {}
-    Project = apps.get_model('FAIRshakeAPI', 'Project')
-    ProjectNew = apps.get_model('FAIRshakeAPI', 'ProjectNew')
     for project in Project.objects.all():
       new_project = ProjectNew.objects.create(
         title=project.title,
@@ -83,12 +79,12 @@ def migrate_db(forwards=None):
         new_project.digital_objects.add(old_obj_2_new[obj])
       old_project_2_new[project] = new_project
 
+    Assessment = apps.get_model('FAIRshakeAPI', 'Assessment' if forwards else 'AssessmentNew')
+    AssessmentNew = apps.get_model('FAIRshakeAPI', 'AssessmentNew' if forwards else 'Assessment')
     old_assessment_2_new = {}
-    Assessment = apps.get_model('FAIRshakeAPI', 'Assessment')
-    AssessmentNew = apps.get_model('FAIRshakeAPI', 'AssessmentNew')
     for assessment in Assessment.objects.all():
       new_assessment = AssessmentNew.objects.create(
-        project=old_project_2_new[assessment.project],
+        project=old_project_2_new[assessment.project] if assessment.project is not None else None,
         target=old_obj_2_new[assessment.target],
         rubric=old_rubric_2_new[assessment.rubric],
         methodology=assessment.methodology,
@@ -96,9 +92,9 @@ def migrate_db(forwards=None):
       )
       old_assessment_2_new[assessment] = new_assessment
 
+    Answer = apps.get_model('FAIRshakeAPI', 'Answer' if forwards else 'AnswerNew')
+    AnswerNew = apps.get_model('FAIRshakeAPI', 'AnswerNew' if forwards else 'Answer')
     old_answer_2_new = {}
-    Answer = apps.get_model('FAIRshakeAPI', 'Answer')
-    AnswerNew = apps.get_model('FAIRshakeAPI', 'AnswerNew')
     for answer in Answer.objects.all():
       new_answer = AnswerNew.objects.create(
         assessment=old_assessment_2_new[answer.assessment],
