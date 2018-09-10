@@ -21,7 +21,7 @@ def callback_or_redirect(request, *args, **kwargs):
 
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
-    context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context) or {}
+    context = super().get_template_context(data, renderer_context) or {}
     view = renderer_context['view']
     request = view.request
     return view.get_template_context(request, context)
@@ -43,7 +43,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   def get_model_children(self, obj):
     for child in self.get_model().MetaEx.children:
       child_attr = getattr(obj, child)
-      yield (child_attr.model._meta.verbose_name_raw, child_attr.all())
+      yield (child_attr.model._meta.verbose_name_raw, child_attr.current.all())
 
   def get_form(self):
     return self.form
@@ -54,7 +54,8 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     return instance
 
   def get_queryset(self):
-    return getattr(self, 'queryset', self.get_model().objects.all())
+    qs = getattr(self, 'queryset', None)
+    return self.get_model().objects.current.all() if qs is None else qs
   
   def filter_queryset(self, qs):
     ''' Ensure all resulting filter sets are distinct '''
@@ -225,14 +226,14 @@ class AssessmentViewSet(CustomModelViewSet):
     assessment.methodology = 'user'
     assessment.save()
     if not assessment.answers.exists():
-      for metric in assessment.rubric.metrics.all():
+      for metric in assessment.rubric.metrics.current.all():
         answer = models.Answer(
           assessment=assessment,
           metric=metric,
         )
         answer.save()
 
-    for answer in assessment.answers.all():
+    for answer in assessment.answers.current.all():
         answer_form = forms.AnswerForm(
           request.POST,
           instance=answer,
@@ -253,7 +254,7 @@ class AssessmentViewSet(CustomModelViewSet):
       assessment_form = forms.AssessmentForm(instance=assessment)
 
       answers = []
-      for answer in assessment.answers.all():
+      for answer in assessment.answers.current.all():
         answer_form = forms.AnswerForm(
           prefix=answer.metric.id,
           instance=answer,
@@ -287,9 +288,9 @@ class AssessmentViewSet(CustomModelViewSet):
         else:
           rubrics = None
           if target is not None:
-            rubrics = targets.first().rubrics.all()
+            rubrics = targets.first().rubrics.current.all()
           if rubrics is None or not rubrics.exists():
-            rubrics = models.Rubric.objects.all()
+            rubrics = models.Rubric.objects.current.all()
           if rubrics.count() == 1:
             rubric = rubrics.first().id
 
@@ -298,9 +299,9 @@ class AssessmentViewSet(CustomModelViewSet):
         else:
           projects = None
           if target is not None:
-            projects = targets.first().projects.all()
+            projects = targets.first().projects.current.all()
           if projects is None or projects.exists():
-            projects = models.Project.objects.all()
+            projects = models.Project.objects.current.all()
           if projects.count() == 1:
             project = projects.first().id
 
@@ -331,7 +332,7 @@ class AssessmentViewSet(CustomModelViewSet):
       assessment.assessor = request.user
 
       answers = []
-      for metric in assessment.rubric.metrics.all():
+      for metric in assessment.rubric.metrics.current.all():
         answer = models.Answer(
           assessment=assessment,
           metric=metric,
@@ -372,7 +373,7 @@ class ScoreViewSet(
   ):
   ''' Request an score for a digital resource
   '''
-  queryset = models.Assessment.objects.all()
+  queryset = models.Assessment.objects.current.all()
   serializer_class = serializers.AssessmentSerializer
   filter_class = filters.ScoreFilterSet
   pagination_class = None
@@ -425,7 +426,7 @@ class ScoreViewSet(
     if answers is None:
       answers = {}
       for assessment in self.filter_queryset(self.get_queryset()):
-        for answer in assessment.answers.all():
+        for answer in assessment.answers.current.all():
           value = answer.value()
           answers[value] = answers.get(value, 0) + 1
       cache.set(key, answers, 60 * 60)

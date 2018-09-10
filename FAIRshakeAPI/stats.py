@@ -35,12 +35,12 @@ def RubricPieChart(assessments_with_rubric):
   rubrics=list(rubrics_dict.keys())
   evals=list(rubrics_dict.values())
   evals = [x/9 for x in evals]
-  rubric_names=[models.Rubric.objects.filter(id=x).values_list('title', flat=True).get() for x in rubrics]
+  rubric_names=[models.Rubric.objects.current.filter(id=x).values_list('title', flat=True).get() for x in rubrics]
   fig = [go.Pie(labels=rubric_names, values=evals, hoverinfo='label+value+percent', textinfo='percent')]
   yield _iplot(fig)
 
 def RubricsInProjectsOverlay(answers_within_project,projectid):
-  rubrics=np.unique(models.Rubric.objects.filter(assessments__project__id__in=[projectid]).values_list('id',flat=True))
+  rubrics=np.unique(models.Rubric.objects.current.filter(assessments__project__id__in=[projectid]).values_list('id',flat=True))
   all_trace=[]
   for rubric in rubrics:
     responses=answers_within_project.filter(assessment__rubric__id=rubric).values_list('answer',flat=True)
@@ -50,7 +50,7 @@ def RubricsInProjectsOverlay(answers_within_project,projectid):
         if x not in scores_dict.keys():
           scores_dict[x]=0
       trace = go.Bar(x=['no (0)', 'no but (0.25)','yes but (0.75)','yes (1)'],y=[scores_dict['no'],scores_dict['nobut'],scores_dict['yesbut'],scores_dict['yes']],
-            name= models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get())
+            name= models.Rubric.objects.current.filter(id=rubric).values_list('title', flat=True).get())
       all_trace.append(trace)
   layout = {'xaxis': {'title': 'Answer'},
     'yaxis': {'title': 'Responses'},
@@ -108,47 +108,47 @@ def _DigitalObjectBarGraph(scores_dict):
 
 def DigitalObjectBarBreakdown(project):
   object_score_dict={}
-  for obj in project.digital_objects.all():
-    answers=list(models.Answer.objects.filter(assessment__target__id=obj.id).values_list("answer",flat=True))
+  for obj in project.digital_objects.current.all():
+    answers=list(models.Answer.objects.current.filter(assessment__target__id=obj.id).values_list("answer",flat=True))
     if len(answers)>0:
       scores=Scoring(answers)
       mean_score=np.mean(scores)
-      object_score_dict[models.DigitalObject.objects.filter(id=obj.id).values_list('title', flat=True).get()]=mean_score
+      object_score_dict[models.DigitalObject.objects.current.filter(id=obj.id).values_list('title', flat=True).get()]=mean_score
   return _DigitalObjectBarGraph(object_score_dict)
 
 # Overall scores for a particular rubric, project, metric...(***Can be placed on each rubric, project, and metric page***)
 # Get all scores in the database for a particular rubric, project, or metric 
 # Input: Query Set (all answers), type of paramter, parameter ID
-# example input query: models.Answer.objects.filter(assessment__project__id=11).all() 
+# example input query: models.Answer.objects.current.filter(assessment__project__id=11).all() 
 def SingleQuery(querySet, PARAM, ID):
   if PARAM=="project":
-    title=models.Project.objects.filter(id=ID).values_list('title', flat=True).get()
+    title=models.Project.objects.current.filter(id=ID).values_list('title', flat=True).get()
     responses=querySet.values_list('answer', flat=True)
     scores=Scoring(responses)
     if len(scores)!=0:
-      print("Overall FAIR Evaluations for the project:",models.Project.objects.filter(id=ID).values_list('title', flat=True).get(),"(project id:",ID,")","\n")
+      print("Overall FAIR Evaluations for the project:",models.Project.objects.current.filter(id=ID).values_list('title', flat=True).get(),"(project id:",ID,")","\n")
       print("Mean FAIR score:",round(np.mean(scores),2))
       print("Median FAIR score:",np.median(scores))
       print("Total Assessments:",len(scores)/9)
       print("Total Questions Answered:",len(scores))
       return BarGraphs(scores)
   if PARAM=="rubric":
-    title=models.Rubric.objects.filter(id=ID).values_list('title', flat=True).get()
+    title=models.Rubric.objects.current.filter(id=ID).values_list('title', flat=True).get()
     responses=querySet.values_list('answer', flat=True)
     scores=Scoring(responses)
     if len(scores)!=0:
-      print("Overall FAIR Evaluations for the rubric:",models.Rubric.objects.filter(id=ID).values_list('title', flat=True).get(),"(rubric id:",ID,")","\n")
+      print("Overall FAIR Evaluations for the rubric:",models.Rubric.objects.current.filter(id=ID).values_list('title', flat=True).get(),"(rubric id:",ID,")","\n")
       print("Mean FAIR score:",round(np.mean(scores),2))
       print("Median FAIR score:",np.median(scores))
       print("Total Assessments:",len(scores)/9)
       print("Total Questions Answered:",len(scores))
       return BarGraphs(scores)
   if PARAM=="metric":
-    title=models.Metric.objects.filter(id=ID).values_list('title', flat=True).get()
+    title=models.Metric.objects.current.filter(id=ID).values_list('title', flat=True).get()
     responses=querySet.values_list('answer', flat=True)
     scores=Scoring(responses)
     if len(scores)!=0:
-      print("Overall FAIR Evaluations for the metric:",models.Metric.objects.filter(id=ID).values_list('title', flat=True).get(),"(metric id:",ID,")","\n")
+      print("Overall FAIR Evaluations for the metric:",models.Metric.objects.current.filter(id=ID).values_list('title', flat=True).get(),"(metric id:",ID,")","\n")
       print("Mean FAIR score:",round(np.mean(scores),2))
       print("Median FAIR score:",np.median(scores))
       print("Total Assessments:",len(scores)/9)
@@ -159,24 +159,24 @@ def TablePlot(project):
   from django.template import Template, Context
   metrics = [
     metric.title
-    for obj in project.digital_objects.all()
+    for obj in project.digital_objects.current.all()
     for assessment in obj.assessments.all()
     for metric in assessment.rubric.metrics.all()
   ]
   objs = [
     obj.title
-    for obj in project.digital_objects.all()
+    for obj in project.digital_objects.current.all()
   ]
   scores = [
     [
       np.mean([
         answer.value()
-        for answer in models.Answer.objects.filter(metric=metric, assessment__target=obj)
+        for answer in models.Answer.objects.current.filter(metric=metric, assessment__target=obj)
       ])
       for assessment in obj.assessments.all()
       for metric in assessment.rubric.metrics.all()
     ]
-    for obj in project.digital_objects.all()
+    for obj in project.digital_objects.current.all()
   ]
   trace = go.Heatmap(z=scores, x=metrics, y=objs)
   data = [trace]

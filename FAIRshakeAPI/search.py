@@ -4,7 +4,7 @@ from functools import reduce
 
 class SearchVector:
   def __init__(self, qs=None):
-    self.queryset = qs or self.get_model().objects.all()
+    self.queryset = qs or self.get_model().objects.current.all()
 
   def get_model(self):
     return self.model
