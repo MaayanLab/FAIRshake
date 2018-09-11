@@ -1,6 +1,7 @@
 __pycache__/
 .git*
 *.pyc
+*.sqlite3
 Dockerfile
 fairshake.sql
 my.cnf
