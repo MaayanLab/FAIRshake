@@ -6,9 +6,9 @@ class Assessment:
     'target:fairsharing'
   ]
   outputs = [
-    'target:url',
-    'target:description',
-    'target:title',
+    # 'target:url',
+    # 'target:description',
+    # 'target:title',
     # 'target:doi',
     # 'target:authors'
     'metric:9', # license
@@ -28,32 +28,32 @@ class Assessment:
       bsg_id=inputs['target:fairsharing']
     )
     return {
-      'target:url': {
-        'answer': results['data'].get('homepage'),
-        'comment': results['data'].get('homepage'),
-      },
-      'target:description': {
-        'answer': results['data'].get('description'),
-        'comment': results['data'].get('description'),
-      },
-      'target:title': {
-        'answer': results['data'].get('name'),
-        'comment': results['data'].get('name'),
-      },
+      # 'target:url': {
+      #   'answer': results['data'].get('homepage'),
+      #   'comment': results['data'].get('homepage'),
+      # },
+      # 'target:description': {
+      #   'answer': results['data'].get('description'),
+      #   'comment': results['data'].get('description'),
+      # },
+      # 'target:title': {
+      #   'answer': results['data'].get('name'),
+      #   'comment': results['data'].get('name'),
+      # },
       'metric:9': {
-        'answer': 'yes' if results['data'].get('licence', 'nobut') else 'no',
+        'answer': 'yes' if results['data'].get('licence') else 'no',
         'comment': results['data'].get('licence'),
       },
       'metric:60': {
-        'answer': 'yes' if results['data'].get('homepage', 'nobut') is not None else 'no',
+        'answer': 'yes' if results['data'].get('homepage') is not None else 'no',
         'comment': results['data'].get('homepage'),
       },
       'metric:101': {
-        'answer': 'yes' if results['data'].get('taxonomies', 'notbut') else 'no',
+        'answer': 'yes' if results['data'].get('taxonomies') else 'no',
         'comment': results['data'].get('taxonomies'),
       },
       'metric:102': {
-        'answer': 'yes' if results['data'].get('domains', 'notbut') else 'no',
+        'answer': 'yes' if results['data'].get('domains') else 'no',
         'comment': results['data'].get('domains'),
       },
       # 'target:doi': results['data'].get('doi'),
