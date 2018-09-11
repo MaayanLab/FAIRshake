@@ -13,26 +13,21 @@ class Assessment:
       target=target,
       rubric=rubric,
     )
+    performed = set()
     cant_get = []
-    loop_detector = 10
 
     # The below loop uses assessments to turn want into have as much as possible
     #  potentially adding more wants if an assessment has something in particular
     #  but has a dependency
     while want != []:
-      if loop_detector > 0:
-        loop_detector -= 1
-      else:
-        break
-
       # Try to obtain our current want
       current_want = want.pop()
-      if current_want in have.keys():
+      if have.get(current_want) is not None:
         # We already have this, skip
         continue
-      for assessment in assessments:
-        # Does this assessment have something we want
-        if set(assessment.outputs).intersection(want):
+      for assessment in set(assessments).difference(performed):
+        # Does this assessment have what we want
+        if current_want in assessment.outputs:
           # Do we have additional needs for this assessment
           current_wants = [
             k
@@ -63,14 +58,18 @@ class Assessment:
             }
             # Perform assessment
             results = assessment.perform(current_have)
+            performed.add(assessment)
+
             # Warn if assessment isn't actually working properly
-            if list(results.keys()) != assessment.outputs:
+            if set(list(results.keys())) != set(assessment.outputs):
               logging.warn(
                 assessment.__name__ + "'s output is malformed"
               )
+
             for output_key, output in results.items():
               # We now have these results
               # TODO: smarter collision detection
-              have[output_key] = have.get(output_key) or output
+              if have.get(output_key) is None and output:
+                have[output_key] = output
 
     return have
