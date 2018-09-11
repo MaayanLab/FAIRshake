@@ -32,7 +32,7 @@ class SwaggerClient:
           **kwargs,
         ),
         headers=self._headers,
-      ).raw
+      ).raw.decode()
     )
 
   def _update(self):
