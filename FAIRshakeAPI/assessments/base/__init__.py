@@ -14,11 +14,17 @@ class Assessment:
       rubric=rubric,
     )
     cant_get = []
+    loop_detector = 10
 
     # The below loop uses assessments to turn want into have as much as possible
     #  potentially adding more wants if an assessment has something in particular
     #  but has a dependency
     while want != []:
+      if loop_detector > 0:
+        loop_detector -= 1
+      else:
+        break
+
       # Try to obtain our current want
       current_want = want.pop()
       if current_want in have.keys():
