@@ -2,6 +2,7 @@
 
 from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
+from .assessments import Assessment
 from django import shortcuts, forms as django_forms
 from django.conf import settings
 from django.core.cache import cache
@@ -332,6 +333,11 @@ class AssessmentViewSet(CustomModelViewSet):
       assessment = assessment_form.save(commit=False)
       assessment.assessor = request.user
 
+      auto_assessment_results = Assessment.perform(
+        rubric=assessment.rubric,
+        target=assessment.target,
+      )
+
       answers = []
       for metric in assessment.rubric.metrics.all():
         answer = models.Answer(
@@ -339,7 +345,11 @@ class AssessmentViewSet(CustomModelViewSet):
           metric=metric,
         )
         answer_form = forms.AnswerForm(
-          request.GET,
+          dict(request.GET, **{
+            '%s-%s' % (metric.id, key): attr
+            for key, attr in auto_assessment_results.get('metric:%d' % (metric.id), {}).items()
+            if attr
+          }),
           prefix=metric.id,
           instance=answer,
         )
