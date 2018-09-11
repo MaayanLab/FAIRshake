@@ -95,16 +95,19 @@ class Assessment:
   @classmethod
   def perform(kls, inputs):
     url = inputs['target:url']
-    r = requests.get(url)
-    base_url = get_base_url(r.text, r.url)
-    data = extruct.extract(r.text, base_url=base_url, syntaxes=['json-ld'])['json-ld']
-    tree = Tree(data)
-    results = {}
+    try:
+      r = requests.get(url)
+      base_url = get_base_url(r.text, r.url)
+      data = extruct.extract(r.text, base_url=base_url, syntaxes=['json-ld'])['json-ld']
+      tree = Tree(data)
+    except:
+      data = None
 
     return dict(
       **{
         'metric:30': {
           'answer': 'yes' if data else 'no',
+          'comment': 'jsonld was found and properly parsed' if data else 'jsonld could not be parsed',
         },
       },
       **{
@@ -119,5 +122,5 @@ class Assessment:
             to_schema.values()
           )
         )
-      }
+      } if data else {key: {} for key in to_schema.keys()}
     )
