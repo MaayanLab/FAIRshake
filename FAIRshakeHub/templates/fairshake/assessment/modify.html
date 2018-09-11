@@ -10,9 +10,6 @@
     {% endif %}
   </legend>
   {% csrf_token %}
-  <div class="alert alert-danger" role="alert">
-    This evaluation form is under construction, it does not work yet.
-  </div>
   {{ form|bootstrap }}
   {% for answer in answers %}
     <div class="row">

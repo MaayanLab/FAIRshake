@@ -56,6 +56,27 @@ Django keeps track of database migrations. When modifying `models` it is imperat
 
 Note that this will try but not always succeed to detect renamed fields and such and migrate the backend database accordingly. If it is unable to, it may require manual intervention. For more information https://docs.djangoproject.com/en/2.0/topics/migrations/.
 
+## Database Backup & Restore
+### Backup
+```bash
+# Backup data, omit django internals (which could cause loading to fail)
+./manage.py dumpdata \
+  -e contenttypes \
+  -e admin \
+  -e auth.Permission \
+  --natural-foreign \
+  --indent=2 \
+    > mybackup.json
+```
+
+### Restore
+```bash
+# Ensure database is initialized
+./manage.py migrate
+# Load data from backup
+./manage.py loaddata mybackup.json
+```
+
 ## Production
 ### Secret values
 For the docker-compose to work properly in production, `/ssl/` should have the following files:

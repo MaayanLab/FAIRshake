@@ -11,7 +11,7 @@
         {% endif %}
       />
     </div>
-    <h3 class="helper" style="margin-top:10px;"><a href="{{ item.url }}" target=_blank>{{ item.title }}</a></h3>
+    <h3 class="helper" style="margin-top:10px;">{{ item.title }}</h3>
     {% if item.type %}
       <span class="label" style="background-color:#666666;color:white;font-size:10px;display:inline-block;vertical-align:middle;">
         {% if model == "digital_object" %}
@@ -46,11 +46,25 @@
         {% endfor %}
       </p>
     {% endif %}
+    {% if item.url %}
+      <p>
+        <strong>URL:</strong>
+        <a href="{{ item.url }}">{{ item.url|limit:50 }}</a>
+      </p>
+    {% endif %}
     <div
       class="insignia"
       style="width: 80px; height: 80px; padding: 10px;"
       data-target='{ "{{ model }}": {{ item.id }} }'
     ></div>
+    {% if model == "project" %}
+      <a
+        class="btn btn-primary"
+        href="{% url model|add:'-stats' item.id %}"
+      >
+        View Analytics
+      </a>
+    {% endif %}
   </div>
     {% if model == "digital_object" and user.is_authenticated %}
     <div>

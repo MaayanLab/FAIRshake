@@ -56,6 +56,10 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
   def get_queryset(self):
     return getattr(self, 'queryset', self.get_model().objects.all())
+  
+  def filter_queryset(self, qs):
+    ''' Ensure all resulting filter sets are distinct '''
+    return super().filter_queryset(qs).order_by(*self.get_model()._meta.ordering).distinct()
 
   def get_template_names(self):
     return ['fairshake/generic/page.html']
@@ -68,8 +72,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     form = form_cls(instance=item)
 
     return {
-      'model': self.get_model_name(),
-      'action': self.action,
       'item': item,
       'form': form,
       'children': {
@@ -90,8 +92,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     form = form_cls(request.GET)
 
     return {
-      'model': self.get_model_name(),
-      'action': self.action,
       'form': form,
       'items': paginator_cls(
         self.filter_queryset(
@@ -105,11 +105,13 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
   def get_template_context(self, request, context):
     return dict(context,
-      **self.get_detail_template_context(
-        request, context
-      ) if self.detail else self.get_list_template_context(
-        request, context
-      ),
+      model=self.get_model_name(),
+      action=self.action,
+      **getattr(self, 'get_%s_template_context' % (self.action),
+        getattr(self, 'get_%s_template_context' % ('detail' if self.detail else 'list'),
+          lambda *args: args
+        )
+      )(request, context),
     )
 
   @decorators.action(
@@ -174,6 +176,28 @@ class ProjectViewSet(CustomModelViewSet):
   form = forms.ProjectForm
   serializer_class = serializers.ProjectSerializer
   filter_class = filters.ProjectFilterSet
+  
+  @decorators.action(
+    detail=True,
+    methods=['get'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def stats(self, request, pk=None):
+    item = self.get_object()
+    self.check_object_permissions(request, item)
+    return response.Response()
+  
+  def get_stats_template_context(self, request, context):
+    item = self.get_object()
+    return dict(context, **{
+      'item': self.get_object(),
+      'plots': [
+        'TablePlot',
+        'RubricPieChart',
+        'RubricsInProjectsOverlay',
+        'DigitalObjectBarBreakdown',
+      ]
+    })
 
 class RubricViewSet(CustomModelViewSet):
   model = models.Rubric
@@ -241,8 +265,6 @@ class AssessmentViewSet(CustomModelViewSet):
         })
 
       return dict(context, **{
-        'model': self.get_model_name(),
-        'action': self.action,
         'form': assessment_form,
         'item': assessment,
         'answers': answers,
@@ -334,8 +356,6 @@ class AssessmentViewSet(CustomModelViewSet):
         })
 
       return dict(context, **{
-        'model': self.get_model_name(),
-        'action': self.action,
         'form': assessment_form,
         'item': assessment,
         'answers': answers,
@@ -380,9 +400,7 @@ class ScoreViewSet(
       for assessment in self.filter_queryset(self.get_queryset()):
         if scores.get(assessment.rubric.id) is None:
           scores[assessment.rubric.id] = {}
-        for answer in models.Answer.objects.filter(
-          assessment=assessment.id,
-        ):
+        for answer in assessment.answers.all():
           if metrics.get(answer.metric.id) is None:
             metrics[answer.metric.id] = answer.metric.title
           if scores[assessment.rubric.id].get(answer.metric.id) is None:

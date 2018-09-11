@@ -40,7 +40,7 @@ class IdentifiableModelMixin(models.Model):
     }
   
   def has_permission(self, user, perm):
-    if perm in ['list', 'retrieve']:
+    if perm in ['list', 'retrieve', 'stats']:
       return True
     elif perm in ['create', 'add']:
       return user.is_authenticated or user.is_staff
@@ -195,6 +195,7 @@ class Answer(models.Model):
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
 
+# yesnomaybe (depends on metric__type)
   def value(self):
     return {
       'yes': 1,
@@ -203,6 +204,14 @@ class Answer(models.Model):
       'no': 0,
       '': 0,
     }.get(self.answer, 1)
+  
+  def inverse(self):
+    return {
+      1: 'yes',
+      0.75: 'yesbut',
+      0.25: 'nobut',
+      0: 'no',
+    }.get(self.answer, 'yes')
 
   def has_permission(self, user, perm):
     return (self and self.assessment.has_permission(user, perm)) or user.is_staff
