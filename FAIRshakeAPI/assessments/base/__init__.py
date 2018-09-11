@@ -70,6 +70,7 @@ class Assessment:
               )
             for output_key, output in results.items():
               # We now have these results
-              have[output_key] = output
+              # TODO: smarter collision detection
+              have[output_key] = have.get(output_key) or output
 
     return have
