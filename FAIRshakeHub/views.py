@@ -31,6 +31,9 @@ def index(request):
     )
   )
 
+def affiliations(request):
+  return render(request, 'fairshake/affiliations.html')
+
 def bookmarklet(request):
   return render(request, 'fairshake/bookmarklet.html')
 

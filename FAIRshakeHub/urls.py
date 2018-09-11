@@ -8,4 +8,5 @@ urlpatterns = [
     path('terms_of_service/', views.terms_of_service, name='terms_of_service'),
     path('privacy_policy/', views.privacy_policy, name='privacy_policy'),
     path('stats/', views.stats_view, name='stats'),
+    path('affiliations/', views.affiliations, name='affiliations'),
 ]
