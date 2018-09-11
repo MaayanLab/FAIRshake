@@ -264,6 +264,8 @@ class AssessmentViewSet(CustomModelViewSet):
         })
 
       return dict(context, **{
+        'model': self.get_model_name(),
+        'action': self.action,
         'form': assessment_form,
         'item': assessment,
         'answers': answers,
@@ -321,11 +323,11 @@ class AssessmentViewSet(CustomModelViewSet):
           assessment_form.fields['rubric'] = ModelChoiceField(queryset=rubrics, required=True)
           assessment_form.fields['project'] = ModelChoiceField(queryset=projects, required=False)
 
-          return {
+          return dict(context, **{
             'model': self.get_model_name(),
             'action': 'prepare',
             'form': assessment_form,
-          }
+          })
 
       assessment = assessment_form.save(commit=False)
       assessment.assessor = request.user
@@ -347,6 +349,8 @@ class AssessmentViewSet(CustomModelViewSet):
         })
 
       return dict(context, **{
+        'model': self.get_model_name(),
+        'action': self.action,
         'form': assessment_form,
         'item': assessment,
         'answers': answers,
