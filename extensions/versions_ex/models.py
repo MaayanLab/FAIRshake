@@ -1,5 +1,7 @@
+import uuid
 from versions.models import Versionable, VersionManager, VersionedQuerySet
 from versions.fields import VersionedForeignKey, VersionedManyToManyField
+from .fields import CustomUUIDField
 
 class VersionedQuerySetEx(VersionedQuerySet):
   def _set_item_querytime(self, item, type_check=False):
@@ -32,6 +34,9 @@ class VersionManagerEx(VersionManager):
     return res
 
 class VersionableEx(Versionable):
+  id = CustomUUIDField(default=uuid.uuid4, primary_key=True)
+  identity = CustomUUIDField()
+
   objects = VersionManagerEx()
 
   class Meta:

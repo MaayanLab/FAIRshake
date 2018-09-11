@@ -3,7 +3,8 @@ import logging
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
-from extensions.versions_ex.models import VersionableEx as Versionable, VersionedForeignKey, VersionedManyToManyField
+from extensions.versions_ex.models import VersionableEx as Versionable, VersionedManyToManyField
+from extensions.versions_ex.fields import CustomUUIDField
 
 class IdentifiableModelMixin(Versionable):
   title = models.CharField(max_length=255, blank=False)
@@ -44,7 +45,7 @@ class IdentifiableModelMixin(Versionable):
     else:
       logging.warning('perm %s not handled' % (perm))
       return user.is_staff
-
+  
   def __str__(self):
     return '{title} ({id})'.format(id=self.id, title=self.title)
 
@@ -215,7 +216,7 @@ class Answer(Versionable):
     ordering = ['id']
 
 class AssessmentRequest(models.Model):
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+  id = CustomUUIDField(primary_key=True, default=uuid.uuid4)
   assessment = models.OneToOneField('Assessment', on_delete=models.CASCADE, related_name='request')
   requestor = models.ForeignKey('Author', on_delete=models.SET_NULL, related_name='+', blank=True, null=True, default='')
   timestamp = models.DateTimeField(auto_now_add=True)
