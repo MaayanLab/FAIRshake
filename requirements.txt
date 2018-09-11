@@ -18,4 +18,5 @@ numpy
 objectpath
 plotly
 pymysql
+pyswagger
 swagger-spec-validator
