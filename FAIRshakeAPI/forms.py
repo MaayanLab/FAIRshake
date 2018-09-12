@@ -66,7 +66,6 @@ class DigitalObjectForm(IdentifiableForm):
       'tags',
       'type',
       'slug',
-      'fairsharing',
       'rubrics',
     )
 

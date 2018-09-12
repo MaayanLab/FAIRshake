@@ -88,14 +88,8 @@ class DigitalObject(IdentifiableModelMixin):
   url = models.CharField(max_length=255, blank=False)
   # urls = ArrayField(models.CharField(max_length=255), blank=False)
   title = models.CharField(max_length=255, blank=True, null=False, default='')
-  fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
 
   rubrics = VersionedManyToManyField('Rubric', blank=True, related_name='digital_objects')
-
-  def attrs(self):
-    return dict(super().attrs(), **{
-      'fairsharing': self.fairsharing,
-    })
 
   class Meta:
     verbose_name = 'digital_object'
