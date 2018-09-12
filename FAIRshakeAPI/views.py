@@ -192,10 +192,10 @@ class ProjectViewSet(CustomModelViewSet):
     return dict(context, **{
       'item': self.get_object(),
       'plots': [
-        'TablePlot',
-        'RubricPieChart',
         'RubricsInProjectsOverlay',
-        'DigitalObjectBarBreakdown',
+        'RubricPieChart',
+        'DigitalObjectScoreHist',
+        'TablePlot',
       ]
     })
 

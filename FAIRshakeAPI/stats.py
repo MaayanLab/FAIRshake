@@ -4,156 +4,131 @@ import plotly.graph_objs as go
 from collections import Counter
 import numpy as np
 
-# Dictionary converts all answers to scores
-answer_score_dict = {"yes":1,"yesbut":0.75,"nobut":0.25,"no":0}
-
 def _iplot(*args, **kwargs):
   return opy.plot(*args, **kwargs, auto_open=False, output_type='div')
 
 # Function turns answers into scores
 def Scoring(answers):
-  scores=[]
-  for ans in answers:
-    scores.append(answer_score_dict[ans])
-  return(scores)
+  return [answer.inverse() for answer in answers]
 
-# Build Bar charts
-def BarGraphs(data):
-  data_dict=Counter(data)
-  for x in [0,0.25,0.75,1]:
-    if x not in  data_dict.keys():
-      data_dict[x]=0
-  if len(np.unique(data))>1:
-    hist=[go.Bar(x=list(data_dict.keys()),y=list(data_dict.values()))]
-    layout = go.Layout(xaxis=dict(title="FAIR score (0=no,0.25=nobut,0.75=yesbut,1=yes)",ticks='outside',tickvals=[0,0.25,0.5,0.75,1]),yaxis=dict(title='Responses'),width=400,height=400)
-    fig = go.Figure(data=hist, layout=layout)
-    yield _iplot(fig)
+def RubricsInProjectsOverlay(project):
+    query = models.Answer.objects.filter(assessment__project__id = project.id).all()
+    rubrics = np.unique(models.Rubric.objects.filter(assessments__project__id__in=[project.id]).values_list('id',flat=True))
+    all_trace = []
+    for rubric in rubrics:
+        responses = query.filter(assessment__rubric__id = rubric).values_list('answer',flat=True)
+        if len(responses) > 0:
+            responses_dict=Counter(responses)
+            for x in list(responses_dict.keys()):
+                 if x not in list(answer_dict.keys()):
+                    responses_dict[x] = 0
+            x = [reverse_answer_dict[x] for x in sorted(answer_dict.values())]
+            y = [responses_dict[y] for y in x]
+            trace = go.Bar(x=x,y=y,name=models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get())
+            all_trace.append(trace)
+    layout = {'xaxis': {'title': 'Answer'},'yaxis': {'title': 'Responses'},'barmode': 'stack'}
+    yield _iplot({'data': all_trace, 'layout': layout})
 
-def RubricPieChart(assessments_with_rubric):
-  assessments_with_rubric=assessments_with_rubric.values_list('rubric',flat=True) 
-  rubrics_dict=Counter(assessments_with_rubric)
-  rubrics=list(rubrics_dict.keys())
-  evals=list(rubrics_dict.values())
-  evals = [x/9 for x in evals]
-  rubric_names=[models.Rubric.objects.filter(id=x).values_list('title', flat=True).get() for x in rubrics]
-  fig = [go.Pie(labels=rubric_names, values=evals, hoverinfo='label+value+percent', textinfo='percent')]
-  yield _iplot(fig)
-
-def RubricsInProjectsOverlay(answers_within_project,projectid):
-  rubrics=np.unique(models.Rubric.objects.filter(assessments__project__id__in=[projectid]).values_list('id',flat=True))
-  all_trace=[]
-  for rubric in rubrics:
-    responses=answers_within_project.filter(assessment__rubric__id=rubric).values_list('answer',flat=True)
-    if len(responses)>0:
-      scores_dict=Counter(responses)
-      for x in ['no','nobut','yesbut','yes']:
-        if x not in scores_dict.keys():
-          scores_dict[x]=0
-      trace = go.Bar(x=['no (0)', 'no but (0.25)','yes but (0.75)','yes (1)'],y=[scores_dict['no'],scores_dict['nobut'],scores_dict['yesbut'],scores_dict['yes']],
-            name= models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get())
-      all_trace.append(trace)
-  layout = {'xaxis': {'title': 'Answer'},
-    'yaxis': {'title': 'Responses'},
-    'barmode': 'stack',
-  }
-  yield _iplot({'data': all_trace, 'layout': layout})
-
-def _QuestionBarGraphs(metric_count_dict):
-  hist=[go.Bar(x=list([metric_dict[x] for x in metric_count_dict.keys()]),y=list(metric_count_dict.values()))]
-  layout = go.Layout(xaxis=dict(title="Metric",titlefont=dict(size=16),tickfont=dict(size=12)),yaxis=dict(title='Mean FAIR score',titlefont=dict(size=16)))
-  fig = go.Figure(data=hist, layout=layout)
-  yield _iplot(fig)
-
-def QuestionBreakdown(query):
-  metric_ids=iter(np.array(query4.values_list('metric',flat=True)))
-  answers=iter(np.array(query4.values_list('answer',flat=True)))
-  scores=Scoring(answers)
-  d={}
-  k = list(zip(metric_ids, scores))
-  for (x,y) in k:
-    if x in d:
-      d[x] = d[x] + y 
-    else:
-      d[x] = y
-  average_score={}
-  for key, value in d.items():
-    average_score[key]=value/(len(scores)/9)
-  return _QuestionBarGraphs(average_score)
-
-def _DigitalObjectBarGraph(scores_dict):
-  action_dict={}
-  sorted_d = sorted((value,key) for (key,value) in scores_dict.items())
-  for kv in sorted_d:
-    if kv[0]<0.25:
-      action_dict[kv[1]]='Poor'
-    if kv[0]>=0.25 and kv[0]<=0.75:
-      action_dict[kv[1]]='Good'
-    if kv[0]>0.75:
-      action_dict[kv[1]]='Very FAIR'
-  scores = [sorted_d[x][0] for x in range(0,len(sorted_d))]
-  objects=[sorted_d[x][1] for x in range(0,len(sorted_d))]
-  all_trace=[]
-  for result in [('Poor','rgba(255,10,10,1)'),('Good','rgba(132,0,214,1)'),('Very FAIR','rgba(0,0,214,1)')]:
-    X=[]
-    Y=[]
+def RubricPieChart(project):
+    objects = list(project.values_list('digital_objects', flat=True))
+    rubrics = np.unique(project.assessments.values_list('rubric',flat=True))
+    rubric_object_dict = {}
+    for rubric in rubrics:
+        rubric_object_dict[rubric] = 0 
     for obj in objects:
-      if action_dict[obj]==result[0]:
-        X.append(obj)
-        Y.append(scores_dict[obj])
-    trace=go.Bar(x=X, y=Y,name=result[0],marker=dict(color=result[1]))
-    all_trace.append(trace)
-  layout=go.Layout(xaxis=dict(title="Resources (n="+str(len(scores))+")",showticklabels=False,titlefont=dict(size=16)),showlegend=True,yaxis=dict(title='Mean FAIR score',titlefont=dict(size=16)))
-  fig = go.Figure(data=all_trace, layout=layout)
-  yield _iplot(fig)
+        associated_rubrics = list(models.DigitalObject.objects.filter(id = obj).values_list('rubrics', flat=True))
+        for x in associated_rubrics:
+            rubric_object_dict[x] += 1
+    rubric_names = [models.Rubric.objects.filter(id=x).values_list('title', flat=True).get() for x in list(rubric_object_dict.keys())]
+    object_counts = list(rubric_object_dict.values())
+    fig = [go.Pie(labels=labels, values=values, hoverinfo='label+value+percent', textinfo='percent')]
+    yield iplot(fig)
 
-def DigitalObjectBarBreakdown(project):
-  object_score_dict={}
-  for obj in project.digital_objects.all():
-    answers=list(models.Answer.objects.filter(assessment__target__id=obj.id).values_list("answer",flat=True))
-    if len(answers)>0:
-      scores=Scoring(answers)
-      mean_score=np.mean(scores)
-      object_score_dict[models.DigitalObject.objects.filter(id=obj.id).values_list('title', flat=True).get()]=mean_score
-  return _DigitalObjectBarGraph(object_score_dict)
+def DigitalObjectScoreHist(project):
+    objects = project.values_list('digital_objects',flat=True)
+    object_score_dict = {}
+    for obj in objects:
+        answers = list(models.Answer.objects.filter(assessment__target__id=obj,assessment__project__id = project.id).values_list("answer",flat=True))
+        if len(answers) > 0:
+            scores = Scoring(answers)
+            mean_score = np.mean(scores)
+            object_score_dict[models.DigitalObject.objects.filter(id=obj).values_list('title', flat=True).get()]=mean_score
+    labels_dict={}
+    sorted_object_score_dict = sorted((value,key) for (key,value) in object_score_dict.items())
+    for kv in  sorted_object_score_dict:
+        if kv[0]<0.25:
+            labels_dict[kv[1]] = 'Poor'
+        if kv[0]>=0.25 and kv[0]<=0.75:
+            labels_dict[kv[1]] = 'Good'
+        if kv[0]>0.75:
+            labels_dict[kv[1]] = 'Very FAIR'
+    scores_sorted = [sorted_object_score_dict[x][0] for x in range(0,len(sorted_object_score_dict))]
+    objects_sorted = [sorted_object_score_dict[x][1] for x in range(0,len(sorted_object_score_dict))]
+    all_trace=[]
+    for result in [(k,v) for k,v in color_dict.items()]:
+        X=[]
+        Y=[]
+        for obj in objects_sorted:
+            if labels_dict[obj]==result[0]:
+                X.append(obj)
+                Y.append(object_score_dict[obj])
+        trace=go.Bar(x=X, y=Y,name=result[0],marker=dict(color=result[1]))
+        all_trace.append(trace)
+    layout=go.Layout(xaxis=dict(title="Resources (n="+str(len(scores_sorted))+")",showticklabels=False,titlefont=dict(size=16)),showlegend=True,yaxis=dict(title='Mean FAIR score',titlefont=dict(size=16)))
+    fig = go.Figure(data=all_trace, layout=layout)
+    yield iplot(fig)
 
-# Overall scores for a particular rubric, project, metric...(***Can be placed on each rubric, project, and metric page***)
-# Get all scores in the database for a particular rubric, project, or metric 
-# Input: Query Set (all answers), type of paramter, parameter ID
-# example input query: models.Answer.objects.filter(assessment__project__id=11).all() 
-def SingleQuery(querySet, PARAM, ID):
-  if PARAM=="project":
-    title=models.Project.objects.filter(id=ID).values_list('title', flat=True).get()
-    responses=querySet.values_list('answer', flat=True)
-    scores=Scoring(responses)
-    if len(scores)!=0:
-      print("Overall FAIR Evaluations for the project:",models.Project.objects.filter(id=ID).values_list('title', flat=True).get(),"(project id:",ID,")","\n")
-      print("Mean FAIR score:",round(np.mean(scores),2))
-      print("Median FAIR score:",np.median(scores))
-      print("Total Assessments:",len(scores)/9)
-      print("Total Questions Answered:",len(scores))
-      return BarGraphs(scores)
-  if PARAM=="rubric":
-    title=models.Rubric.objects.filter(id=ID).values_list('title', flat=True).get()
-    responses=querySet.values_list('answer', flat=True)
-    scores=Scoring(responses)
-    if len(scores)!=0:
-      print("Overall FAIR Evaluations for the rubric:",models.Rubric.objects.filter(id=ID).values_list('title', flat=True).get(),"(rubric id:",ID,")","\n")
-      print("Mean FAIR score:",round(np.mean(scores),2))
-      print("Median FAIR score:",np.median(scores))
-      print("Total Assessments:",len(scores)/9)
-      print("Total Questions Answered:",len(scores))
-      return BarGraphs(scores)
-  if PARAM=="metric":
-    title=models.Metric.objects.filter(id=ID).values_list('title', flat=True).get()
-    responses=querySet.values_list('answer', flat=True)
-    scores=Scoring(responses)
-    if len(scores)!=0:
-      print("Overall FAIR Evaluations for the metric:",models.Metric.objects.filter(id=ID).values_list('title', flat=True).get(),"(metric id:",ID,")","\n")
-      print("Mean FAIR score:",round(np.mean(scores),2))
-      print("Median FAIR score:",np.median(scores))
-      print("Total Assessments:",len(scores)/9)
-      print("Total Questions Answered:",len(scores))
-      return BarGraphs(scores)
+def ColorMap(project):
+    objects = project.values_list('digital_objects',flat=True)
+    unique_metrics=np.unique(models.Answer.objects.filter(assessment__project__id=project.id).values_list('metric',flat=True))
+    metric_matrix=[]
+    for obj in objects:
+        responses= list(models.Answer.objects.filter(assessment__target__id=obj,assessment__project__id = project.id).values_list("answer",flat=True))
+        responses=Scoring(responses)
+        metrics = list(models.Answer.objects.filter(assessment__target__id=obj,assessment__project__id = project.id).values_list("metric",flat=True))
+        metrics_avg_score={}
+        for i,m in enumerate(metrics):
+            if m not in metrics_avg_score.keys():
+                metrics_avg_score[m]=[]
+                metrics_avg_score[m].append(responses[i])
+            else:
+                metrics_avg_score[m].append(responses[i])
+        for k,v in metrics_avg_score.items():
+            metrics_avg_score[k]=np.mean(v)
+        
+        all_metric_ans=[]
+        for m in unique_metrics:
+            try:
+                all_metric_ans.append(metrics_avg_score[m])
+            except:
+                all_metric_ans.append(-1)
+        metric_matrix.append(all_metric_ans)
+    cmap = colors.ListedColormap(['grey','red', 'darkviolet','indigo','blue'])
+    bounds = [-1,0,0.25,0.75,0.9,1]
+    norm = colors.BoundaryNorm(bounds, cmap.N)
+    fig, ax = plt.subplots(figsize=(100, 100))
+    ax.matshow(metric_matrix, cmap=cmap, norm=norm)
+
+    ax.xaxis.set_ticks(np.arange(0.5, int(len(unique_metrics))+0.5, 1) - 0.5, minor=True)
+    ax.xaxis.set(ticks=np.arange(0, int(len(unique_metrics)), 1), ticklabels=unique_metrics)
+    ax.yaxis.set_ticks(np.arange(0.5, int(len(objects)), 1) - 0.5, minor=True)
+    ax.yaxis.set(ticks=np.arange(0, int(len(objects)), 1),ticklabels=objects)
+    ax.tick_params(axis='both', labelsize=15,rotation=45,width=4,length=7)
+    minor_locator = FixedLocator(np.arange(0.5, len(unique_metrics), 0.5))
+    ax.xaxis.set_minor_locator(minor_locator)
+    plt.grid(which='minor',axis='both', linestyle='-', color='k',linewidth=1)
+    legend_elements = [Patch(facecolor='grey', edgecolor='grey',
+                             label='Not assessed'),
+                        Patch(facecolor='blue', edgecolor='blue',
+                             label='Yes'),
+                           Patch(facecolor='indigo', edgecolor='indigo',
+                             label='Yes but'),
+                        Patch(facecolor='darkviolet', edgecolor='darkviolet',
+                             label='No but'),
+                           Patch(facecolor='red', edgecolor='r',
+                             label='No')]
+    plt.legend(handles=legend_elements, title="Answer",bbox_to_anchor=(1.05, 1), loc=2,prop={'size': 15})
+    plt.show()
 
 def TablePlot(project):
   from django.template import Template, Context

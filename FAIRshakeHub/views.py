@@ -66,13 +66,10 @@ def stats_view(request):
   if request.GET.get('model') == 'project':
     page = ''
     for res in {
+      'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(item),
+      'RubricPieChart': lambda item: stats.RubricPieChart(item),
+      'DigitalObjectScoreHist': lambda item: stats.DigitalObjectScoreHist(item),
       'TablePlot': lambda item: stats.TablePlot(item),
-      'RubricPieChart': lambda item: stats.RubricPieChart(item.assessments),
-      'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(
-        models.Answer.objects.filter(assessment__project__id=item.id),
-        item.id,
-      ),
-      'DigitalObjectBarBreakdown': lambda item: stats.DigitalObjectBarBreakdown(item),
     }.get(request.GET.get('plot'))(models.Project.objects.get(id=request.GET.get('item'))):
       page += res
     return http.HttpResponse(page)
