@@ -106,6 +106,9 @@ Errors involving mysql trying to load from /tmp/sock arrise when `MYSQL_CONFIG` 
 ### Database issues
 In general, if the database has changed (and there are new migration files), if you're running a local database you may need to apply new migrations with `./manage.py migrate`.
 
+#### No Cache Table
+If the cache table doesn't yet exist, you can create it with `./manage.py createcachetable`.
+
 ### Dependency issues
 First try re-executing `pip install -r requirements.txt`.
 
