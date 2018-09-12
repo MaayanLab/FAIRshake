@@ -11,9 +11,14 @@ from pyswagger import App
 from pyswagger.getter import SimpleGetter
 from pyswagger.contrib.client.requests import Client
 
+def bind(func, *args, **kwargs):
+  def func_wrapper(*_args, **_kwargs):
+    return func(*args, *_args, **kwargs, **_kwargs)
+  return func_wrapper
+
 class SwaggerClient:
-  def __init__(self, url, headers={}):
-    self._headers = headers
+  def __init__(self, url, headers=None):
+    self._headers = headers or {}
     self._url = url
     self._update()
 
@@ -24,16 +29,37 @@ class SwaggerClient:
       self._headers = headers
     self._update()
 
-  def request(self, path, *args, **kwargs):
-    return json.loads(
-      self._client.request(
-        self._app.op[path if type(path) == str else '!##!'.join(path)](
-          *args,
-          **kwargs,
-        ),
-        headers=self._headers,
-      ).raw.decode()
+  def request(self, url, headers=None, response_as_json=True):
+    response = request.urlopen(
+      request.Request(
+        url,
+        headers=headers or self._headers,
+      )
+    ).read()
+    if response_as_json:
+      try:
+        return json.loads(response)
+      except:
+        pass
+    return response
+
+  def _client_request(self, path, *args, **kwargs):
+    response = self._client.request(
+      self._app.op[path if type(path) == str else '!##!'.join(path)](
+        *args,
+        **kwargs,
+      ),
+      headers=self._headers,
     )
+    try:
+      return json.loads(response.raw.decode())
+    except:
+      pass
+    try:
+      return json.loads(response.decode())
+    except:
+      pass
+    return response
 
   def _update(self):
     self._app = self._create_app(self._url, headers=self._headers)
@@ -51,27 +77,19 @@ class SwaggerClient:
   def _create_actions(self):
     for k, v in self._app.op.items():
       name = k.split('!##!')[-1]
-      v.call = lambda *args, __self=self, __k=k, **kwargs: __self.request(__k, *args, **kwargs)
+      v.call = bind(self._client_request, k)
       v.call.__doc__ = v.description
+      v.call.__name__ = v.operationId
       yield (name, v)
 
-  def _create_app(self, url, headers={}):
+  def _create_app(self, url, headers):
     app = App.load(url, getter=self._create_getter(headers=headers))
     app.prepare(strict=False)
     return app
 
-  def _create_getter(self, headers={}):
-    def getter(url):
-      return request.urlopen(
-        request.Request(
-          url,
-          headers=headers,
-        )
-      ).read()
-
+  def _create_getter(self, headers):
     class Getter(SimpleGetter):
-      __simple_getter_callback__ = getter
-
+      __simple_getter_callback__ = bind(self.request, headers=headers, response_as_json=False)
     return Getter
 
   def _create_client(self):
