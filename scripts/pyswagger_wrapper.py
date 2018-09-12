@@ -12,8 +12,16 @@ from pyswagger.getter import SimpleGetter
 from pyswagger.contrib.client.requests import Client
 
 def bind(func, *args, **kwargs):
+  ''' Bind positional and named arguments to `func`.
+  e.g.
+  Input:
+    new_print = bind(print, '>', sep=' ', end='!\n')
+  Output:
+    new_print('Test')
+    > Test!
+  '''
   def func_wrapper(*_args, **_kwargs):
-    return func(*args, *_args, **kwargs, **_kwargs)
+    return func(*args, *_args, **dict(kwargs, **_kwargs))
   return func_wrapper
 
 class SwaggerClient:
