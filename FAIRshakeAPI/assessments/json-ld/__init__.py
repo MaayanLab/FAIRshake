@@ -23,9 +23,6 @@ def get_json_ld_attr(tree, attrs):
   return ' '.join(get_json_ld_attr_inner())
 
 to_schema = {
-  'metric:77': [
-    'WebSite.isAccessibleForFree', # CreativeWork
-  ],
   # 'target:title': [
   # 'WebSite.name', # Thing
   # ],
