@@ -2,6 +2,7 @@
 
 from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
+from .assessments import Assessment
 from django import shortcuts, forms as django_forms
 from django.conf import settings
 from django.core.cache import cache

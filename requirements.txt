@@ -12,9 +12,12 @@ Django==2.0.7
 djangorestframework
 drf-yasg
 dynamic-rest
+extruct
 https://github.com/pennersr/django-allauth/archive/master.zip
 https://github.com/swisscom/cleanerversion/archive/master.zip
 numpy
+objectpath
 plotly
 pymysql
+pyswagger
 swagger-spec-validator

@@ -31,11 +31,24 @@ class IdentifiableModelMixin(Versionable):
   def urls_as_list(self):
     return self.url.splitlines()
 
+  def urls_as_list(self):
+    return self.url.splitlines()
+
   def tags_as_list(self):
     return self.tags.split()
 
   def model_name(self):
     return self._meta.verbose_name_raw
+  
+  def attrs(self):
+    return {
+      'title': self.title,
+      'url': self.url,
+      'description': self.description,
+      'image': self.image,
+      'tags': self.tags,
+      'type': self.type,
+    }
   
   def has_permission(self, user, perm):
     if perm in ['list', 'retrieve', 'stats']:
@@ -78,6 +91,11 @@ class DigitalObject(IdentifiableModelMixin):
   fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
 
   rubrics = VersionedManyToManyField('Rubric', blank=True, related_name='digital_objects')
+
+  def attrs(self):
+    return dict(super().attrs(), **{
+      'fairsharing': self.fairsharing,
+    })
 
   class Meta:
     verbose_name = 'digital_object'

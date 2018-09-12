@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import re
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -289,3 +290,12 @@ SERVER_EMAIL = 'danieljbclarkemssm@gmail.com'
 ADMINS = [
   ('Daniel', 'danieljbclarkemssm@gmail.com',),
 ]
+
+ASSESSMENT_CONFIG_FILE = os.environ.get(
+    'ASSESSMENT_CONFIG_FILE',
+    '/ssl/config.json' if os.path.isfile('/ssl/config.json') else None
+)
+
+ASSESSMENT_CONFIG = json.load(
+    open(ASSESSMENT_CONFIG_FILE, 'r')
+ ) if ASSESSMENT_CONFIG_FILE is not None else {}

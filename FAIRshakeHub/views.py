@@ -31,6 +31,9 @@ def index(request):
     )
   )
 
+def contributors_and_partners(request):
+  return render(request, 'fairshake/contributors_and_partners.html')
+
 def bookmarklet(request):
   return render(request, 'fairshake/bookmarklet.html')
 
