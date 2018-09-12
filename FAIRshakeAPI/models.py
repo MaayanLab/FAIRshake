@@ -26,6 +26,9 @@ class IdentifiableModelMixin(Versionable):
 
   authors = VersionedManyToManyField('Author', blank=True)
 
+  def urls_as_list(self):
+    return self.url.splitlines()
+
   def tags_as_list(self):
     return self.tags.split()
   

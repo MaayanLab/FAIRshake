@@ -48,8 +48,10 @@
     {% endif %}
     {% if item.url %}
       <p>
-        <strong>URL:</strong>
-        <a href="{{ item.url }}">{{ item.url|limit:50 }}</a>
+        <strong>URL(s):</strong>
+        {% for url in item.urls_as_list %}
+          <a href="{{ url }}">{{ url|limit:75 }}</a>
+        {% endfor %}
       </p>
     {% endif %}
     <div
