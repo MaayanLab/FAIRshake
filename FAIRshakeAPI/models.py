@@ -24,6 +24,8 @@ class IdentifiableModelMixin(Versionable):
     ('tool', 'Tool'),
   ))
 
+  slug = models.CharField(max_length=255, unique=True, blank=False, null=False)
+
   authors = VersionedManyToManyField('Author', blank=True)
 
   def urls_as_list(self):
@@ -31,7 +33,7 @@ class IdentifiableModelMixin(Versionable):
 
   def tags_as_list(self):
     return self.tags.split()
-  
+
   def model_name(self):
     return self._meta.verbose_name_raw
   

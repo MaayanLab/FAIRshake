@@ -75,7 +75,9 @@ class CustomModelViewSet(viewsets.ModelViewSet):
       ),
     )
 
-class IdentifiableModelViewSet(CustomModelViewSet):  
+class IdentifiableModelViewSet(CustomModelViewSet):
+  lookup_field = 'slug'
+
   def get_form(self):
     return self.form
 
@@ -93,7 +95,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     detail=False, methods=['get', 'post'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def add(self, request, pk=None, **kwargs):
+  def add(self, request, slug=None, **kwargs):
     self.check_permissions(request)
     if request.method == 'GET':
       return response.Response()
@@ -102,7 +104,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     instance = self.save_form(request, form)
     return callback_or_redirect(request,
       self.get_model_name()+'-detail',
-      pk=instance.id,
+      slug=instance.slug,
     )
 
   @decorators.action(
@@ -110,7 +112,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     methods=['get', 'post'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def modify(self, request, pk=None):
+  def modify(self, request, slug=None):
     item = self.get_object()
     if request.method == 'GET':
       return response.Response()
@@ -119,14 +121,14 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     instance = self.save_form(request, form)
     return callback_or_redirect(request,
       self.get_model_name()+'-detail',
-      pk=pk,
+      slug=instance.slug,
     )
 
   @decorators.action(
     detail=True,
     methods=['get'],
   )
-  def remove(self, request, pk=None):
+  def remove(self, request, slug=None):
     item = self.get_object()
     self.check_object_permissions(request, item)
     item.delete()
@@ -211,7 +213,7 @@ class ProjectViewSet(IdentifiableModelViewSet):
     methods=['get'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def stats(self, request, pk=None):
+  def stats(self, request, slug=None):
     item = self.get_object()
     self.check_object_permissions(request, item)
     return response.Response()

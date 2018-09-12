@@ -2,17 +2,17 @@
 {% load filters %}
 <form
   role="form"
-  action="{% url model|add:'-add' %}?target={{ item.target.id }}&rubric={{ item.rubric.id }}{% if item.project %}&project={{ item.project.id }}{% endif %}"
+  action="{% url model|add:'-add' %}?target={{ item.target.slug }}&rubric={{ item.rubric.slug }}{% if item.project %}&project={{ item.project.slug }}{% endif %}"
   enctype="multipart/form-data"
   method="POST"
   novalidate
 >
   <legend>
     {{ model|unslugify }}
-    of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>
-    with <a href="{% url 'rubric-detail' item.rubric.id %}">{{ item.rubric.title }}</a>
+    of <a href="{% url 'digital_object-detail' item.target.slug %}">{{ item.target.title }}</a>
+    with <a href="{% url 'rubric-detail' item.rubric.slug %}">{{ item.rubric.title }}</a>
     {% if item.project %}
-      for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
+      for <a href="{% url 'project-detail' item.project.slug %}">{{ item.project.title }}</a>
     {% endif %}
     &nbsp;
     <a href="{{ request.get_full_path }}&prepare">

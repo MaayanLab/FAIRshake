@@ -20,6 +20,7 @@ class IdentifiableModelMixinSerializer(serializers.ModelSerializer):
 
   class Meta:
     abstract = True
+    lookup_field = 'slug'
 
     read_only_fields = (
       'id',
