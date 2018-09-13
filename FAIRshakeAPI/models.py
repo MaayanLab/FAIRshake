@@ -159,13 +159,9 @@ class Assessment(Versionable):
   assessor = models.ForeignKey('Author', on_delete=models.SET_NULL, editable=False, blank=True, null=True, related_name='+')
 
   def has_permission(self, user, perm):
-    if perm in ['list', 'retrieve']:
-      return True
-    elif perm in ['create', 'add']:
-      return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
+    if perm in ['list', 'create', 'add', 'modify', 'remove', 'delete', 'retrieve']:
       if self is None:
-        return user.is_authenticated
+        return user.is_authenticated or user.is_staff
       else:
         return (self and self.assessor == user) or user.is_staff
     else:
