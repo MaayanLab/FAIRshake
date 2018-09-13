@@ -17,7 +17,10 @@ class IdentifiableForm(forms.ModelForm):
   def clean_slug(self):
     slug = self.cleaned_data.get('slug')
     try:
-      if self.Meta.model.objects.current.get(slug=slug) != self.instance:
+      if any([
+        self.Meta.model.objects.current.get(slug=slug) != self.instance,
+        self.Meta.model.objects.get(id=slug) != self.instance,
+      ]):
         raise forms.ValidationError(
           'Slug was already taken, please try something different.'
         )
