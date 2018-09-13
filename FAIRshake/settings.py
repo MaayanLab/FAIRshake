@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'extensions.allauth_ex',
     'extensions.drf_yasg_ex',
     'extensions.rest_auth_ex',
+    'extensions.rest_framework_ex',
     'FAIRshakeHub',
     'FAIRshakeAPI',
 ]

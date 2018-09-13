@@ -1,7 +1,7 @@
 from django.urls import path, re_path, include
-from rest_framework import routers
+from extensions.rest_framework_ex import routers
 from rest_framework.documentation import include_docs_urls
-from . import views, routers
+from . import views
 
 router = routers.CustomRouter()
 router.register(r'assessment_request', views.AssessmentRequestViewSet, base_name='assessment_request')
