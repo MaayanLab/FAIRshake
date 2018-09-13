@@ -56,6 +56,14 @@ Django keeps track of database migrations. When modifying `models` it is imperat
 
 Note that this will try but not always succeed to detect renamed fields and such and migrate the backend database accordingly. If it is unable to, it may require manual intervention. For more information https://docs.djangoproject.com/en/2.0/topics/migrations/.
 
+### Testing
+```bash
+# Run Tests
+./manage.py test
+# Run Tests with Coverage
+coverage run --source='.' manage.py test && coverage report
+```
+
 ## Database Backup & Restore
 ### Backup
 ```bash
