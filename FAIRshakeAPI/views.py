@@ -261,16 +261,16 @@ class AssessmentViewSet(CustomModelViewSet):
 
     if project_id:
       assessment = get_or_create(models.Assessment,
-        project=models.project.objects.get(id=project_id),
-        target=models.target.objects.get(id=target_id),
-        rubric=models.rubric.objects.get(id=rubric_id),
+        project=models.Project.objects.get(id=project_id),
+        target=models.DigitalObject.objects.get(id=target_id),
+        rubric=models.Rubric.objects.get(id=rubric_id),
         assessor=request.user,
         methodology='user',
       )
     else:
       assessment = get_or_create(models.Assessment,
-        target=models.target.objects.get(id=target_id),
-        rubric=models.rubric.objects.get(id=rubric_id),
+        target=models.DigitalObject.objects.get(id=target_id),
+        rubric=models.Rubric.objects.get(id=rubric_id),
         assessor=request.user,
         methodology='user',
       )
