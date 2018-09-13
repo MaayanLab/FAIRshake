@@ -13,8 +13,9 @@ class VersionedQuerySetEx(VersionedQuerySet):
     """
     if isinstance(item, VersionedQuerySet) or isinstance(item, VersionedQuerySetEx):
       item.querytime = self.querytime
-    else: #if isinstance(item, Versionable) or isinstance(item, VersionableEx):
+    elif not isinstance(item, str): #if isinstance(item, Versionable) or isinstance(item, VersionableEx):
       # Note: This will fall back to a `fake` model during django migrations, hence the else
+      # Note: Item can be a string as testing has shown
       item._querytime = self.querytime
     return item
 
@@ -27,10 +28,10 @@ class VersionManagerEx(VersionManager):
         qs.querytime = self.instance._querytime
     return qs
 
-  def create(*args, **kwargs):
-    res = VersionManager.create(*args, **kwargs)
-    res.is_current = VersionableEx.is_current
-    res.querytime = VersionableEx.is_current
+  def create(self, *args, **kwargs):
+    res = VersionManager.create(self, *args, **kwargs)
+    if getattr(res, 'is_current', None) is None:
+      setattr(res, 'is_current', Versionable.is_current)
     return res
 
 class VersionableEx(Versionable):
