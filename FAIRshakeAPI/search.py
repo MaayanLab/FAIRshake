@@ -31,7 +31,6 @@ class IdentifiableSearchVector(SearchVector):
     lambda q: Q(description__icontains=q),
     lambda q: Q(tags__icontains=q),
     lambda q: Q(type__icontains=q),
-    lambda q: Q(authors__first_name__icontains=q),
   ]
 
 class ProjectSearchVector(IdentifiableSearchVector):
