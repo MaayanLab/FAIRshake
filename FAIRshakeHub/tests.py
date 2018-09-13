@@ -1,3 +1,70 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
+from FAIRshakeAPI import tests, models
 
-# Create your tests here.
+class ViewsFunctionTestCase(TestCase):
+  setUp = tests.ViewsFunctionTestCase.setUp
+
+  def test_index_view(self):
+    response = self.anonymous_client.get(reverse('index'))
+    self.assertEqual(response.status_code, 200)
+
+    response = self.authenticated_client.get(reverse('index'))
+    self.assertEqual(response.status_code, 200)
+
+  def test_search_view(self):
+    response = self.anonymous_client.get(reverse('index'), dict(q='test'))
+    self.assertEqual(response.status_code, 200)
+
+    response = self.authenticated_client.get(reverse('index'), dict(q='test'))
+    self.assertEqual(response.status_code, 200)
+
+  def test_bookmarklet_view(self):
+    response = self.anonymous_client.get(reverse('bookmarklet'))
+    self.assertEqual(response.status_code, 200)
+
+    response = self.authenticated_client.get(reverse('bookmarklet'))
+    self.assertEqual(response.status_code, 200)
+
+  def test_chrome_extension_view(self):
+    response = self.anonymous_client.get(reverse('chrome_extension'))
+    self.assertEqual(response.status_code, 200)
+
+    response = self.authenticated_client.get(reverse('chrome_extension'))
+    self.assertEqual(response.status_code, 200)
+
+  def test_api_documentation_view(self):
+    response = self.anonymous_client.get(reverse('api_documentation'))
+    self.assertEqual(response.status_code, 200)
+
+    response = self.authenticated_client.get(reverse('api_documentation'))
+    self.assertEqual(response.status_code, 200)
+
+  def test_terms_of_service_view(self):
+    response = self.anonymous_client.get(reverse('terms_of_service'))
+    self.assertEqual(response.status_code, 200)
+
+    response = self.authenticated_client.get(reverse('terms_of_service'))
+    self.assertEqual(response.status_code, 200)
+
+  def test_contributors_and_partners_view(self):
+    response = self.anonymous_client.get(reverse('contributors_and_partners'))
+    self.assertEqual(response.status_code, 200)
+
+    response = self.authenticated_client.get(reverse('contributors_and_partners'))
+    self.assertEqual(response.status_code, 200)
+
+  def test_project_stats_view(self):
+    item = models.Project.objects.current.first()
+    for plot in [
+      'TablePlot',
+      'RubricPieChart',
+      'RubricsInProjectsOverlay',
+      'DigitalObjectBarBreakdown',
+    ]:
+      response = self.anonymous_client.get(reverse('stats'), {
+        'model': 'project',
+        'item': item.id,
+        'plot': plot,
+      })
+      self.assertEqual(response.status_code, 200)
