@@ -280,24 +280,41 @@ class AssessmentViewSet(CustomModelViewSet):
         rubric = request.GET.get('rubric')
         project = request.GET.get('project')
         q = request.GET.get('q', '')
-        target_q = [
-          lambda q, _k='__'.join(k.split('__')[1:]+['icontains']), _v=v: Q(**{_k: _v})
+
+        # Prepare target queries
+        target_q = {
+          '__'.join(k.split('__')[1:]): v
           for k, v in request.GET.items()
           if k.split('__')[0] == 'target'
+        }
+
+        # Strip protocol from url for search
+        target_url = target_q.get('url')
+        if target_url:
+          target_url = ''.join(target_url.split('://')[1:])
+          target_q['url'] = target_url
+
+        target_filters = [
+          lambda q, _k=k+'__icontains', _v=v: Q(**{_k: _v})
+          for k, v in target_q.items()
         ]
 
         if target is not None:
           targets = models.DigitalObject.objects.filter(id=target)
-        elif target_q:
-          targets = models.DigitalObject.objects.filter(
-            reduce(
-              lambda F, f, q=q: (F|f(q)) if F is not None else f(q),
-              target_q,
-              None,
-            )
-          ).order_by('id').distinct()
         else:
-          targets = search.DigitalObjectSearchVector().query(q)
+          if target_filters:
+            targets = models.DigitalObject.objects.filter(
+              reduce(
+                lambda F, f, q=q: (F|f(q)) if F is not None else f(q),
+                target_filters,
+                None,
+              )
+            ).order_by('id').distinct()
+          else:
+            targets = None
+
+          if not targets:
+            targets = search.DigitalObjectSearchVector().query(q)
 
         if rubric is not None:
           rubrics = models.Rubric.objects.filter(id=target)
