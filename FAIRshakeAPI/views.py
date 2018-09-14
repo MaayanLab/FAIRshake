@@ -9,6 +9,7 @@ from django.core.cache import cache
 from django.db.models import Q
 from django.forms import ModelChoiceField
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
+from functools import reduce
 
 def callback_or_redirect(request, *args, **kwargs):
   callback = request.GET.get('callback', None)
@@ -279,9 +280,22 @@ class AssessmentViewSet(CustomModelViewSet):
         rubric = request.GET.get('rubric')
         project = request.GET.get('project')
         q = request.GET.get('q', '')
+        target_q = [
+          lambda q, _k='__'.join(k.split('__')[1:]+['icontains']), _v=v: Q(**{_k: _v})
+          for k, v in request.GET.items()
+          if k.split('__')[0] == 'target'
+        ]
 
         if target is not None:
           targets = models.DigitalObject.objects.filter(id=target)
+        elif target_q:
+          targets = models.DigitalObject.objects.filter(
+            reduce(
+              lambda F, f, q=q: (F|f(q)) if F is not None else f(q),
+              target_q,
+              None,
+            )
+          ).order_by('id').distinct()
         else:
           targets = search.DigitalObjectSearchVector().query(q)
 
