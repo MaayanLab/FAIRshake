@@ -12,6 +12,7 @@ class IdentifiableForm(forms.ModelForm):
         child,
         required=False,
         help_text=None,
+        initial=getattr(self.instance, child).all() if self.instance and self.instance.id else [],
       )
   
   def save(self, *args, commit=True, **kwargs):
