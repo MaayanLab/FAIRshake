@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
 from django.forms import ModelChoiceField
+from django.core.exceptions import PermissionDenied
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
 from functools import reduce
 
@@ -250,6 +251,9 @@ class AssessmentViewSet(CustomModelViewSet):
     return assessment
   
   def get_template_context(self, request, context):
+    if not self.get_model().has_permission(self, request.user, self.action):
+      raise PermissionDenied
+
     if self.action in ['modify', 'retrieve']:
       assessment = self.get_object()
       assessment_form = forms.AssessmentForm(instance=assessment)

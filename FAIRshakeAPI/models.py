@@ -158,9 +158,7 @@ class Assessment(models.Model):
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def has_permission(self, user, perm):
-    if perm in ['list', 'retrieve']:
-      return True
-    elif perm in ['create', 'add']:
+    if perm in ['list', 'retrieve', 'create', 'add']:
       return user.is_authenticated or user.is_staff
     elif perm in ['modify', 'remove', 'delete']:
       if self is None:
