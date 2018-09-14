@@ -40,8 +40,11 @@ def bookmarklet(request):
 def chrome_extension(request):
   return render(request, 'fairshake/chrome_extension.html')
 
-def api_documentation(request):
-  return render(request, 'fairshake/api_documentation.html')
+def documentation(request):
+  return render(request, 'fairshake/documentation/index.html')
+
+def jsonschema_documentation(request):
+  return render(request, 'fairshake/documentation/jsonschema.html')
 
 def terms_of_service(request):
   return render(request, 'fairshake/terms_of_service.html')

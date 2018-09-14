@@ -2,11 +2,31 @@
 
 {% block content %}
 <div class="container">
-  <h1 class="project-head text-left">API Documentation</h1>
-  <div class="alert alert-info" role="alert">
-    This list is under construction, more detailed descriptions and more complete tutorials will be provided in the future.
-  </div>
-  <h4>Endpoints</h4>
+  <h1 class="project-head text-left">Documentation</h1>
+  <h4>Information</h4>
+  <ul>
+    <li>
+      <a href="{% url 'jsonschema_documentation' %}">
+        JSONSchema for Automated Assessments
+      </a>
+    </li>
+  </ul>
+
+  <h4>Tutorials</h4>
+  <ul>
+    <li>
+      <a href="https://github.com/Nitrogen-DCPPC/FAIRshake/blob/master/tutorial.ipynb">
+        Python API Access with OpenAPI
+      </a>
+    </li>
+    <li>
+      <a href="http://jsfiddle.net/tybx32gu/17/">
+        Insignia JS Fiddle Example
+      </a>
+    </li>
+  </ul>
+
+  <h4>API Documentation Endpoints</h4>
   <ul>
     <li>
       <a href="/swagger/">Swagger UI</a>
@@ -31,20 +51,6 @@
     </li>
     <li>
       <a href="http://smart-api.info/ui/8113167e81987d36b707ae4aa795b17e">SmartAPI</a>
-    </li>
-  </ul>
-
-  <h4>Tutorials</h4>
-  <ul>
-    <li>
-      <a href="https://github.com/Nitrogen-DCPPC/FAIRshake/blob/master/tutorial.ipynb">
-        Python API Access with OpenAPI
-      </a>
-    </li>
-    <li>
-      <a href="http://jsfiddle.net/tybx32gu/17/">
-        Insignia JS Fiddle Example
-      </a>
     </li>
   </ul>
 </div>
