@@ -41,8 +41,8 @@ class Assessment:
       #   'comment': results['data'].get('name'),
       # },
       'metric:9': {
-        'answer': 'yes' if results['data'].get('licence') else 'no',
-        'comment': results['data'].get('licence'),
+        'answer': 'yes' if results.get('licence') else 'no',
+        'comment': results.get('licence'),
       },
       'metric:60': {
         'answer': 'yes' if results['data'].get('homepage') is not None else 'no',
