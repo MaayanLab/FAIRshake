@@ -347,7 +347,7 @@ class AssessmentViewSet(CustomModelViewSet):
       targets = search.DigitalObjectSearchVector().query(q)
 
     if rubric is not None:
-      rubrics = models.Rubric.objects.filter(id=target)
+      rubrics = models.Rubric.objects.filter(id=rubric)
     else:
       rubrics = None
       if target is not None:
