@@ -200,12 +200,11 @@ code.language-yaml {
 
 {% block content %}
 <div class="container">
-  <div class="mume markdown-preview">
-    <h1 class="mume-header" id="json-ld-enabled-automated-assessments">JSON-LD Enabled Automated Assessments</h1>
-    <p>FAIRshake can take advantage of <a href="https://schema.org/">schema.org</a> <a href="https://json-ld.org/">json-ld</a> metadata available on some websites to help perform automated assessments. This information doesn't just help FAIRshake, it also enables other applications such as <a href="https://toolbox.google.com/datasetsearch">Google Datset Search</a> and <a href="http://biothings.io/">BioThings</a> and is part of the reason exposing it is an important part of making your website <a href="https://www.nature.com/articles/sdata201618">FAIR</a>.</p>
-    <p>The metadata can and should be placed on your website, especially on the landing page of FAIR resources.</p>
-<pre data-role="codeBlock" data-info="html" class="language-html">
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">></span></span>
+      <div class="mume markdown-preview">
+      <h1 class="mume-header" id="json-ld-enabled-automated-assessments">JSON-LD Enabled Automated Assessments</h1>
+      <p>FAIRshake can take advantage of <a href="https://schema.org/">schema.org</a> <a href="https://json-ld.org/">JSON-LD</a> metadata available on some websites to help perform automated assessments. This information doesn't just help FAIRshake, it also enables other applications such as <a href="https://toolbox.google.com/datasetsearch">Google Dataset Search</a> and <a href="http://biothings.io/">BioThings</a> and is part of the reason exposing it is an important part of making your digital objects <a href="https://www.nature.com/articles/sdata201618">FAIR</a>.</p>
+      <p>The additional metadata can be placed on your digital objects hosting webpages, especially on the landing pages of resources.</p>
+<pre data-role="codeBlock" data-info="html" class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">></span></span>
 ...
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">type</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>application/ld+json<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script language-javascript">
@@ -216,7 +215,7 @@ your_json_schema_goes_here
 ...
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span>
 </pre>
-    <p>The json exposes the information on the page in a way that a machine can read and interpret it. The information required is largely based on <strong>what</strong> it is. A Dataset landing page might look like this:</p>
+    <p>The json exposes the information on the page in a way that a machine can read and interpret it. The information required is largely based on <strong>what</strong> it is. A dataset landing page might look like this:</p>
 <pre data-role="codeBlock" data-info="html" class="language-html"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">></span></span>
 ...
@@ -241,12 +240,12 @@ your_json_schema_goes_here
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span>
 </pre><h2 class="mume-header" id="validation">Validation</h2>
-    <p>One way to confirm that your schema is working and will be properly recognized is by using <a href="https://search.google.com/structured-data/testing-tool">google's structured data testing tool</a>. This tool can also take json-ld directly allowing you to check for errors before deploying your website.</p>
+    <p>One way to confirm that your schema is working and will be properly recognized is by using <a href="https://search.google.com/structured-data/testing-tool">Google's structured data testing tool</a>. This tool can also take JSON-LD directly allowing you to check for errors before deploying it on your website.</p>
     <h2 class="mume-header" id="more-examples">More Examples</h2>
     <h3 class="mume-header" id="general">General</h3>
     <p><a href="https://developers.google.com/search/docs/guides/intro-structured-data">Google's Developer Guides</a> provide the most comprehensive resource currently available describing and providing examples of this data.</p>
     <ul>
-<li><a href="https://schema.org/WebSite">WebSite</a><pre data-role="codeBlock" data-info="json" class="language-json"><span class="token punctuation">{</span>
+<li><a href="https://schema.org/WebSite">WebSite</a> example<pre data-role="codeBlock" data-info="json" class="language-json"><span class="token punctuation">{</span>
   <span class="token property">"@context"</span><span class="token operator">:</span> <span class="token string">"http://schema.org"</span><span class="token punctuation">,</span>
   <span class="token property">"@type"</span><span class="token operator">:</span> <span class="token string">"WebSite"</span><span class="token punctuation">,</span>
   <span class="token property">"url"</span><span class="token operator">:</span> <span class="token string">"http://amp.pharm.mssm.edu/Harmonizome/"</span><span class="token punctuation">,</span>
@@ -259,9 +258,9 @@ your_json_schema_goes_here
   <span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 </pre></li>
-    </ul>
+</ul>
     <h3 class="mume-header" id="biology">Biology</h3>
-    <p><a href="http://bioschemas.org/">Bioschemas.org</a> has put together many examples of json-ld for different biological entities. I've selected a few from <a href="https://github.com/BioSchemas/specifications">their repository</a> and linked them here.</p>
+    <p><a href="http://bioschemas.org/">Bioschemas.org</a> has put together many examples of JSON-LD for different biological entities. I've selected a few from <a href="https://github.com/BioSchemas/specifications">their repository</a> and linked them here.</p>
     <ul>
     <li><a href="http://bioschemas.org/specifications/Dataset/">Dataset</a>
     <ul>
