@@ -25,7 +25,10 @@ class Assessment:
       if have.get(current_want) is not None:
         # We already have this, skip
         continue
-      for assessment in set(assessments).difference(performed):
+      current_assessments = set(assessments).difference(performed)
+      if not current_assessments:
+        break
+      for assessment in current_assessments:
         # Does this assessment have what we want
         if current_want in assessment.outputs:
           # Do we have additional needs for this assessment
@@ -49,7 +52,7 @@ class Assessment:
             want = additional_wants + want + [current_want]
             # Put the current_want in can't get, if we reach it again but still can't get it
             #  we have to drop it.
-            cant_get.append(want)
+            cant_get += want
           else:
             # Get everything ready
             current_have = {
