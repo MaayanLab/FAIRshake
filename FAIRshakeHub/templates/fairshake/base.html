@@ -66,6 +66,9 @@
                   <a href="{% url 'assessment-list' %}">User assessments</a>
                 </li>
                 <li>
+                  <a href="{% url 'digital_object-list' %}?authors={{ user.id }}">User digital objects</a>
+                </li>
+                <li>
                   <a href="{% url 'account_email' %}">Settings</a>
                 </li>
                 <li role="separator" class="divider" />
