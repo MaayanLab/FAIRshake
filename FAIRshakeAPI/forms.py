@@ -4,6 +4,8 @@ from ajax_select.fields import AutoCompleteSelectMultipleField
 from . import fields
 
 class IdentifiableForm(forms.ModelForm):
+  authors = AutoCompleteSelectMultipleField('authors', required=True, help_text=None)
+
   def __init__(self, *args, **kwargs):
     super(IdentifiableForm, self).__init__(*args, **kwargs)
 
@@ -34,22 +36,62 @@ class IdentifiableForm(forms.ModelForm):
 class ProjectForm(IdentifiableForm):
   class Meta:
     model = models.Project
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'digital_objects',
+      'authors',
+    )
 
 class DigitalObjectForm(IdentifiableForm):
   class Meta:
     model = models.DigitalObject
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'rubrics',
+      'authors',
+    )
 
 class RubricForm(IdentifiableForm):
   class Meta:
     model = models.Rubric
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'license',
+      'metrics',
+      'authors',
+    )
 
 class MetricForm(IdentifiableForm):
   class Meta:
     model = models.Metric
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'license',
+      'rationale',
+      'principle',
+      'fairmetrics',
+      'authors',
+    )
 
 class AssessmentForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
