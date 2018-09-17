@@ -182,6 +182,13 @@ class Assessment(Versionable):
     verbose_name = 'assessment'
     verbose_name_plural = 'assessments'
     ordering = ['id']
+    unique_together = (
+      'project',
+      'target',
+      'rubric',
+      'methodology',
+      'assessor',
+    )
 
   class MetaEx:
     children = [
@@ -230,6 +237,10 @@ class Answer(Versionable):
     verbose_name = 'answer'
     verbose_name_plural = 'answers'
     ordering = ['id']
+    unique_together = (
+      'assessment',
+      'metric',
+    )
 
 class AssessmentRequest(models.Model):
   id = CustomUUIDField(primary_key=True, default=uuid.uuid4)
