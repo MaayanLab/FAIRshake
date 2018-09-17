@@ -321,7 +321,7 @@ class AssessmentViewSet(CustomModelViewSet):
             targets = search.DigitalObjectSearchVector().query(q)
 
         if rubric is not None:
-          rubrics = models.Rubric.objects.filter(id=target)
+          rubrics = models.Rubric.objects.filter(id=rubric)
         else:
           rubrics = None
           if target is not None:
@@ -356,8 +356,8 @@ class AssessmentViewSet(CustomModelViewSet):
 
         if prepare is not None or not assessment_form.is_valid():
           assessment_form.fields['target'] = ModelChoiceField(queryset=targets, required=True)
-          assessment_form.fields['rubric'] = ModelChoiceField(queryset=rubrics, required=True)
-          assessment_form.fields['project'] = ModelChoiceField(queryset=projects, required=False)
+          assessment_form.fields['rubric'] = ModelChoiceField(queryset=rubrics if rubrics.count() > 1 else models.Rubric.objects.all(), required=True)
+          assessment_form.fields['project'] = ModelChoiceField(queryset=projects if projects.count() > 1 else models.Project.objects.all(), required=False)
 
           return dict(context, **{
             'model': self.get_model_name(),
