@@ -121,6 +121,7 @@ class Rubric(IdentifiableModelMixin):
 class Metric(IdentifiableModelMixin):
   type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
     ('yesnobut', 'Yes no or but question'),
+    ('yesnomaybe', 'Yes no or maybe question'),
     ('text', 'Simple textbox input'),
     ('url', 'A url input'),
   ))
@@ -199,6 +200,7 @@ class Answer(Versionable):
     return {
       'yes': 1,
       'yesbut': 0.75,
+      'maybe': 0.5,
       'nobut': 0.25,
       'no': 0,
       '': 0,
@@ -208,6 +210,7 @@ class Answer(Versionable):
     return {
       1: 'yes',
       0.75: 'yesbut',
+      0.5: 'maybe',
       0.25: 'nobut',
       0: 'no',
     }.get(self.answer, 'yes')

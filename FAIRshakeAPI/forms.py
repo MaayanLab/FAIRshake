@@ -4,6 +4,8 @@ from ajax_select.fields import AutoCompleteSelectMultipleField
 from . import fields
 
 class IdentifiableForm(forms.ModelForm):
+  authors = AutoCompleteSelectMultipleField('authors', required=True, help_text=None)
+
   def __init__(self, *args, **kwargs):
     super(IdentifiableForm, self).__init__(*args, **kwargs)
 
@@ -57,6 +59,7 @@ class ProjectForm(IdentifiableForm):
       'type',
       'slug',
       'digital_objects',
+      'authors',
     )
 
 class DigitalObjectForm(IdentifiableForm):
@@ -71,6 +74,7 @@ class DigitalObjectForm(IdentifiableForm):
       'type',
       'slug',
       'rubrics',
+      'authors',
     )
 
 class RubricForm(IdentifiableForm):
@@ -86,6 +90,7 @@ class RubricForm(IdentifiableForm):
       'slug',
       'license',
       'metrics',
+      'authors',
     )
 
 class MetricForm(IdentifiableForm):
