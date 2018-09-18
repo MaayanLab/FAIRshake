@@ -79,18 +79,31 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 class IdentifiableModelViewSet(CustomModelViewSet):
   lookup_field = 'slug'
 
-  def get_form(self):
-    return self.form
-
   def get_model_children(self, obj):
     for child in self.get_model().MetaEx.children:
       child_attr = getattr(obj, child)
       yield (child_attr.model._meta.verbose_name_raw, child_attr.current.all())
 
+  def get_form(self):
+    form_cls = self.form
+    if self.detail and self.request.method == 'GET':
+      form = form_cls(instance=self.get_object())
+    elif self.request.method == 'GET':
+      form = form_cls(initial=dict(self.request.GET, **{
+        'authors': [self.request.user],
+      }))
+    elif self.request.method == 'POST' and self.detail:
+      form = form_cls(self.request.POST, instance=self.get_object())
+    elif self.request.method == 'POST':
+      form = form_cls(self.request.POST)
+    else:
+      form = None
+    return form
+
   def save_form(self, request, form):
-    instance = form.save()
-    instance.authors.add(request.user)
-    return instance
+    if form.is_valid():
+      instance = form.save()
+      return instance
 
   @decorators.action(
     detail=False, methods=['get', 'post'],
@@ -100,13 +113,14 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     self.check_permissions(request)
     if request.method == 'GET':
       return response.Response()
-    form_cls = self.get_form()
-    form = form_cls(request.POST)
+    form = self.get_form()
     instance = self.save_form(request, form)
-    return callback_or_redirect(request,
-      self.get_model_name()+'-detail',
-      slug=instance.slug,
-    )
+    if instance:
+      return callback_or_redirect(request,
+        self.get_model_name()+'-detail',
+        slug=instance.slug,
+      )
+    return response.Response()
 
   @decorators.action(
     detail=True,
@@ -117,13 +131,14 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     item = self.get_object()
     if request.method == 'GET':
       return response.Response()
-    form_cls = self.get_form()
-    form = form_cls(request.POST, instance=item)
+    form = self.get_form()
     instance = self.save_form(request, form)
-    return callback_or_redirect(request,
-      self.get_model_name()+'-detail',
-      slug=instance.slug,
-    )
+    if instance:
+      return callback_or_redirect(request,
+        self.get_model_name()+'-detail',
+        slug=instance.slug,
+      )
+    return response.Response()
 
   @decorators.action(
     detail=True,
@@ -138,17 +153,14 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     )
 
   def get_add_template_context(self, request, context):
-    form_cls = self.get_form()
-    form = form_cls(request.GET)
-
+    form = self.get_form()
     return dict(context, **{
       'form': form,
     })
 
   def get_modify_template_context(self, request, context):
     item = self.get_object()
-    form_cls = self.get_form()
-    form = form_cls(instance=item)
+    form = self.get_form()
 
     return dict(context, **{
       'item': item,
@@ -176,8 +188,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
   def get_list_template_context(self, request, context):
     paginator_cls = self.paginator.django_paginator_class
     page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    form_cls = self.get_form()
-    form = form_cls(request.GET)
+    form = self.get_form()
 
     return dict(context, **{
       'form': form,
