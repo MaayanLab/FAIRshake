@@ -7,6 +7,7 @@ from django import shortcuts, forms as django_forms
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
+from django.core.exceptions import PermissionDenied
 from django.forms import ModelChoiceField
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
 
@@ -390,6 +391,11 @@ class AssessmentViewSet(CustomModelViewSet):
         'target': targets.first().id,
         'rubric': rubrics.first().id,
       }))
+
+  def get_template_context(self, request, context):
+    if not self.get_model().has_permission(self.get_model(), request.user, self.action):
+      raise PermissionDenied
+    return super.get_template_context(self, request, context)
 
 class AssessmentRequestViewSet(CustomModelViewSet):
   model = models.AssessmentRequest

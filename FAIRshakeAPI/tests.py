@@ -132,7 +132,7 @@ class ViewsFunctionTestCase(TestCase):
 
   def test_assessment_viewset_list(self):
     response = self.anonymous_client.get(reverse('assessment-list'), HTTP_ACCEPT='text/html')
-    self.assertEqual(response.status_code, 401)
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
     self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
 
     response = self.authenticated_client.get(reverse('assessment-list'), HTTP_ACCEPT='text/html')
@@ -140,7 +140,7 @@ class ViewsFunctionTestCase(TestCase):
     self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
 
     response = self.anonymous_client.get(reverse('assessment-list'), HTTP_ACCEPT='application/json')
-    self.assertEqual(response.status_code, 401)
+    self.assertEqual(response.status_code, 401, 'Permission denied expected')
     self.assertEqual(response['Content-Type'], 'application/json', response)
 
     response = self.authenticated_client.get(reverse('assessment-list'), HTTP_ACCEPT='application/json')

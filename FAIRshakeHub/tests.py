@@ -33,11 +33,18 @@ class ViewsFunctionTestCase(TestCase):
     response = self.authenticated_client.get(reverse('chrome_extension'))
     self.assertEqual(response.status_code, 200)
 
-  def test_api_documentation_view(self):
-    response = self.anonymous_client.get(reverse('api_documentation'))
+  def test_documentation_view(self):
+    response = self.anonymous_client.get(reverse('documentation'))
     self.assertEqual(response.status_code, 200)
 
-    response = self.authenticated_client.get(reverse('api_documentation'))
+    response = self.authenticated_client.get(reverse('documentation'))
+    self.assertEqual(response.status_code, 200)
+
+  def test_jsonschema_documentation_view(self):
+    response = self.anonymous_client.get(reverse('jsonschema_documentation'))
+    self.assertEqual(response.status_code, 200)
+
+    response = self.authenticated_client.get(reverse('jsonschema_documentation'))
     self.assertEqual(response.status_code, 200)
 
   def test_terms_of_service_view(self):
