@@ -264,7 +264,7 @@ class AssessmentViewSet(CustomModelViewSet):
     return assessment
   
   def get_template_context(self, request, context):
-    if not self.get_model().has_permission(self, request.user, self.action):
+    if not self.get_model().has_permission(self.get_model(), request.user, self.action):
       raise PermissionDenied
 
     if self.action in ['modify', 'retrieve']:
