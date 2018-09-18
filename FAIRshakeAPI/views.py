@@ -49,12 +49,23 @@ class CustomModelViewSet(viewsets.ModelViewSet):
       yield (child_attr.model._meta.verbose_name_raw, child_attr.all())
 
   def get_form(self):
-    return self.form
+    form_cls = self.form
+    if self.detail and self.request.method == 'GET':
+      form = form_cls(instance=self.get_object())
+    elif self.request.method == 'GET':
+      form = form_cls(initial=dict(self.request.GET, **{
+        'authors': [self.request.user],
+      }))
+    elif self.request.method == 'POST':
+      form = form_cls(self.request.POST)
+    else:
+      form = None
+    return form
 
   def save_form(self, request, form):
-    instance = form.save()
-    instance.authors.add(request.user)
-    return instance
+    if form.is_valid():
+      instance = form.save()
+      return instance
 
   def get_queryset(self):
     return getattr(self, 'queryset', self.get_model().objects.all())
@@ -70,8 +81,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     paginator_cls = self.paginator.django_paginator_class
     page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
     item = self.get_object()
-    form_cls = self.get_form()
-    form = form_cls(instance=item)
+    form = self.get_form()
 
     return {
       'item': item,
@@ -90,8 +100,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   def get_list_template_context(self, request, context):
     paginator_cls = self.paginator.django_paginator_class
     page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    form_cls = self.get_form()
-    form = form_cls(request.GET)
+    form = self.get_form()
 
     return {
       'form': form,
@@ -124,13 +133,14 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     self.check_permissions(request)
     if request.method == 'GET':
       return response.Response()
-    form_cls = self.get_form()
-    form = form_cls(request.POST)
+    form = self.get_form()
     instance = self.save_form(request, form)
-    return callback_or_redirect(request,
-      self.get_model_name()+'-detail',
-      pk=instance.id,
-    )
+    if instance:
+      return callback_or_redirect(request,
+        self.get_model_name()+'-detail',
+        pk=instance.id,
+      )
+    return response.Response()
 
   @decorators.action(
     detail=True,
