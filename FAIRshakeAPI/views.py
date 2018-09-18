@@ -56,6 +56,8 @@ class CustomModelViewSet(viewsets.ModelViewSet):
       form = form_cls(initial=dict(self.request.GET, **{
         'authors': [self.request.user],
       }))
+    elif self.request.method == 'POST' and self.detail:
+      form = form_cls(self.request.POST, instance=self.get_object())
     elif self.request.method == 'POST':
       form = form_cls(self.request.POST)
     else:
@@ -151,13 +153,14 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     item = self.get_object()
     if request.method == 'GET':
       return response.Response()
-    form_cls = self.get_form()
-    form = form_cls(request.POST, instance=item)
+    form = self.get_form()
     instance = self.save_form(request, form)
-    return callback_or_redirect(request,
-      self.get_model_name()+'-detail',
-      pk=pk,
-    )
+    if instance:
+      return callback_or_redirect(request,
+        self.get_model_name()+'-detail',
+        pk=pk,
+      )
+    return response.Response()
 
   @decorators.action(
     detail=True,
