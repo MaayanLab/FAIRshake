@@ -25,6 +25,9 @@
       {% endwith %}
       <div class="col-sm-6 col-md-9">
         <h4>{{ answer.instance.metric.title }}</h4>
+        {% if answer.instance.metric.description %}
+          <p>{{ answer.instance.metric.description }}</p>
+        {% endif %}
         {{ answer.form|bootstrap_inline }}
       </div>
     </div>
