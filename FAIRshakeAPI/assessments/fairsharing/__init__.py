@@ -49,11 +49,13 @@ class Assessment:
         data = results[0]
       else:
         data = None
+    else:
+      data = None
 
-      return {
-        key: {
-          'answer': 'yes' if data.get(attr) else 'no',
-          'comment': data.get(attr),
-        }
-        for key, attr in metric_to_attr.items()
-      } if data else {key: {} for key in metric_to_attr.keys()}
+    return {
+      key: {
+        'answer': 'yes' if data.get(attr) else 'no',
+        'comment': data.get(attr),
+      }
+      for key, attr in metric_to_attr.items()
+    } if data else {key: {} for key in metric_to_attr.keys()}
