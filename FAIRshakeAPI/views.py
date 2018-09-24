@@ -23,6 +23,12 @@ def callback_or_redirect(request, *args, **kwargs):
   else:
     return shortcuts.redirect(callback)
 
+def get_or_create(model, **kwargs):
+  try:
+    return model.objects.current.get(**kwargs)
+  except:
+    return model.objects.create(**kwargs)
+
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
     context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context) or {}
@@ -44,6 +50,28 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   def get_model_name(self):
     return self.get_model()._meta.verbose_name_raw
   
+  def get_queryset(self):
+    return getattr(self, 'queryset', self.get_model().objects.all())
+  
+  def filter_queryset(self, qs):
+    ''' Ensure all resulting filter sets are distinct '''
+    return super().filter_queryset(qs).order_by(*self.get_model()._meta.ordering).distinct()
+
+  def get_template_names(self):
+    return ['fairshake/generic/page.html']
+
+  def get_template_context(self, request, context):
+    return dict(context,
+      model=self.get_model_name(),
+      action=self.action,
+      **getattr(self, 'get_%s_template_context' % (self.action),
+        getattr(self, 'get_%s_template_context' % ('detail' if self.detail else 'list'),
+          lambda *args: args
+        )
+      )(request, context),
+    )
+
+class IdentifiableModelViewSet(CustomModelViewSet):
   def get_model_children(self, obj):
     for child in self.get_model().MetaEx.children:
       child_attr = getattr(obj, child)
@@ -69,64 +97,6 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     if form.is_valid():
       instance = form.save()
       return instance
-
-  def get_queryset(self):
-    return getattr(self, 'queryset', self.get_model().objects.all())
-  
-  def filter_queryset(self, qs):
-    ''' Ensure all resulting filter sets are distinct '''
-    return super().filter_queryset(qs).order_by(*self.get_model()._meta.ordering).distinct()
-
-  def get_template_names(self):
-    return ['fairshake/generic/page.html']
-
-  def get_detail_template_context(self, request, context):
-    paginator_cls = self.paginator.django_paginator_class
-    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    item = self.get_object()
-    form = self.get_form()
-
-    return {
-      'item': item,
-      'form': form,
-      'children': {
-        child: paginator_cls(
-          child_attr,
-          page_size,
-        ).get_page(
-          request.GET.get('page')
-        )
-        for child, child_attr in self.get_model_children(item)
-      },
-    }
-
-  def get_list_template_context(self, request, context):
-    paginator_cls = self.paginator.django_paginator_class
-    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    form = self.get_form()
-
-    return {
-      'form': form,
-      'items': paginator_cls(
-        self.filter_queryset(
-          self.get_queryset()
-        ),
-        page_size,
-      ).get_page(
-        request.GET.get('page')
-      ),
-    }
-
-  def get_template_context(self, request, context):
-    return dict(context,
-      model=self.get_model_name(),
-      action=self.action,
-      **getattr(self, 'get_%s_template_context' % (self.action),
-        getattr(self, 'get_%s_template_context' % ('detail' if self.detail else 'list'),
-          lambda *args: args
-        )
-      )(request, context),
-    )
 
   @decorators.action(
     detail=False, methods=['get', 'post'],
@@ -175,19 +145,68 @@ class CustomModelViewSet(viewsets.ModelViewSet):
       self.get_model_name()+'-list'
     )
 
-class DigitalObjectViewSet(CustomModelViewSet):
+  def get_add_template_context(self, request, context):
+    form = self.get_form()
+    return dict(context,
+      form=form,
+    )
+
+  def get_modify_template_context(self, request, context):
+    item = self.get_object()
+    form = self.get_form()
+    return dict(context,
+      item=item,
+      form=form,
+    )
+
+  def get_retrieve_template_context(self, request, context):
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+    item = self.get_object()
+
+    return dict(context,
+      item=item,
+      children={
+        child: paginator_cls(
+          child_attr,
+          page_size,
+        ).get_page(
+          request.GET.get('page')
+        )
+        for child, child_attr in self.get_model_children(item)
+      },
+    )
+
+  def get_list_template_context(self, request, context):
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+    form = self.get_form()
+
+    return dict(context,
+      form=form,
+      items=paginator_cls(
+        self.filter_queryset(
+          self.get_queryset()
+        ),
+        page_size,
+      ).get_page(
+        request.GET.get('page')
+      ),
+    )
+
+class DigitalObjectViewSet(IdentifiableModelViewSet):
   model = models.DigitalObject
   form = forms.DigitalObjectForm
   serializer_class = serializers.DigitalObjectSerializer
   filter_class = filters.DigitalObjectFilterSet
 
-class MetricViewSet(CustomModelViewSet):
+class MetricViewSet(IdentifiableModelViewSet):
   model = models.Metric
   form = forms.MetricForm
   serializer_class = serializers.MetricSerializer
   filter_class = filters.MetricFilterSet
 
-class ProjectViewSet(CustomModelViewSet):
+class ProjectViewSet(IdentifiableModelViewSet):
   model = models.Project
   form = forms.ProjectForm
   serializer_class = serializers.ProjectSerializer
@@ -205,17 +224,17 @@ class ProjectViewSet(CustomModelViewSet):
   
   def get_stats_template_context(self, request, context):
     item = self.get_object()
-    return dict(context, **{
-      'item': self.get_object(),
-      'plots': [
+    return dict(context,
+      item=self.get_object(),
+      plots=[
         'TablePlot',
         'RubricPieChart',
         'RubricsInProjectsOverlay',
         'DigitalObjectBarBreakdown',
       ]
-    })
+    )
 
-class RubricViewSet(CustomModelViewSet):
+class RubricViewSet(IdentifiableModelViewSet):
   model = models.Rubric
   form = forms.RubricForm
   serializer_class = serializers.RubricSerializer
@@ -223,7 +242,6 @@ class RubricViewSet(CustomModelViewSet):
 
 class AssessmentViewSet(CustomModelViewSet):
   model = models.Assessment
-  form = forms.AssessmentForm
   serializer_class = serializers.AssessmentSerializer
   filter_classes = filters.AssessmentFilterSet
 
@@ -235,7 +253,7 @@ class AssessmentViewSet(CustomModelViewSet):
       | Q(project__authors=self.request.user)
       | Q(assessor=self.request.user)
     )
-
+  
   def save_form(self, request, form):
     assessment = form.save(commit=False)
     assessment.assessor = request.user
@@ -258,7 +276,54 @@ class AssessmentViewSet(CustomModelViewSet):
         answer_form.save()
 
     return assessment
-  
+
+  @decorators.action(
+    detail=False, methods=['get', 'post'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def add(self, request, pk=None, **kwargs):
+    self.check_permissions(request)
+    if request.method == 'GET':
+      return response.Response()
+    form = self.get_form()
+    instance = self.save_form(request, form)
+    if instance:
+      return callback_or_redirect(request,
+        self.get_model_name()+'-detail',
+        pk=instance.id,
+      )
+    return response.Response()
+
+  @decorators.action(
+    detail=True,
+    methods=['get', 'post'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def modify(self, request, pk=None):
+    item = self.get_object()
+    if request.method == 'GET':
+      return response.Response()
+    form = self.get_form()
+    instance = self.save_form(request, form)
+    if instance:
+      return callback_or_redirect(request,
+        self.get_model_name()+'-detail',
+        pk=pk,
+      )
+    return response.Response()
+
+  @decorators.action(
+    detail=True,
+    methods=['get'],
+  )
+  def remove(self, request, pk=None):
+    item = self.get_object()
+    self.check_object_permissions(request, item)
+    item.delete()
+    return callback_or_redirect(request,
+      self.get_model_name()+'-list'
+    )
+
   def get_template_context(self, request, context):
     if not self.get_model().has_permission(self.get_model(), request.user, self.action):
       raise PermissionDenied
