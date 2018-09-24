@@ -1,7 +1,9 @@
 import logging
+import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
+from django.core.cache import cache
 
 class IdentifiableModelMixin(models.Model):
   id = models.AutoField(primary_key=True)
@@ -161,6 +163,27 @@ class Assessment(models.Model):
     else:
       logging.warning('perm %s not handled' % (perm))
       return user.is_staff
+
+  def save(self, *args, **kwargs):
+    if self.target is not None:
+      k = '#digital_object={pk}'.format(pk=self.target.pk)
+      l = cache.get(k)
+      l = json.loads(l) if l else []
+      l += [k]
+      cache.delete_many(l)
+    if self.rubric is not None:
+      k = '#rubric={pk}'.format(pk=self.rubric.pk)
+      l = cache.get(k)
+      l = json.loads(l) if l else []
+      l += [k]
+      cache.delete_many(l)
+    if self.project is not None:
+      k = '#project={pk}'.format(pk=self.project.pk)
+      l = cache.get(k)
+      l = json.loads(l) if l else []
+      l += [k]
+      cache.delete_many(l)
+    return super(Assessment, self).save(*args, **kwargs)
 
   def __str__(self):
     return '{methodology} assessment on Target[{target}] for Project[{project}] with Rubric[{rubric}] ({id})'.format(

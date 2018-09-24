@@ -1,5 +1,6 @@
 # TODO: split up into abstract API implementations
 
+import json
 from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
 from .assessments import Assessment
@@ -256,11 +257,6 @@ class AssessmentViewSet(CustomModelViewSet):
         )
         answer_form.save()
 
-    cache.delete_many([
-      ','.join(map('='.join, request.GET.items())),
-      *map('='.join, request.GET.items()),
-    ])
-
     return assessment
   
   def get_template_context(self, request, context):
@@ -471,6 +467,12 @@ class ScoreViewSet(
         'metrics': metrics,
       }
       cache.set(key, result, 60 * 60)
+      for k in map('='.join, request.GET.items()):
+        k = '#' + k
+        l = cache.get(k)
+        l = json.loads(l) if l else []
+        l += [key]
+        cache.set(k, json.dumps(l), 60 * 60)
 
     return response.Response(result)
 
