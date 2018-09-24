@@ -24,8 +24,8 @@ class Assessment:
 
   @classmethod
   def perform(kls, inputs):
-    url = inputs['target:url']
-    dois = [m.group(1) for m in map(url_re.match, url.splitlines()) if m]
+    urls = inputs['target:url'].splitlines()
+    dois = [m.group(1) for m in map(url_re.match, urls) if m]
 
     if dois:
       client = SwaggerClient(
@@ -46,7 +46,7 @@ class Assessment:
       if len(results) > 1:
         logging.warn('More than 1 DOI was identified in the fairsharing database! (%s)' % (url))
       if len(results) >= 1:
-        data = results[0]['data']
+        data = results[0]
       else:
         data = None
 

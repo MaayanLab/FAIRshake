@@ -9,6 +9,7 @@ class IdentifiableFilterSet(filters.FilterSet):
   id = AllInFilter()
   authors = AllInFilter()
   q = filters.CharFilter(field_name='id', method='filter_query')
+  url = filters.CharFilter(field_name='url', lookup_expr='icontains')
 
   def get_search_vector(self):
     return self.__class__.Meta.search_vector

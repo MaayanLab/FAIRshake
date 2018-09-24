@@ -7,7 +7,7 @@ class IdentifiableModelMixin(models.Model):
   id = models.AutoField(primary_key=True)
 
   title = models.CharField(max_length=255, blank=False)
-  url = models.CharField(max_length=255, blank=True, null=False, default='')
+  url = models.TextField(blank=True, null=False, default='')
   description = models.TextField(blank=True, null=False, default='')
   image = models.CharField(max_length=255, blank=True, null=False, default='')
   tags = models.CharField(max_length=255, blank=True, null=False, default='')
@@ -78,7 +78,7 @@ class Project(IdentifiableModelMixin):
 class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
   title = models.CharField(max_length=255, blank=True, null=False, default='')
-  url = models.CharField(max_length=255, blank=False)
+  url = models.TextField(max_length=255, blank=False)
 
   rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
