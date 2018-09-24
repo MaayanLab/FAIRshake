@@ -3,7 +3,7 @@ from django.urls import reverse
 from FAIRshakeAPI import tests, models
 
 class ViewsFunctionTestCase(TestCase):
-  setUp = tests.ViewsFunctionTestCase.setUp
+  setUp = tests.setUp
 
   def test_index_view(self):
     response = self.anonymous_client.get(reverse('index'))
