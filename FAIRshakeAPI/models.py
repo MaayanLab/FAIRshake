@@ -10,6 +10,7 @@ class IdentifiableModelMixin(models.Model):
 
   title = models.CharField(max_length=255, blank=False)
   url = models.TextField(blank=True, null=False, default='')
+  slug = models.CharField(max_length=255, unique=True, blank=False, null=False)
   description = models.TextField(blank=True, null=False, default='')
   image = models.CharField(max_length=255, blank=True, null=False, default='')
   tags = models.CharField(max_length=255, blank=True, null=False, default='')
@@ -30,7 +31,7 @@ class IdentifiableModelMixin(models.Model):
 
   def tags_as_list(self):
     return self.tags.split()
-  
+
   def model_name(self):
     return self._meta.verbose_name_raw
   
@@ -43,7 +44,7 @@ class IdentifiableModelMixin(models.Model):
       'tags': self.tags,
       'type': self.type,
     }
-  
+
   def has_permission(self, user, perm):
     if perm in ['list', 'retrieve', 'stats']:
       return True
@@ -166,19 +167,19 @@ class Assessment(models.Model):
 
   def save(self, *args, **kwargs):
     if self.target is not None:
-      k = '#digital_object={pk}'.format(pk=self.target.pk)
+      k = '#digital_object={slug}'.format(slug=self.target.slug)
       l = cache.get(k)
       l = json.loads(l) if l else []
       l += [k]
       cache.delete_many(l)
     if self.rubric is not None:
-      k = '#rubric={pk}'.format(pk=self.rubric.pk)
+      k = '#rubric={slug}'.format(slug=self.rubric.slug)
       l = cache.get(k)
       l = json.loads(l) if l else []
       l += [k]
       cache.delete_many(l)
     if self.project is not None:
-      k = '#project={pk}'.format(pk=self.project.pk)
+      k = '#project={slug}'.format(slug=self.project.slug)
       l = cache.get(k)
       l = json.loads(l) if l else []
       l += [k]

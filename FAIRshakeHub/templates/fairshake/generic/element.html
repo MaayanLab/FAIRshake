@@ -3,7 +3,7 @@
   <div class="panel panel-default" style="height: 320px">
     <div class="panel-body text-center">
       <div class="image-container">
-        <a href="{% url model|add:'-detail' item.id %}" class="image-link">
+        <a href="{% url model|add:'-detail' item.slug %}" class="image-link">
           <img
             {% if item.image %}
               src="{{ item.image }}"
@@ -15,7 +15,7 @@
         {% if model == "digital_object" and user.is_authenticated %}
           <div>
             <a
-              href="{% url 'assessment-add' %}?target={{ item.id }}{% if parent_model %}&{{ parent_model }}={{ parent_item.id }}{% endif %}"
+              href="{% url 'assessment-add' %}?target={{ item.slug }}{% if parent_model %}&{{ parent_model }}={{ parent_item.slug }}{% endif %}"
               class="btn btn-xs"
               style="padding:5px;border:2px solid #428bca;display:inline-block;position: absolute;top: 10px; left: 25px; box-shadow: 0 0 4px 4px white;"
             >
@@ -27,7 +27,7 @@
           <div
             class="insignia embed-image"
             style="width: 40px; height: 40px;"
-            data-target='{ "{{ model }}": {{ item.id }} }'
+            data-target='{ "{{ model }}": {{ item.slug }} }'
           ></div>
         {% endif %}
       </div>
@@ -61,7 +61,7 @@
         {% has_permission item 'modify' as edit_perm %}
         {% if edit_perm %}
         <div style="position:absolute;bottom:25px;right:25px;">
-          <a href="{% url model|add:'-modify' item.id %}">
+          <a href="{% url model|add:'-modify' item.slug %}">
             <span
               class="glyphicon glyphicon-edit"
               style="font-size:20px;color:#666666;"

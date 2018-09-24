@@ -31,6 +31,8 @@ class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
     return view.get_template_context(request, context)
 
 class CustomModelViewSet(viewsets.ModelViewSet):
+  lookup_field = 'slug'
+
   renderer_classes = [
     renderers.JSONRenderer,
     CustomTemplateHTMLRenderer,
@@ -132,7 +134,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     detail=False, methods=['get', 'post'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def add(self, request, pk=None, **kwargs):
+  def add(self, request, slug=None, **kwargs):
     self.check_permissions(request)
     if request.method == 'GET':
       return response.Response()
@@ -141,7 +143,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     if instance:
       return callback_or_redirect(request,
         self.get_model_name()+'-detail',
-        pk=instance.id,
+        slug=instance.slug,
       )
     return response.Response()
 
@@ -150,7 +152,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     methods=['get', 'post'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def modify(self, request, pk=None):
+  def modify(self, request, slug=None):
     item = self.get_object()
     if request.method == 'GET':
       return response.Response()
@@ -159,7 +161,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     if instance:
       return callback_or_redirect(request,
         self.get_model_name()+'-detail',
-        pk=pk,
+        slug=instance.slug,
       )
     return response.Response()
 
@@ -167,7 +169,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     detail=True,
     methods=['get'],
   )
-  def remove(self, request, pk=None):
+  def remove(self, request, slug=None):
     item = self.get_object()
     self.check_object_permissions(request, item)
     item.delete()
@@ -198,7 +200,7 @@ class ProjectViewSet(CustomModelViewSet):
     methods=['get'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def stats(self, request, pk=None):
+  def stats(self, request, slug=None):
     item = self.get_object()
     self.check_object_permissions(request, item)
     return response.Response()
@@ -222,6 +224,7 @@ class RubricViewSet(CustomModelViewSet):
   filter_class = filters.RubricFilterSet
 
 class AssessmentViewSet(CustomModelViewSet):
+  lookup_field = 'pk'
   model = models.Assessment
   form = forms.AssessmentForm
   serializer_class = serializers.AssessmentSerializer
