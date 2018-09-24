@@ -47,7 +47,7 @@ class IdentifiableModelMixin(models.Model):
       return True
     elif perm in ['create', 'add']:
       return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
+    elif perm in ['modify', 'remove', 'delete', 'update', 'partial_update', 'destroy']:
       if self is None:
         return user.is_authenticated
       else:
@@ -153,7 +153,7 @@ class Assessment(models.Model):
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def has_permission(self, user, perm):
-    if perm in ['list', 'create', 'add', 'modify', 'remove', 'delete', 'retrieve']:
+    if perm in ['list', 'create', 'add', 'modify', 'remove', 'delete', 'retrieve', 'update', 'partial_update', 'destroy']:
       if self is None:
         return user.is_authenticated or user.is_staff
       else:
@@ -236,7 +236,7 @@ class AssessmentRequest(models.Model):
       return True
     elif perm in ['create', 'add']:
       return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
+    elif perm in ['modify', 'remove', 'delete', 'update', 'partial_update', 'destroy']:
       if self is None:
         return user.is_authenticated
       else:
