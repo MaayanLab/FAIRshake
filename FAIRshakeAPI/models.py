@@ -164,7 +164,15 @@ class Assessment(models.Model):
       logging.warning('perm %s not handled' % (perm))
       return user.is_staff
 
+  def delete(self, *args, **kwargs):
+    self.invalidate_cache()
+    return super(Assessment, self).delete(*args, **kwargs)
+
   def save(self, *args, **kwargs):
+    self.invalidate_cache()
+    return super(Assessment, self).save(*args, **kwargs)
+  
+  def invalidate_cache(self):
     if self.target is not None:
       k = '#digital_object={pk}'.format(pk=self.target.pk)
       l = cache.get(k)
@@ -183,7 +191,6 @@ class Assessment(models.Model):
       l = json.loads(l) if l else []
       l += [k]
       cache.delete_many(l)
-    return super(Assessment, self).save(*args, **kwargs)
 
   def __str__(self):
     return '{methodology} assessment on Target[{target}] for Project[{project}] with Rubric[{rubric}] ({id})'.format(
