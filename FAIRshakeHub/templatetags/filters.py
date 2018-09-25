@@ -23,6 +23,10 @@ def unslugify(v):
 def limit(text, amount):
   return ''.join(text[:amount]) + '...' if len(text) > amount else text
 
+@register.filter
+def as_path(req):
+  return '&'.join(map('='.join, req.items()))
+
 @register.simple_tag(takes_context=True)
 def select_template(context, *L):
   return template.loader.select_template(L).render(context.flatten())
