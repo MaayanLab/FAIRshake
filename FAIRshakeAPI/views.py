@@ -185,10 +185,8 @@ class IdentifiableModelViewSet(CustomModelViewSet):
   def get_list_template_context(self, request, context):
     paginator_cls = self.paginator.django_paginator_class
     page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
-    form = self.get_form()
 
     return dict(context,
-      form=form,
       items=paginator_cls(
         self.filter_queryset(
           self.get_queryset()
