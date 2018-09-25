@@ -1,6 +1,7 @@
 # TODO: split up into abstract API implementations
 
 import json
+import logging
 from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
 from .assessments import Assessment
@@ -24,10 +25,16 @@ def callback_or_redirect(request, *args, **kwargs):
     return shortcuts.redirect(callback)
 
 def get_or_create(model, **kwargs):
-  try:
-    return model.objects.get(**kwargs)
-  except:
-    return model.objects.create(**kwargs)
+  objects = model.objects.filter(**kwargs)
+  if objects.count() == 0:
+    obj = model(**{
+      k: v for k, v in kwargs.items() if v
+    })
+    obj.save()
+    return obj
+  if objects.count() > 1:
+    logging.warn('get_or_create got more than 1 object. (%s)' % (kwargs))
+  return objects.last()
 
 def redirect_with_params(request, *args, **kwargs):
   return shortcuts.redirect(
