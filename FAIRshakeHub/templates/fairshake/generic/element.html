@@ -27,7 +27,7 @@
           <div
             class="insignia embed-image"
             style="width: 40px; height: 40px;"
-            data-target='{ "{{ model }}": {{ item.id }} }'
+            data-target='{ "{{ model }}": {{ item.id }}{% if parent_model %}, "{{ parent_model }}": {{ parent_item.id }}{% endif %} }'
           ></div>
         {% endif %}
       </div>
