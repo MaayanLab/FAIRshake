@@ -96,6 +96,9 @@ http {
         location ~ ^/v2/ {
             rewrite ^/v2/(.*)$ https://\$server_name/\$1 redirect;
         }
+        location ~ ^/assessment/add/(.*)$ {
+            rewrite ^/assessment/perform/(.*)$ https://\$server_name/\$1 redirect;
+        }
         location ~ ^/static/v2/ {
             rewrite ^/static/v2/(.*)$ https://\$server_name/v2/static/\$1 redirect;
         }

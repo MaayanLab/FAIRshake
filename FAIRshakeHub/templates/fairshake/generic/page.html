@@ -5,7 +5,7 @@
   {% with active_page=model|add:'s' %}
     {{ block.super }}
   {% endwith %}
-  {% if action == 'add' or action == 'modify' %}
+  {% if action == 'add' or action == 'modify' or action == 'prepare' %}
     {{ form.media }}
   {% endif %}
 {% endblock %}
