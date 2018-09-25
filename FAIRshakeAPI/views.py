@@ -492,6 +492,8 @@ class AssessmentViewSet(CustomModelViewSet):
 
   def get_perform_template_context(self, request, context):
     assessment = self.get_assessment()
+    if not assessment:
+      return context
     answer_forms = self.get_answer_forms(assessment)
     return dict(context,
       item=assessment,
