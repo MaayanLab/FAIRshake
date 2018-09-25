@@ -25,9 +25,11 @@ def fairsharing_get_all(fairsharing):
    yielded from the function.
   '''
   response = fairsharing.actions.database_summary_list.call()
-  while response['next']:
+  while True:
     for database in response['results']:
       yield database
+    if not response['next']:
+      break
     response = fairsharing.request(response['next'])
 
 def fairsharing_obj_to_fairshake_obj(fairsharing_obj):
