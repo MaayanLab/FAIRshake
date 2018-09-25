@@ -1,6 +1,6 @@
 from django import forms
 from FAIRshakeAPI import models
-from ajax_select.fields import AutoCompleteSelectMultipleField
+from ajax_select.fields import AutoCompleteSelectMultipleField, AutoCompleteSelectField
 from . import fields
 
 class IdentifiableForm(forms.ModelForm):
@@ -93,21 +93,19 @@ class MetricForm(IdentifiableForm):
       'authors',
     )
 
-class AssessmentForm(forms.ModelForm):
-  def __init__(self, *args, **kwargs):
-    super(AssessmentForm, self).__init__(*args, **kwargs)
-
-    self.fields['target'].widget = forms.HiddenInput()
-    self.fields['rubric'].widget = forms.HiddenInput()
-    self.fields['project'].widget = forms.HiddenInput()
-
-  class Meta:
-    model = models.Assessment
-    fields = (
-      'target',
-      'rubric',
-      'project',
-    )
+class AssessmentForm(forms.Form):
+  target = AutoCompleteSelectField('digital_objects-embedded',
+    required=True,
+    help_text=None,
+  )
+  rubric = AutoCompleteSelectField('rubrics-embedded',
+    required=True,
+    help_text=None,
+  )
+  project = AutoCompleteSelectField('projects-embedded',
+    required=False,
+    help_text=None,
+  )
 
 class AnswerForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
