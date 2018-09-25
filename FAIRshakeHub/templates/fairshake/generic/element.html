@@ -1,5 +1,5 @@
 {% load filters %}
-<div class="col-md-3 col-sm-6">
+<div class="{% if embedded %}col-sm-12{% else %}col-md-3 col-sm-6{% endif %}">
   <div class="panel panel-default" style="height: 320px">
     <div class="panel-body text-center">
       <div class="image-container">
@@ -15,7 +15,7 @@
         {% if model == "digital_object" and user.is_authenticated %}
           <div>
             <a
-              href="{% url 'assessment-add' %}?target={{ item.id }}{% if parent_model %}&{{ parent_model }}={{ parent_item.id }}{% endif %}"
+            href="{% url 'assessment-add' %}?target={{ item.id }}{% if parent_model %}&{{ parent_model }}={{ parent_item.id }}{% endif %}"
               class="btn btn-xs"
               style="padding:5px;border:2px solid #428bca;display:inline-block;position: absolute;top: 10px; left: 25px; box-shadow: 0 0 4px 4px white;"
             >
