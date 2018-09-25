@@ -461,6 +461,21 @@ class AssessmentViewSet(CustomModelViewSet):
         )
     return response.Response()
 
+  def get_list_template_context(self, request, context):
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
+
+    return dict(context,
+      items=paginator_cls(
+        self.filter_queryset(
+          self.get_queryset()
+        ),
+        page_size,
+      ).get_page(
+        request.GET.get('page')
+      ),
+    )
+
   def get_prepare_template_context(self, request, context):
     suggestions = self.get_suggestions()
     form = self.get_assessment_form(suggestions)
