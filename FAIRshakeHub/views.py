@@ -61,12 +61,8 @@ def handler(code, message):
     ))
   return _handler
 
-def handler403(request, *args, **kwargs):
-  if request.user.is_anonymous:
-    return redirect(reverse('account_login') + '?next=' + request.get_full_path())
-  return handler(403, 'Permission denied')(request, *args, **kwargs)
-
 handler400 = handler(400, 'Bad Request')
+handler403 = handler(403, 'Permission denied')
 handler404 = handler(404, 'Page not Found')
 handler500 = handler(500, 'Server error')
 

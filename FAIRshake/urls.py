@@ -22,9 +22,9 @@ from des import urls as des_urls
 
 if not settings.DEBUG:
     handler400 = 'FAIRshakeHub.views.handler400'
+    handler403 = 'FAIRshakeHub.views.handler403'
     handler404 = 'FAIRshakeHub.views.handler404'
     handler500 = 'FAIRshakeHub.views.handler500'
-handler403 = 'FAIRshakeHub.views.handler403'
 
 urlpatterns = [
     path(settings.BASE_URL + '', include('FAIRshakeHub.urls')),
