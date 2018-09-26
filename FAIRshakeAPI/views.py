@@ -6,6 +6,8 @@ from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
 from .assessments import Assessment
 from django import shortcuts, forms as django_forms
+from django.http import HttpResponse
+from django.utils.html import escape
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
@@ -76,6 +78,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     return dict(context,
       model=self.get_model_name(),
       action=self.action,
+      popup=self.request.GET.get('_popup', None),
       **getattr(self, 'get_%s_template_context' % (self.action),
         getattr(self, 'get_%s_template_context' % ('detail' if self.detail else 'list'),
           lambda request, context: context
@@ -121,6 +124,20 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     form = self.get_form()
     instance = self.save_form(request, form)
     if instance:
+      popup = request.GET.get('_popup', None)
+      if popup is not None:
+        return HttpResponse('''
+          <script type="text/javascript">
+            opener.dismissAddAnotherPopupEx(
+                window,
+                "{pk}",
+                "{obj}"
+            );
+          </script>
+        '''.format(
+          pk=escape(instance.pk),
+          obj=escape(repr(instance))
+        ))
       return callback_or_redirect(request,
         self.get_model_name()+'-detail',
         pk=instance.id,

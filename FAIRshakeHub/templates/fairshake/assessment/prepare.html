@@ -48,10 +48,6 @@
   </div>
 </form>
 <script>
-  function reinit_form() {
-    $('form').attr('action', "{% url model|add:'-prepare' %}")
-    $('form').submit()
-  }
   function update_selection(field, id) {
     $('#id_'+field).val(id)
     if(field=='target') {
