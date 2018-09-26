@@ -383,6 +383,9 @@ class AssessmentViewSet(CustomModelViewSet):
 
       if not targets:
         targets = search.DigitalObjectSearchVector().query(q)
+      
+      if targets.count() == 1:
+        target = targets.first().id
 
     if rubric:
       if target:
