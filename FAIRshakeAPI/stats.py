@@ -5,7 +5,7 @@ from collections import Counter
 import numpy as np
 
 # Dictionary converts all answers to scores
-answer_score_dict = {"yes":1,"yesbut":0.75,"nobut":0.25,"no":0}
+answer_score_dict = {"yes":1,"yesbut":0.75,"nobut":0.25,"no":0,'':0}
 
 def _iplot(*args, **kwargs):
   return opy.plot(*args, **kwargs, auto_open=False, output_type='div')
