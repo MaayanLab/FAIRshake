@@ -49,9 +49,10 @@ def fairsharing_obj_to_fairshake_obj(fairsharing_obj):
     "description": fairsharing_obj['description'],
     "tags": "dcppc",
     "url": '\n'.join([
-      fairsharing_obj['homepage'],
-      'https://doi.org/' + fairsharing_obj['doi'],
-    ]),
+      fairsharing_obj['homepage']
+    ] + (
+      ['https://doi.org/' + fairsharing_obj['doi']] if fairsharing_obj.get('doi') else []
+    )),
     "projects": [
       14, # FAIRsharing project
     ],
