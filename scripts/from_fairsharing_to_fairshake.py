@@ -77,18 +77,17 @@ def register_fairshake_obj_if_not_exists(fairshake, fairshake_obj):
     url=fairshake_obj['url'],
   )['results']
 
-  for add, remove in prompt_select_dups(*existing, fairshake_obj):
-    for result in add:
-      if result.get('id'):
-        print('Updating %s...' % (str(result['id'])))
-        id = result['id']
+  for result in prompt_select_dups(*existing, fairshake_obj):
+    if result.get('id'):
+      print('Updating %s...' % (str(result['id'])))
+      id = result['id']
+      del result['id']
+      fairshake.actions.digital_object_update.call(id=id, data=result)
+    else:
+      print('Creating...')
+      if result.get('id') is not None:
         del result['id']
-        fairshake.actions.digital_object_update.call(id=id, data=result)
-      else:
-        print('Creating...')
-        if result.get('id') is not None:
-          del result['id']
-        fairshake.actions.digital_object_create.call(data=result)
+      fairshake.actions.digital_object_create.call(data=result)
 
 def send_fairsharing_objects_to_fairshake(fairsharing=None, fairshake=None):
   ''' With fairshake and fairsharing swagger clients, we go through
