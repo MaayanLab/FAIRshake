@@ -4,7 +4,9 @@
 #  Swagger Client library. It uses parsed swagger to generate python methods
 #  for interacting with the API with docstrings and all.
 # It makes working with swagger-described APIs easy.
+import os
 from pyswagger_wrapper import SwaggerClient
+from merging import prompt_merge_attr, prompt_select_dups
 
 # Configure API credentials for both FAIRshake and FAIRSharing
 #  FAIRshake allows you to get your API_KEY with your USERNAME
@@ -75,22 +77,18 @@ def register_fairshake_obj_if_not_exists(fairshake, fairshake_obj):
     url=fairshake_obj['url'],
   )['results']
 
-  if existing:
-    print('Similar objects were found')
-    print(*existing, sep='\n')
-  else:
-    print('No similar objects were found')
-
-  print('Object to add')
-  print(fairshake_obj)
-  print('Add this object? [y/N]')
-
-  ans = input()
-  if ans in ['y', 'Y']:
-    obj = fairshake.actions.digital_object_create.call(data=fairshake_obj)
-    print('Registered', obj, end='\n\n')
-  else:
-    print('Skipping.', end='\n\n')
+  for add, remove in prompt_select_dups(*existing, fairshake_obj):
+    for result in add:
+      if result.get('id'):
+        print('Updating %s...' % (str(result['id'])))
+        id = result['id']
+        del result['id']
+        fairshake.actions.digital_object_update.call(id=id, data=result)
+      else:
+        print('Creating...')
+        if result.get('id') is not None:
+          del result['id']
+        fairshake.actions.digital_object_create.call(data=result)
 
 def send_fairsharing_objects_to_fairshake(fairsharing=None, fairshake=None):
   ''' With fairshake and fairsharing swagger clients, we go through
