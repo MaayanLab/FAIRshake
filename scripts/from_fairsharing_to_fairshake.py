@@ -104,14 +104,13 @@ def get_fairshake_client(api_key=None, username=None, email=None, password=None)
   user credentials, create an authenticated swagger client to fairshake.
   '''
   fairshake = SwaggerClient(
-    'https://fairshake.cloud/v2/swagger?format=openapi',
+    'https://fairshake.cloud/swagger?format=openapi',
   )
   if not api_key:
-    fairshake_auth = fairshake.actions.auth_login_create.call(data={
+    fairshake_auth = fairshake.actions.auth_login_create.call(data=dict({
       'username': username,
-      'email': email,
       'password': password,
-    })
+    }, **({'email': email} if email else {})))
     api_key = fairshake_auth['key']
   # FAIRshake expects a Token in the Authorization request header for
   #  authenticated calls
