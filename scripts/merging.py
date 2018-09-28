@@ -49,6 +49,7 @@ def prompt_select_dups(*attrs_list):
   # Just select the 1 if there is only 1
   if len(attrs_list) == 1:
     yield attrs_list[0]
+    return
   # Create numbered list of potential dups
   attr_vals = {
     str(n + 1): attr_list
