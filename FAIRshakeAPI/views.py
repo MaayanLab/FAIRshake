@@ -334,21 +334,26 @@ class AssessmentViewSet(CustomModelViewSet):
     ''' Get the answers associated with the assessment object
     '''
     if assessment:
-      initial = {}
+      initial = dict({
+        '%s-%s' % (answer.metric.id, key): getattr(answer, key)
+        for answer in assessment.answers.all()
+        for key in ['answer', 'comment', 'url_comment']
+        if getattr(answer, key)
+      }, **self.request.GET.dict())
+
       if self.request.method == 'POST':
-        initial = self.request.POST.dict()
+        initial = dict(initial, **self.request.POST.dict())
       else:
         auto_assessment_results = Assessment.perform(
           rubric=assessment.rubric,
           target=assessment.target,
         )
-        initial = {
-          '%s-%s' % (answer.metric.id, key): attr if not getattr(answer, key) else getattr(answer, key)
-          for answer in assessment.answers.all()
-          for key, attr in auto_assessment_results.get('metric:%d' % (answer.metric.id), {}).items()
-          if attr or getattr(answer, key)
-        }
-      initial = dict(self.request.GET.dict(), **initial)
+        for answer in assessment.answers.all():
+          for key, attr in auto_assessment_results.get('metric:%d' % (answer.metric.id), {}).items():
+            k = '%s-%s' % (answer.metric.id, key)
+            if attr and not initial.get(k):
+              initial[k] = attr
+
       return [
         forms.AnswerForm(
           initial,
