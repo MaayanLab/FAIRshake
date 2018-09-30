@@ -444,13 +444,11 @@ class AssessmentViewSet(CustomModelViewSet):
   def save_answer_forms(self, answer_forms):
     ''' Save answer forms if they are all valid
     '''
-    if not all([
-      answer_form.is_valid()
-      for answer_form in answer_forms
-    ]):
-      return False
     for answer_form in answer_forms:
-      answer_form.save()
+      if answer_form.is_valid():
+        answer_form.save()
+      else:
+        answer_form.instance.delete()
     return True
 
   @decorators.action(
