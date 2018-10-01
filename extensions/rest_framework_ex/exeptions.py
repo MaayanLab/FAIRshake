@@ -4,6 +4,8 @@ from django.urls import reverse
 
 def handler(exc, context):
   response = exception_handler(exc, context)
+  if not response:
+    return response
   request = context['request']
 
   if all([
