@@ -270,7 +270,7 @@ class RubricViewSet(IdentifiableModelViewSet):
 class AssessmentViewSet(CustomModelViewSet):
   model = models.Assessment
   serializer_class = serializers.AssessmentSerializer
-  filter_classes = filters.AssessmentFilterSet
+  filter_class = filters.AssessmentFilterSet
 
   def get_queryset(self):
     if self.request.user.is_anonymous:
@@ -536,7 +536,7 @@ class AssessmentRequestViewSet(CustomModelViewSet):
   form = forms.AssessmentRequestForm
   queryset = models.AssessmentRequest.objects.all()
   serializer_class = serializers.AssessmentRequestSerializer
-  filter_classes = filters.AssessmentRequestFilterSet
+  filter_class = filters.AssessmentRequestFilterSet
 
   def save_form(self, request, form):
     instance = form.save(commit=False)
