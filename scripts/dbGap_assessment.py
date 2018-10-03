@@ -13,41 +13,20 @@ from FAIRshakeAPI import models
 
 metrics = [
   {
-    'query': './/StudyNameEntrez',
-    'desc': 'Has a title',
-    'metric': None,
-    'pattern': re.compile(r'.+'),
-  },
-  # {
-  #   'query': './/Description',
-  #   'desc': 'Has a description',
-  #   'metric': 63,
-  #   'pattern': re.compile(r'.+'),
-  # },
-  # {
-  #   'query': './/Attributions/Header',
-  #   'desc': 'Has attribution',
-  #   'pattern': None,
-  # },
-  # {
-  #   'query': './/Analyses/Analysis',
-  #   'desc': 'Summary Statistics',
-  #   'pattern': None,
-  # },
-  {
     'query': './/Studies/Study[@accession]',
     'desc': 'ID or accession number',
     'metric': 21,
     'pattern': None,
   },
+#   {
+#     'query': './/Studies/Study',
+#     'desc': 'Has metadata',
+#     'metric': 22,
+#     'pattern': None,
+#   },
   {
-    'query': './/Studies/Study',
-    'desc': 'Has metadata',
-    'metric': 22,
-    'pattern': None,
-  },
-  {
-    'query': './/MetaVariables/Submitter/Method',
+#     'query': './/MetaVariables/Submitter/Method',
+    'query': './/Analyses/Analysis/Method',
     'desc': 'Experimental method',
     'metric': 23,
     'pattern': re.compile(r'.+'),
@@ -88,6 +67,59 @@ metrics = [
     'metric': 29,
     'pattern': None,
   },
+  {
+    'query': './/StudyNameEntrez',
+    'desc': 'Has a title',
+    'metric': 60,
+    'pattern': re.compile(r'.+'),
+  },
+  {
+    'query': './/Description',
+    'desc': 'Has a description',
+    'metric': 63,
+    'pattern': re.compile(r'.+'),
+  },
+  {
+    'query': './/Documents/Document[@uID]',
+    'desc': 'Unique identifier in dbGaP Entrez system',
+    'metric': 87,
+    'pattern': None,
+  },
+  {
+    'query': './/Studies/Study',
+    'desc': 'Machine readable metadata',
+    'metric': 89,
+    'pattern': None,
+  },
+   {
+    'query': './/DocumentSet/DataUseCertificate[@FilePath]',
+    'desc': 'URL to data usage limitations',
+    'metric': 92,
+    'pattern': None,
+  },
+    {
+    'query': './/DocumentSet/DataUseCertificate[@FilePath]',
+    'desc': 'URL to protocol to access restricted content',
+    'metric': 111,
+    'pattern': None,
+  },
+  {
+    'query': './/Studies/Study[@modDate]',
+    'desc': 'Date last updated/modified',
+    'metric': 120,
+    'pattern': None,
+  },
+  {
+    'query': './/Attributions/Header',
+    'desc': 'Has attribution',
+    'metric': 121,
+    'pattern': None,
+  },
+#   {
+#     'query': './/Analyses/Analysis',
+#     'desc': 'Summary Statistics',
+#     'pattern': None,
+#   },
 ]
 
 studies = [
@@ -164,30 +196,52 @@ with FTP('ftp.ncbi.nlm.nih.gov') as ftp:
       answers = {
         'meta': None,
       }
+      
+    # Find the data dict and variabe report in pheno_variable_summaries folder
+    try:
+      ftp.cwd('pheno_variable_summaries')
+      files = ftp.nlst()
+
+      datadict = [file for file in files if file.startswith('datadict')][0]
+      varreport = [file for file in files if file.startswith('varreports')][0]
+      answers['Standardized metadata'] = {
+        'metric': 107,
+        'answer': 'yes',
+        'comment': 'data dictionary and variable report exists'
+      }
+    except Exception as e:
+      print(study+':'+' Variable report and data dictionary not found')
+      answers['Standardized metadata'] = {
+        'metric': 107,
+        'answer': 'no',
+        'comment': 'data dictionary and variable report not found'
+      }
+    # variable terms between studies are currently not interoperable or community-accepted
+    #   and no way to assert this
+    answers['Variables linked to standards'] = {
+      'metric': 95,
+      'answer': 'no',
+      'comment': 'Variables are not represented using a formal, accessible, and broadly applicable language'
+    }
     res[study] = answers
 
 me = models.Author.objects.get(username='maayanlab')
 topmed = models.Project.objects.get(id=61)
-dataset_rubric = models.Rubric.objects.get(id=8)
+dbgap_rubric = models.Rubric.objects.get(id=26)
 objs = []
 assessments = []
 for study, answers in res.items():
   if not answers['meta']:
     continue
-  obj = models.DigitalObject(
-    title=answers['Has a title']['comment'],
-    url='ftp://ftp.ncbi.nlm.nih.gov/dbgap/studies/%s/' % (study),
-    type='data',
-    tags='DCPPC',
+  obj = models.DigitalObject.objects.get(
+    url='ftp://ftp.ncbi.nlm.nih.gov/dbgap/studies/%s/' % (study)
   )
-  obj.save()
-  obj.projects.add(topmed)
-  obj.authors.add(me)
+  obj.rubrics.add(dbgap_rubric)
   objs.append(obj)
   assessment = models.Assessment(
     project=topmed,
     target=obj,
-    rubric=dataset_rubric,
+    rubric=dbgap_rubric,
     methodology='auto',
     assessor=me,
   )
