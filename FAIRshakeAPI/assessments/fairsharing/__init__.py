@@ -1,6 +1,6 @@
 import re
 from django.conf import settings
-from scripts.pyswagger_wrapper import SwaggerClient
+from pyswaggerclient import SwaggerClient
 
 url_re = re.compile(r'^https?://doi.org/(.+)$')
 

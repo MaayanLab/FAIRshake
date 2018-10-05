@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from rest_framework.test import APIClient
-from scripts.pyswagger_wrapper import bind
+from pyswaggerclient.util import bind
 from . import models
 
 def setUp(cls, Client=Client):

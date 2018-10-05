@@ -5,7 +5,7 @@
 #  for interacting with the API with docstrings and all.
 # It makes working with swagger-described APIs easy.
 import os
-from pyswagger_wrapper import SwaggerClient
+from pyswaggerclient import SwaggerClient
 from merging import prompt_merge_attr, prompt_select_dups
 
 # Configure API credentials for both FAIRshake and FAIRSharing
