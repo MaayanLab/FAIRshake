@@ -29,7 +29,7 @@ class IdentifiableModelMixin(models.Model):
     return self.url.splitlines()
 
   def tags_as_list(self):
-    return self.tags.split()
+    return self.tags.split(',')
   
   def model_name(self):
     return self._meta.verbose_name_raw
