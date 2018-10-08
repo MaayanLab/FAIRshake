@@ -1,5 +1,6 @@
-import logging
+import re
 import json
+import logging
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
@@ -26,10 +27,20 @@ class IdentifiableModelMixin(models.Model):
   authors = models.ManyToManyField('Author', blank=True)
 
   def urls_as_list(self):
-    return self.url.splitlines()
+    ''' Split urls by space or newline '''
+    return [
+      url
+      for url in map(str.strip, re.split(r'[\n ]+', self.url))
+      if url
+    ]
 
   def tags_as_list(self):
-    return self.tags.split(',')
+    ''' Split tags by commas explicitly '''
+    return [
+      tag
+      for tag in map(str.strip, re.split(r'[,\n]+', self.tags))
+      if tag
+    ]
   
   def model_name(self):
     return self._meta.verbose_name_raw
@@ -37,10 +48,10 @@ class IdentifiableModelMixin(models.Model):
   def attrs(self):
     return {
       'title': self.title,
-      'url': self.url,
+      'url': self.url.urls_as_list(),
       'description': self.description,
       'image': self.image,
-      'tags': self.tags,
+      'tags': self.tags.tags_as_list(),
       'type': self.type,
     }
   

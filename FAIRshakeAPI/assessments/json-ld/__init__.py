@@ -91,7 +91,7 @@ class Assessment:
 
   @classmethod
   def perform(kls, inputs):
-    urls = inputs['target:url'].splitlines()
+    urls = inputs['target:url']
     for url in urls:
       try:
         r = requests.get(url)

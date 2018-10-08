@@ -24,7 +24,7 @@ class Assessment:
 
   @classmethod
   def perform(kls, inputs):
-    urls = inputs['target:url'].splitlines()
+    urls = inputs['target:url']
     dois = [m.group(1) for m in map(url_re.match, urls) if m]
 
     if dois:
