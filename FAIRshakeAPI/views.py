@@ -432,7 +432,7 @@ class AssessmentViewSet(CustomModelViewSet):
       projects = None
       if target:
         projects = targets.first().projects.all()
-      if projects is None or projects.exists():
+      if projects is None or not projects.exists():
         projects = models.Project.objects.all()
       if projects.count() == 1:
         project = projects.first().id
