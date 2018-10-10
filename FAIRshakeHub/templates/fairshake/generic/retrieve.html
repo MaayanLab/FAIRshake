@@ -49,9 +49,11 @@
     {% if item.url %}
       <p>
         <strong>URL(s):</strong>
+        <ul style="list-style: none; padding: 0;">
         {% for url in item.urls_as_list %}
-          <a href="{{ url }}">{{ url|limit:75 }}</a>
+          <li><a href="{{ url }}">{{ url|limit:75 }}</a></li>
         {% endfor %}
+        </ul>
       </p>
     {% endif %}
     <div
