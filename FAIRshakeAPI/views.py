@@ -254,7 +254,7 @@ class ProjectViewSet(IdentifiableModelViewSet):
     return dict(context,
       item=self.get_object(),
       plots=[
-        'TablePlot',
+        # 'TablePlot',
         'RubricPieChart',
         'RubricsInProjectsOverlay',
         'DigitalObjectBarBreakdown',
