@@ -48,10 +48,10 @@ class IdentifiableModelMixin(models.Model):
   def attrs(self):
     return {
       'title': self.title,
-      'url': self.url.urls_as_list(),
+      'url': self.urls_as_list(),
       'description': self.description,
       'image': self.image,
-      'tags': self.tags.tags_as_list(),
+      'tags': self.tags_as_list(),
       'type': self.type,
     }
   
