@@ -106,6 +106,7 @@ REST_FRAMEWORK = {
     'VIEW_PAGE_SIZE': 11,
     'SEARCH_PAGE_SIZE': 11,
     'EXCEPTION_HANDLER': 'extensions.rest_framework_ex.exeptions.handler',
+    'URL_FIELD_NAME': 'get_url',
 }
 
 LOGGING = {
