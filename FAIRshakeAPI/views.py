@@ -255,8 +255,8 @@ class ProjectViewSet(IdentifiableModelViewSet):
       item=self.get_object(),
       plots=[
         # 'TablePlot',
-        'RubricPieChart',
         'RubricsInProjectsOverlay',
+        'RubricPieChart',
         'DigitalObjectBarBreakdown',
       ]
     )
