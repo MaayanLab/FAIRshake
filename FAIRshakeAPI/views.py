@@ -559,12 +559,30 @@ class ScoreViewSet(
     '''
     Generate aggregate scores on a per-rubric and per-metric basis.
     '''
-    key = ','.join(map('='.join,request.GET.items()))
+    # Treat `digital_object` as equivalent target here
+    GET = request.GET.dict()
+    if GET.get('digital_object') is not None:
+      GET['target'] = GET['digital_object']
+      del GET['digital_object']
+  
+    key = ','.join(map('='.join, GET.items()))
     result = cache.get(key)
 
     if result is None:
       scores = {}
       metrics = {}
+
+      targets = set()
+      rubrics = set()
+      projects = set()
+
+      # Ensure we at least capture the elements of the GET request
+      if GET.get('target'):
+        targets.add(GET['target'])
+      if GET.get('rubric'):
+        rubrics.add(GET['rubric'])
+      if GET.get('project'):
+        projects.add(GET['project'])
 
       for assessment in self.filter_queryset(self.get_queryset()):
         if scores.get(assessment.rubric.id) is None:
@@ -575,6 +593,13 @@ class ScoreViewSet(
           if scores[assessment.rubric.id].get(answer.metric.id) is None:
             scores[assessment.rubric.id][answer.metric.id] = []
           scores[assessment.rubric.id][answer.metric.id].append(answer.value())
+        # Keep track of targets, rubrics, and projects used in this insignia
+        if assessment.target:
+          targets.add(assessment.target.pk)
+        if assessment.rubric:
+          rubrics.add(assessment.rubric.pk)
+        if assessment.project:
+          projects.add(assessment.project.pk)
 
       result = {
         'scores': {
@@ -586,13 +611,31 @@ class ScoreViewSet(
         },
         'metrics': metrics,
       }
-      cache.set(key, result, 60 * 60)
-      for k in map('='.join, request.GET.items()):
-        k = '#' + k
-        l = cache.get(k)
-        l = json.loads(l) if l else []
-        l += [key]
-        cache.set(k, json.dumps(l), 60 * 60)
+
+      # Only cache if we actually got anything
+      if metrics and scores:
+        cache.set(key, result, 60 * 60)
+
+        # Ensure we can invalidate this cache
+        for model, pks in [
+          ('target', targets),
+          ('rubric', rubrics),
+          ('project', projects),
+        ]:
+          for pk in pks:
+            k = '#{model}={pk}'.format(model=model, pk=pk)
+            cache.set(
+              k, json.dumps(
+                list(
+                  set(
+                    json.loads(
+                      cache.get(k, "[]")
+                    )
+                  ).union([key])
+                )
+              ),
+              60 * 60
+            )
 
     return response.Response(result)
 

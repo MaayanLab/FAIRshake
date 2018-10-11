@@ -176,31 +176,45 @@ class Assessment(models.Model):
       return user.is_staff
 
   def delete(self, *args, **kwargs):
+    ret = super(Assessment, self).delete(*args, **kwargs)
     self.invalidate_cache()
-    return super(Assessment, self).delete(*args, **kwargs)
+    return ret
 
   def save(self, *args, **kwargs):
+    ret = super(Assessment, self).save(*args, **kwargs)
     self.invalidate_cache()
-    return super(Assessment, self).save(*args, **kwargs)
+    return ret
   
   def invalidate_cache(self):
     if self.target is not None:
-      k = '#digital_object={pk}'.format(pk=self.target.pk)
-      l = cache.get(k)
-      l = json.loads(l) if l else []
-      l += [k]
+      k = '#target={pk}'.format(pk=self.target.pk)
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
       cache.delete_many(l)
     if self.rubric is not None:
       k = '#rubric={pk}'.format(pk=self.rubric.pk)
-      l = cache.get(k)
-      l = json.loads(l) if l else []
-      l += [k]
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
       cache.delete_many(l)
     if self.project is not None:
       k = '#project={pk}'.format(pk=self.project.pk)
-      l = cache.get(k)
-      l = json.loads(l) if l else []
-      l += [k]
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
       cache.delete_many(l)
 
   def __str__(self):
@@ -230,6 +244,16 @@ class Answer(models.Model):
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
 
+  def delete(self, *args, **kwargs):
+    ret = super(Answer, self).delete(*args, **kwargs)
+    self.assessment.invalidate_cache()
+    return ret
+
+  def save(self, *args, **kwargs):
+    ret = super(Answer, self).save(*args, **kwargs)
+    self.assessment.invalidate_cache()
+    return ret
+  
 # yesnomaybe (depends on metric__type)
   def value(self):
     return {
