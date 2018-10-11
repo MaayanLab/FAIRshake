@@ -1,6 +1,7 @@
 from rest_framework.views import exception_handler
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.template.defaultfilters import urlencode
 
 def handler(exc, context):
   response = exception_handler(exc, context)
@@ -14,6 +15,6 @@ def handler(exc, context):
     response.status_code >= 400,
     response.status_code < 500,
   ]):
-    return redirect(reverse('account_login') + '?next=' + request.get_full_path())
+    return redirect(reverse('account_login') + '?next=' + urlencode(request.get_full_path()))
 
   return response
