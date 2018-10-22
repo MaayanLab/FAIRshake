@@ -1,13 +1,16 @@
+import re
+import json
 import logging
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
+from django.core.cache import cache
 
 class IdentifiableModelMixin(models.Model):
   id = models.AutoField(primary_key=True)
 
   title = models.CharField(max_length=255, blank=False)
-  url = models.CharField(max_length=255, blank=True, null=False, default='')
+  url = models.TextField(blank=True, null=False, default='')
   description = models.TextField(blank=True, null=False, default='')
   image = models.CharField(max_length=255, blank=True, null=False, default='')
   tags = models.CharField(max_length=255, blank=True, null=False, default='')
@@ -24,10 +27,20 @@ class IdentifiableModelMixin(models.Model):
   authors = models.ManyToManyField('Author', blank=True)
 
   def urls_as_list(self):
-    return self.url.splitlines()
+    ''' Split urls by space or newline '''
+    return [
+      url
+      for url in map(str.strip, re.split(r'[\n ]+', self.url))
+      if url
+    ]
 
   def tags_as_list(self):
-    return self.tags.split()
+    ''' Split tags by commas explicitly '''
+    return [
+      tag
+      for tag in map(str.strip, re.split(r'[,\n]+', self.tags))
+      if tag
+    ]
   
   def model_name(self):
     return self._meta.verbose_name_raw
@@ -35,10 +48,10 @@ class IdentifiableModelMixin(models.Model):
   def attrs(self):
     return {
       'title': self.title,
-      'url': self.url,
+      'url': self.urls_as_list(),
       'description': self.description,
       'image': self.image,
-      'tags': self.tags,
+      'tags': self.tags_as_list(),
       'type': self.type,
     }
   
@@ -47,7 +60,7 @@ class IdentifiableModelMixin(models.Model):
       return True
     elif perm in ['create', 'add']:
       return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
+    elif perm in ['modify', 'remove', 'delete', 'update', 'partial_update', 'destroy']:
       if self is None:
         return user.is_authenticated
       else:
@@ -78,15 +91,9 @@ class Project(IdentifiableModelMixin):
 class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
   title = models.CharField(max_length=255, blank=True, null=False, default='')
-  url = models.CharField(max_length=255, blank=False)
-  fairsharing = models.CharField(max_length=255, blank=True, null=False, default='')
+  url = models.TextField(max_length=255, blank=False)
 
   rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
-
-  def attrs(self):
-    return dict(super().attrs(), **{
-      'fairsharing': self.fairsharing,
-    })
 
   class Meta:
     verbose_name = 'digital_object'
@@ -118,6 +125,7 @@ class Rubric(IdentifiableModelMixin):
 class Metric(IdentifiableModelMixin):
   type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
     ('yesnobut', 'Yes no or but question'),
+    ('yesnomaybe', 'Yes no or maybe question'),
     ('text', 'Simple textbox input'),
     ('url', 'A url input'),
   ))
@@ -158,18 +166,56 @@ class Assessment(models.Model):
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def has_permission(self, user, perm):
-    if perm in ['list', 'retrieve']:
-      return True
-    elif perm in ['create', 'add']:
-      return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
+    if perm in ['list', 'create', 'prepare', 'perform', 'delete', 'retrieve', 'update', 'partial_update', 'destroy']:
       if self is None:
-        return user.is_authenticated
+        return user.is_authenticated or user.is_staff
       else:
         return (self and self.assessor == user) or user.is_staff
     else:
       logging.warning('perm %s not handled' % (perm))
       return user.is_staff
+
+  def delete(self, *args, **kwargs):
+    ret = super(Assessment, self).delete(*args, **kwargs)
+    self.invalidate_cache()
+    return ret
+
+  def save(self, *args, **kwargs):
+    ret = super(Assessment, self).save(*args, **kwargs)
+    self.invalidate_cache()
+    return ret
+  
+  def invalidate_cache(self):
+    if self.target is not None:
+      k = '#target={pk}'.format(pk=self.target.pk)
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
+      cache.delete_many(l)
+    if self.rubric is not None:
+      k = '#rubric={pk}'.format(pk=self.rubric.pk)
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
+      cache.delete_many(l)
+    if self.project is not None:
+      k = '#project={pk}'.format(pk=self.project.pk)
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
+      cache.delete_many(l)
 
   def __str__(self):
     return '{methodology} assessment on Target[{target}] for Project[{project}] with Rubric[{rubric}] ({id})'.format(
@@ -198,11 +244,22 @@ class Answer(models.Model):
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
 
+  def delete(self, *args, **kwargs):
+    ret = super(Answer, self).delete(*args, **kwargs)
+    self.assessment.invalidate_cache()
+    return ret
+
+  def save(self, *args, **kwargs):
+    ret = super(Answer, self).save(*args, **kwargs)
+    self.assessment.invalidate_cache()
+    return ret
+  
 # yesnomaybe (depends on metric__type)
   def value(self):
     return {
       'yes': 1,
       'yesbut': 0.75,
+      'maybe': 0.5,
       'nobut': 0.25,
       'no': 0,
       '': 0,
@@ -212,6 +269,7 @@ class Answer(models.Model):
     return {
       1: 'yes',
       0.75: 'yesbut',
+      0.5: 'maybe',
       0.25: 'nobut',
       0: 'no',
     }.get(self.answer, 'yes')
@@ -243,7 +301,7 @@ class AssessmentRequest(models.Model):
       return True
     elif perm in ['create', 'add']:
       return user.is_authenticated or user.is_staff
-    elif perm in ['modify', 'remove', 'delete']:
+    elif perm in ['modify', 'remove', 'delete', 'update', 'partial_update', 'destroy']:
       if self is None:
         return user.is_authenticated
       else:

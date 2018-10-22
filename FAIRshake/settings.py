@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'extensions.allauth_ex',
     'extensions.drf_yasg_ex',
     'extensions.rest_auth_ex',
+    'extensions.rest_framework_ex',
     'FAIRshakeHub',
     'FAIRshakeAPI',
 ]
@@ -104,6 +105,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 11,
     'VIEW_PAGE_SIZE': 11,
     'SEARCH_PAGE_SIZE': 11,
+    'EXCEPTION_HANDLER': 'extensions.rest_framework_ex.exeptions.handler',
+    'URL_FIELD_NAME': 'get_url',
 }
 
 LOGGING = {
@@ -112,18 +115,20 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
-        'null': {
-            'class': 'logging.NullHandler',
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
         },
     },
     'loggers': {
         'mozilla_django_oidc': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+            'handlers': ['console' if DEBUG else 'mail_admins'],
+            'level': 'INFO' if DEBUG else os.getenv('DJANGO_LOG_LEVEL', 'ERROR'),
         },
-        'django.security.DisallowedHost': {
-            'handlers': ['null'],
-            'propagate': False,
+        'django': {
+            'handlers': ['console' if DEBUG else 'mail_admins'],
+            'level': 'INFO' if DEBUG else os.getenv('DJANGO_LOG_LEVEL', 'ERROR'),
         },
     },
 }

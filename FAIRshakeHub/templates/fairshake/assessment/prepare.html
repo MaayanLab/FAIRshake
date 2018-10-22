@@ -1,19 +1,62 @@
 {% load bootstrap %}
 {% load filters %}
-<form role="form" action="{% url model|add:'-add' %}" enctype="multipart/form-data" method="GET" novalidate>
+<form
+  class="form"
+  role="form"
+  action="{% url model|add:'-perform' %}"
+  enctype="multipart/form-data"
+  method="GET"
+  novalidate
+>
   <legend>
     {{ model|unslugify }}
   </legend>
-
-  <div class="alert alert-info" role="alert">We couldn't automatically determine everything needed to perform an assessment, please complete the form to proceed</div>
 
   {% if request.GET.callback %}
     <input style="display: none;" type="text" name="callback" value="{{ request.GET.callback }}" />
   {% endif %}
 
-  {{ form|bootstrap }}
 
+  <div class="alert alert-info" role="alert">
+    Please confirm the target, rubric, and project for which you would like to perform this assessment.
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 col-sm-12">
+      {{ form.target|bootstrap }}
+      {% for target in suggestions.targets %}
+        <a class="label label-primary" href="javascript:update_selection('target',{{target.id}})">{{ target.title }}</a>
+      {% endfor %}
+    </div>
+    <div class="col-md-4 col-sm-12">
+      {{ form.rubric|bootstrap }}
+      {% for rubric in suggestions.rubrics %}
+        <a class="label label-primary" href="javascript:update_selection('rubric',{{rubric.id}})">{{ rubric.title }}</a>
+      {% endfor %}
+    </div>
+    <div class="col-md-4 col-sm-12">
+      {{ form.project|bootstrap }}
+      {% for project in suggestions.projects %}
+        <a class="label label-primary" href="javascript:update_selection('project',{{project.id}})">{{ project.title }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <p>&nbsp;</p>
   <div class="form-group">
     <button type="submit" class="btn btn-primary">Confirm</button>
   </div>
 </form>
+<script>
+  function update_selection(field, id) {
+    $('#id_'+field).val(id)
+    if(field=='target') {
+      $('#id_rubric').val('')
+      $('#id_project').val('')
+    }
+    reinit_form()
+  }
+  $('#id_target_on_deck').bind('added', reinit_form)
+  $('#id_rubric_on_deck').bind('added', reinit_form)
+  $('#id_project_on_deck').bind('added', reinit_form)
+</script>

@@ -56,6 +56,14 @@ Django keeps track of database migrations. When modifying `models` it is imperat
 
 Note that this will try but not always succeed to detect renamed fields and such and migrate the backend database accordingly. If it is unable to, it may require manual intervention. For more information https://docs.djangoproject.com/en/2.0/topics/migrations/.
 
+### Testing
+```bash
+# Run Tests
+./manage.py test
+# Run Tests with Coverage
+coverage run --source='.' manage.py test && coverage report
+```
+
 ## Database Backup & Restore
 ### Backup
 ```bash
@@ -105,6 +113,9 @@ Errors involving mysql trying to load from /tmp/sock arrise when `MYSQL_CONFIG` 
 
 ### Database issues
 In general, if the database has changed (and there are new migration files), if you're running a local database you may need to apply new migrations with `./manage.py migrate`.
+
+#### No Cache Table
+If the cache table doesn't yet exist, you can create it with `./manage.py createcachetable`.
 
 ### Dependency issues
 First try re-executing `pip install -r requirements.txt`.

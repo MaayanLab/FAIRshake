@@ -90,8 +90,14 @@ http {
         location /static/ {
             alias $diskroot/static/;
         }
+        location /api_documentation/ {
+            rewrite ^/api_documentation/(.*)$ https://\$server_name/documentation/\$1 redirect;
+        }
         location ~ ^/v2/ {
             rewrite ^/v2/(.*)$ https://\$server_name/\$1 redirect;
+        }
+        location ~ ^/assessment/add/ {
+            rewrite ^/assessment/add/(.*)$ https://\$server_name/assessment/perform/\$1 redirect;
         }
         location ~ ^/static/v2/ {
             rewrite ^/static/v2/(.*)$ https://\$server_name/v2/static/\$1 redirect;

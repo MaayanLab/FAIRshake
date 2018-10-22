@@ -5,15 +5,36 @@
   {% with active_page=model|add:'s' %}
     {{ block.super }}
   {% endwith %}
-  {% if action == 'add' or action == 'modify' %}
+  {% if action == 'add' or action == 'modify' or action == 'prepare' %}
     {{ form.media }}
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/admin/RelatedObjectLookups.js' %}"></script>
+    {% if action == 'prepare' %}
+      <script>
+        function reinit_form() {
+          $('form').attr('action', "{% url model|add:'-prepare' %}")
+          $('form').submit()
+        }
+      </script>
+    {% else %}
+      <script>
+        function reinit_form() {}
+      </script>
+    {% endif %}
+    <script>
+      function dismissAddAnotherPopupEx(window, pk, repr) {
+        dismissAddAnotherPopup(window, pk, repr)
+        reinit_form()
+      }
+    </script>
   {% endif %}
 {% endblock %}
 
 {% block content %}
 <div class="container">
   {% if action == 'list' %}
-    <h1 class="text-left">{{ model|unslugify }}</h1>
+    <h1 class="text-left">{{ model|unslugify }}s</h1>
   {% endif %}
   {% select_template "fairshake/"|add:model|add:"/"|add:action|add:".html" "fairshake/generic/"|add:action|add:".html" %}
 </div>

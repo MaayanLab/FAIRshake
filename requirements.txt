@@ -1,4 +1,5 @@
 coreapi
+coverage
 django-ajax-selects
 django-analytical
 django-bootstrap-form
@@ -14,9 +15,9 @@ drf-yasg
 dynamic-rest
 extruct
 https://github.com/pennersr/django-allauth/archive/master.zip
+https://github.com/u8sand/PySwaggerClient/archive/v1.0.zip
 numpy
 objectpath
 plotly
 pymysql
-pyswagger
 swagger-spec-validator

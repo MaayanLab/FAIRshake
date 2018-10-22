@@ -16,6 +16,8 @@
 
     {% google_analytics %}
   {% endblock %}
+
+  <script src="https://buttons.github.io/buttons.js"></script>
 </head>
 <body>
 <div id="header">
@@ -66,6 +68,9 @@
                   <a href="{% url 'assessment-list' %}">User assessments</a>
                 </li>
                 <li>
+                  <a href="{% url 'digital_object-list' %}?authors={{ user.id }}">User digital objects</a>
+                </li>
+                <li>
                   <a href="{% url 'account_email' %}">Settings</a>
                 </li>
                 <li role="separator" class="divider" />
@@ -84,8 +89,8 @@
 <div id="footer">
   {% block footer %}
     <div class="row">
-      <div class="col-sm-6">
-        <ul class="footer-block">
+      <div class="col-sm-4">
+        <ul class="footer-block text-center">
           <div>
             <a href="https://nihdatacommons.us/" target="_blank">Team Nitrogen, KC1, DCPPC</a>
           </div>
@@ -94,16 +99,34 @@
           </div>
         </ul>
       </div>
-      <div class="col-sm-6">
-        <ul class="footer-block">
+      <div class="col-sm-4">
+        <ul class="footer-block text-center">
           <div>
-            <a href="{% url 'api_documentation' %}">API Documentation</a>
+            <a href="{% url 'documentation' %}">Documentation</a>
           </div>
           <!-- <div>
             <a href="{% url 'terms_of_service' %}">Terms of Service</a>
           </div> -->
           <div>
             <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+          </div>
+        </ul>
+      </div>
+      <div class="col-sm-4">
+        <ul class="footer-block text-center">
+          <div>
+            <a
+              class="github-button"
+              href="https://github.com/Nitrogen-DCPPC/FAIRshake"
+              data-size="large"
+              aria-label="View Source Code Nitrogen-DCPPC/FAIRshake on GitHub">View Source Code</a>
+          </div>
+          <div>
+            <a
+              class="github-button"
+              href="https://github.com/Nitrogen-DCPPC/FAIRshake/issues"
+              data-size="large"
+              aria-label="Submit Bug Report Nitrogen-DCPPC/FAIRshake on GitHub">Submit Bug Report</a>
           </div>
         </ul>
       </div>

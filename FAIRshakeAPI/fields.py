@@ -10,6 +10,14 @@ answer_fields = {
     ],
     widget=forms.RadioSelect(),
   ),
+  'yesnomaybe': forms.ChoiceField(
+    choices=[
+      ('yes', 'Yes'),
+      ('no', 'No'),
+      ('maybe', 'Maybe'),
+    ],
+    widget=forms.RadioSelect(),
+  ),
   'url': forms.URLField(),
   'text': forms.CharField(
     widget=forms.Textarea(

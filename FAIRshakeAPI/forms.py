@@ -1,9 +1,11 @@
 from django import forms
 from FAIRshakeAPI import models
-from ajax_select.fields import AutoCompleteSelectMultipleField
+from ajax_select.fields import AutoCompleteSelectMultipleField, AutoCompleteSelectField
 from . import fields
 
 class IdentifiableForm(forms.ModelForm):
+  authors = AutoCompleteSelectMultipleField('authors', required=True, help_text=None)
+
   def __init__(self, *args, **kwargs):
     super(IdentifiableForm, self).__init__(*args, **kwargs)
 
@@ -12,6 +14,7 @@ class IdentifiableForm(forms.ModelForm):
         child,
         required=False,
         help_text=None,
+        initial=getattr(self.instance, child).all() if self.instance and self.instance.id else [],
       )
   
   def save(self, *args, commit=True, **kwargs):
@@ -33,38 +36,76 @@ class IdentifiableForm(forms.ModelForm):
 class ProjectForm(IdentifiableForm):
   class Meta:
     model = models.Project
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'digital_objects',
+      'authors',
+    )
 
 class DigitalObjectForm(IdentifiableForm):
   class Meta:
     model = models.DigitalObject
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'rubrics',
+      'authors',
+    )
 
 class RubricForm(IdentifiableForm):
   class Meta:
     model = models.Rubric
-    exclude = ('authors',)
+    fields = (
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'license',
+      'metrics',
+      'authors',
+    )
 
 class MetricForm(IdentifiableForm):
   class Meta:
     model = models.Metric
-    exclude = ('authors',)
-
-class AssessmentForm(forms.ModelForm):
-  def __init__(self, *args, **kwargs):
-    super(AssessmentForm, self).__init__(*args, **kwargs)
-
-    self.fields['target'].widget = forms.HiddenInput()
-    self.fields['rubric'].widget = forms.HiddenInput()
-    self.fields['project'].widget = forms.HiddenInput()
-
-  class Meta:
-    model = models.Assessment
     fields = (
-      'target',
-      'rubric',
-      'project',
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'license',
+      'rationale',
+      'principle',
+      'fairmetrics',
+      'authors',
     )
+
+class AssessmentForm(forms.Form):
+  target = AutoCompleteSelectField('digital_objects-embedded',
+    required=True,
+    help_text=None,
+  )
+  rubric = AutoCompleteSelectField('rubrics-embedded',
+    required=True,
+    help_text=None,
+  )
+  project = AutoCompleteSelectField('projects-embedded',
+    required=False,
+    help_text=None,
+  )
 
 class AnswerForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):

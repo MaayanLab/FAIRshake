@@ -27,6 +27,11 @@ class IdentifiableModelMixinSerializer(serializers.ModelSerializer):
     )
 
 class DigitalObjectSerializer(IdentifiableModelMixinSerializer):
+  projects = serializers.PrimaryKeyRelatedField(
+    queryset=models.Project.objects.all(),
+    many=True,
+  )
+
   class Meta:
     model = models.DigitalObject
     fields = '__all__'

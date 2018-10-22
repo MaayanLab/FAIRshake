@@ -91,14 +91,16 @@ class Assessment:
 
   @classmethod
   def perform(kls, inputs):
-    url = inputs['target:url']
-    try:
-      r = requests.get(url)
-      base_url = get_base_url(r.text, r.url)
-      data = extruct.extract(r.text, base_url=base_url, syntaxes=['json-ld'])['json-ld']
-      tree = Tree(data)
-    except:
-      data = None
+    urls = inputs['target:url']
+    for url in urls:
+      try:
+        r = requests.get(url)
+        base_url = get_base_url(r.text, r.url)
+        data = extruct.extract(r.text, base_url=base_url, syntaxes=['json-ld'])['json-ld']
+        tree = Tree(data)
+        break
+      except:
+        data = None
 
     return dict(
       **{
