@@ -75,3 +75,19 @@ class ViewsFunctionTestCase(TestCase):
         'plot': plot,
       })
       self.assertEqual(response.status_code, 200)
+
+  def test_project_stats_view_no_item(self):
+    item = models.Project.objects.first()
+    for plot in [
+      'TablePlot',
+      'RubricPieChart',
+      'RubricsInProjectsOverlay',
+      'DigitalObjectBarBreakdown',
+    ]:
+      response = self.anonymous_client.get(reverse('stats'), {
+        'model': 'project',
+        # 'item': item.id,
+        'plot': plot,
+      })
+      self.assertEqual(response.status_code, 200)
+

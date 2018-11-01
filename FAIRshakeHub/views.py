@@ -5,6 +5,9 @@ from django.urls import reverse
 from django import http
 from FAIRshakeAPI import search, models, stats
 
+from django.core.exceptions import ObjectDoesNotExist
+from plotly import exceptions
+
 def index(request):
   ''' FAIRshakeHub Home Page
   '''
@@ -68,16 +71,22 @@ handler500 = handler(500, 'Server error')
 
 def stats_view(request):
   if request.GET.get('model') == 'project':
-    page = ''
-    for res in {
-      'TablePlot': lambda item: stats.TablePlot(item),
-      'RubricPieChart': lambda item: stats.RubricPieChart(item.assessments),
-      'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(
-        models.Answer.objects.filter(assessment__project__id=item.id),
-        item.id,
-      ),
-      'DigitalObjectBarBreakdown': lambda item: stats.DigitalObjectBarBreakdown(item),
-    }.get(request.GET.get('plot'))(models.Project.objects.get(id=request.GET.get('item'))):
-      page += res
-    return http.HttpResponse(page)
+    try:
+      if models.Project.objects.get(id=request.GET.get('item')).assessments.count() > 0:
+        page = ''
+        for res in {
+          'TablePlot': lambda item: stats.TablePlot(item),
+          'RubricPieChart': lambda item: stats.RubricPieChart(item.assessments),
+          'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(
+            models.Answer.objects.filter(assessment__project__id=item.id),
+            item.id,
+          ),
+          'DigitalObjectBarBreakdown': lambda item: stats.DigitalObjectBarBreakdown(item),
+        }.get(request.GET.get('plot'))(models.Project.objects.get(id=request.GET.get('item'))):
+          page += res
+        return http.HttpResponse(page)
+      else:
+        return http.HttpResponse('Not enough information was present to construct a plot.')
+    except:
+      return http.HttpResponse('Not enough information was present to construct a plot.')
   return http.HttpResponseNotFound()
