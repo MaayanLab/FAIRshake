@@ -6,7 +6,7 @@ from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
 from .assessments import Assessment
 from django import shortcuts, forms as django_forms
-from django.http import HttpResponse
+from django.http import QueryDict, HttpResponse
 from django.utils.html import escape
 from django.conf import settings
 from django.core.cache import cache
@@ -42,6 +42,18 @@ def redirect_with_params(request, *args, **kwargs):
   return shortcuts.redirect(
     reverse(*args, **kwargs) + '?' + '&'.join(map('='.join, request.GET.items()))
   )
+
+def query_dict(*args, **kwargs):
+  if len(args) > 0 and isinstance(args[0], QueryDict):
+    qd = args[0].copy()
+    args = args[1:]
+  else:
+    qd = QueryDict(mutable=True)
+  for arg in list(args)+[kwargs]:
+    assert isinstance(arg, dict) or isinstance(arg, QueryDict), type(arg)
+    for k, v in kwargs.items():
+      qd[k] = v
+  return qd
 
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
@@ -97,9 +109,10 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     if self.detail and self.request.method == 'GET':
       form = form_cls(instance=self.get_object())
     elif self.request.method == 'GET':
-      form = form_cls(initial=dict(self.request.GET.dict(), **{
-        'authors': [self.request.user],
-      }))
+      form = form_cls(initial=query_dict(
+        self.request.GET,
+        authors=self.request.user,
+      ))
     elif self.request.method == 'POST' and self.detail:
       form = form_cls(self.request.POST, instance=self.get_object())
     elif self.request.method == 'POST':
@@ -316,17 +329,17 @@ class AssessmentViewSet(CustomModelViewSet):
         assessment=assessment,
         metric=metric,
       )
-    
+
     # TODO: ensure metrics no longer associated are removed
     
     return assessment
   
   def get_assessment_form(self, initial={}):
     return forms.AssessmentForm(
-      dict(
-        self.request.GET.dict(),
-        **initial,
-        **self.request.POST.dict(),
+      query_dict(
+        self.request.GET,
+        initial,
+        self.request.POST,
       )
     )
   
@@ -334,15 +347,18 @@ class AssessmentViewSet(CustomModelViewSet):
     ''' Get the answers associated with the assessment object
     '''
     if assessment:
-      initial = dict({
-        '%s-%s' % (answer.metric.id, key): getattr(answer, key)
-        for answer in assessment.answers.all()
-        for key in ['answer', 'comment', 'url_comment']
-        if getattr(answer, key)
-      }, **self.request.GET.dict())
+      initial = query_dict(
+        {
+          '%s-%s' % (answer.metric.id, key): getattr(answer, key)
+          for answer in assessment.answers.all()
+          for key in ['answer', 'comment', 'url_comment']
+          if getattr(answer, key)
+        },
+        self.request.GET,
+      )
 
       if self.request.method == 'POST':
-        initial = dict(initial, **self.request.POST.dict())
+        initial = query_dict(initial, self.request.POST)
       else:
         auto_assessment_results = Assessment.perform(
           rubric=assessment.rubric,
