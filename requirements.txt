@@ -1,5 +1,6 @@
 coreapi
 coverage
+django-ajax-selects
 django-analytical
 django-bootstrap-form
 django-cors-headers
@@ -14,7 +15,6 @@ drf-yasg
 dynamic-rest
 extruct
 https://github.com/pennersr/django-allauth/archive/master.zip
-https://github.com/u8sand/django-ajax-selects/archive/develop.zip
 https://github.com/u8sand/PySwaggerClient/archive/v1.0.zip
 numpy
 objectpath
