@@ -120,12 +120,24 @@ metrics = [
   },
 ]
 
+
 SmartAPI = SwaggerClient('https://smart-api.info/api/metadata/27a5b60716c3a401f2c021a5b718c5b1?format=yaml')
+
+def get_all(**kwargs):
+  n_results = 0
+  while True:
+    resp = SmartAPI.actions.query_get.call(**kwargs, **{'from': n_results})
+    for hit in resp['hits']:
+      n_results += 1
+      yield hit
+    if n_results >= resp['total']:
+      break
+    else:
+      resp = SmartAPI.actions.query_get.call(**kwargs)
 
 res = {}
 for api in itertools.chain.from_iterable([
-  SmartAPI.actions.query_get.call(q='openapi:3')['hits'],
-  SmartAPI.actions.query_get.call(q='swagger:2')['hits'],
+  get_all(q='openapi:3'), get_all(q='swagger:2')
 ]):
   # Get it
   data = read_spec(api)
@@ -175,6 +187,6 @@ for api in itertools.chain.from_iterable([
       'comment': 'Data can be downloaded for free from the repository'
     }
 
-    res[data['info']['title']] = answers
+  res[data['info']['title']] = answers
 
-print(res)
+print(res.keys())
