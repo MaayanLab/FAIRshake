@@ -5,9 +5,6 @@ from django.urls import reverse
 from django import http
 from FAIRshakeAPI import search, models, stats
 
-from django.core.exceptions import ObjectDoesNotExist
-from plotly import exceptions
-
 def index(request):
   ''' FAIRshakeHub Home Page
   '''
