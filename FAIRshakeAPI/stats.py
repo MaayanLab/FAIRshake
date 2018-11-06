@@ -188,7 +188,7 @@ def TablePlot(project):
 
 def _RubricsByMetricsBarGraphs(rub_scores_dict):
   num_plots = len(rub_scores_dict)
-  fig = tools.make_subplots(rows=num_plots, cols=1,)
+  fig = tools.make_subplots(rows=num_plots, cols=1, print_grid=False)
   for i, rubric in enumerate(rub_scores_dict.keys()):
     rubric_name = models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get()
     hist=go.Bar(x=list([rub_scores_dict[rubric]['metric_dict'][x] for x in rub_scores_dict[rubric]['average_score'].keys()]),y=list(rub_scores_dict[rubric]['average_score'].values()),name=rubric_name)
