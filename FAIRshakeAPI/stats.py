@@ -1,6 +1,7 @@
 from . import models
 import plotly.offline as opy
 import plotly.graph_objs as go
+from plotly import tools
 from collections import Counter
 import numpy as np
 
@@ -185,3 +186,43 @@ def TablePlot(project):
         showticklabels=True, automargin=True))
   fig = go.Figure(data=data, layout=layout)
   yield _iplot(fig)
+
+def _RubricsByMetricsBarGraphs(rub_scores_dict):
+  num_plots = len(rub_scores_dict)
+  fig = tools.make_subplots(rows=num_plots, cols=1,)
+  i = 1
+  for rubric in rub_scores_dict.keys():
+    rubric_name = models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get()
+    hist=go.Bar(x=list([rub_scores_dict[rubric]['metric_dict'][x] for x in rub_scores_dict[rubric]['average_score'].keys()]),y=list(rub_scores_dict[rubric]['average_score'].values()),name=rubric_name)
+    fig.append_trace(hist, i, 1)
+    xaxis_num = 'xaxis%d' % i 
+    fig['layout'][xaxis_num].update(showticklabels=False,)
+    i += 1
+  fig['layout'][xaxis_num].update(title='Mean FAIR Score by Metric', titlefont=dict(size=16))
+  yield _iplot(fig)
+
+def RubricsByMetricsBreakdown(projectid):
+  query=models.Answer.objects.filter(assessment__project__id=projectid, assessment__rubric__id=7).all()
+  rubrics=np.unique(models.Rubric.objects.filter(assessments__project__id__in=[projectid]).values_list('id',flat=True))
+  rubric_scores_dict = {}
+  for rubric in rubrics:
+    answer_query = models.Answer.objects.filter(assessment__project__id=projectid, assessment__rubric__id=rubric).all()
+    rubric_query = models.Rubric.objects.get(id=rubric)
+    metric_dict = {}
+    for metric in rubric_query.metrics.all():
+      metric_dict[metric.id] = metric.title 
+    metric_ids=iter(np.array(answer_query.values_list('metric',flat=True)))
+    answers=iter(np.array(answer_query.values_list('answer',flat=True)))
+    scores=Scoring(answers)
+    d={}
+    k = list(zip(metric_ids, scores))
+    for (x,y) in k:
+      if x in d:
+        d[x] = d[x] + y 
+      else:
+        d[x] = y
+    average_score={}
+    for key, value in d.items():
+      average_score[key]=value/(len(scores)/len(metric_dict.keys()))
+    rubric_scores_dict[rubric] = {'average_score': average_score, 'metric_dict': metric_dict}
+  return _RubricsByMetricsBarGraphs(rubric_scores_dict)

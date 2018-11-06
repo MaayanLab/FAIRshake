@@ -77,6 +77,7 @@ def stats_view(request):
         for res in {
           'TablePlot': lambda item: stats.TablePlot(item),
           'RubricPieChart': lambda item: stats.RubricPieChart(item.assessments),
+          'RubricsByMetricsBreakdown': lambda item: stats.RubricsByMetricsBreakdown(item.id),
           'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(
             models.Answer.objects.filter(assessment__project__id=item.id),
             item.id,
