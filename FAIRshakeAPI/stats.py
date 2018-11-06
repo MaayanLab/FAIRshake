@@ -70,8 +70,7 @@ def QuestionBreakdown(query):
   answers=iter(np.array(query4.values_list('answer',flat=True)))
   scores=Scoring(answers)
   d={}
-  k = list(zip(metric_ids, scores))
-  for (x,y) in k:
+  for x,y in zip(metric_ids,scores):
     if x in d:
       d[x] = d[x] + y 
     else:
@@ -190,14 +189,12 @@ def TablePlot(project):
 def _RubricsByMetricsBarGraphs(rub_scores_dict):
   num_plots = len(rub_scores_dict)
   fig = tools.make_subplots(rows=num_plots, cols=1,)
-  i = 1
-  for rubric in rub_scores_dict.keys():
+  for i, rubric in enumerate(rub_scores_dict.keys()):
     rubric_name = models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get()
     hist=go.Bar(x=list([rub_scores_dict[rubric]['metric_dict'][x] for x in rub_scores_dict[rubric]['average_score'].keys()]),y=list(rub_scores_dict[rubric]['average_score'].values()),name=rubric_name)
-    fig.append_trace(hist, i, 1)
-    xaxis_num = 'xaxis%d' % i 
+    fig.append_trace(hist, i+1, 1)
+    xaxis_num = 'xaxis%d' % (i+1)
     fig['layout'][xaxis_num].update(showticklabels=False,)
-    i += 1
   fig['layout'][xaxis_num].update(title='Mean FAIR Score by Metric', titlefont=dict(size=16))
   yield _iplot(fig)
 
@@ -215,8 +212,7 @@ def RubricsByMetricsBreakdown(projectid):
     answers=iter(np.array(answer_query.values_list('answer',flat=True)))
     scores=Scoring(answers)
     d={}
-    k = list(zip(metric_ids, scores))
-    for (x,y) in k:
+    for x, y in zip(metric_ids, scores):
       if x in d:
         d[x] = d[x] + y 
       else:
