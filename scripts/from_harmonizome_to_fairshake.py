@@ -59,12 +59,12 @@ def harmonizome_obj_to_fairshake_obj(harmonizome_obj):
     ],
   }
 
-def register_harmonizome_obj_if_not_exists(fairshake, fairshake_obj):
+def register_fairshake_obj_if_not_exists(fairshake, fairshake_obj):
   ''' Register the FAIRshake object, first checking to see if it
   exists in the database. To do this we query the title and url separately
   and present any results to the user. The user is responsible for
   visually inspecting the entry and determining whether or not to add
-  the object from Harmonizome into FAIRShake.
+  the object into FAIRShake.
 
   We prompt the user (defaulting to NOT add the object) and call the
   FAIRShake digital_object_create api endpoint if they do choose to register
