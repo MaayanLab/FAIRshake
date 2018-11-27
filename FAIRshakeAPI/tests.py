@@ -344,6 +344,21 @@ class ViewsFunctionTestCase(TestCase):
     self.assertEqual(response['Content-Type'], 'application/json', response)
 
   def test_assessment_viewset_prepare(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+
     response = self.authenticated_client.get(
       '{baseUrl}?target={target}&rubric={rubric}&project={project}'.format(
         baseUrl=reverse(
@@ -373,7 +388,35 @@ class ViewsFunctionTestCase(TestCase):
     self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
 
     response = self.authenticated_client.get(
-      '{baseUrl}'.format(
+      '{baseUrl}?target={target}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        # rubric=models.Rubric.objects.first().pk,
+        # project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+        # project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}&project={project}'.format(
         baseUrl=reverse(
           'assessment-prepare'
         ), 
@@ -386,49 +429,47 @@ class ViewsFunctionTestCase(TestCase):
     self.assertEqual(response.status_code, 200)
     self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
 
-    # response = self.authenticated_client.get(
-    #   '{baseUrl}?target={target}'.format(
-    #     baseUrl=reverse(
-    #       'assessment-prepare'
-    #     ), 
-    #     target=models.DigitalObject.objects.first().pk,
-    #     # rubric=models.Rubric.objects.first().pk,
-    #     # project=models.Project.objects.first().pk,
-    #   ),
-    #   HTTP_ACCEPT='text/html',
-    # )
-    # self.assertEqual(response.status_code, 200)
-    # self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+    response = self.authenticated_client.get(
+      '{baseUrl}?rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        #target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+        # project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
 
-    # response = self.authenticated_client.get(
-    #   '{baseUrl}?rubric={rubric}'.format(
-    #     baseUrl=reverse(
-    #       'assessment-prepare'
-    #     ), 
-    #     # target=models.DigitalObject.objects.first().pk,
-    #     rubric=models.Rubric.objects.first().pk,
-    #     # project=models.Project.objects.first().pk,
-    #   ),
-    #   HTTP_ACCEPT='text/html',
-    # )
-    # self.assertEqual(response.status_code, 200)
-    # self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+    response = self.authenticated_client.get(
+      '{baseUrl}?rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        #target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
 
-    # response = self.authenticated_client.get(
-    #   '{baseUrl}?project={project}'.format(
-    #     baseUrl=reverse(
-    #       'assessment-prepare'
-    #     ), 
-    #     # target=models.DigitalObject.objects.first().pk,
-    #     # rubric=models.Rubric.objects.first().pk,
-    #     project=models.Project.objects.first().pk,
-    #   ),
-    #   HTTP_ACCEPT='text/html',
-    # )
-    # self.assertEqual(response.status_code, 200)
-    # self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
-
-
+    response = self.authenticated_client.get(
+      '{baseUrl}project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        #target=models.DigitalObject.objects.first().pk,
+        # rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
 
 
   def test_assessment_perform(self):
