@@ -949,17 +949,17 @@ class InteractFunctionTestCase(TestCase):
   ################################
   @skip('Assessment not posting')
   def test_assessment_create(self):
-    proj_id=models.Project.objects.first().id
-    rub_id=models.Rubric.objects.first().id
-    # target_id=models.DigitalObject.objects.first().id
-    target_id=models.DigitalObject.objects.get(title='test object create').id
+    project=models.Project.objects.first()
+    rubric=models.Rubric.objects.first()
+    target=models.DigitalObject.objects.last()
+    author=models.Author.objects.first()
 
     response = self.anonymous_client.post(
       '/assessment/',
       {
-        'project': proj_id,
-        'target': target_id,
-        'rubric': rub_id,
+        'project': project.id,
+        'target': target.id,
+        'rubric': rubric.id,
         'methodology': 'test',
         'answers': [
           {
@@ -981,17 +981,17 @@ class InteractFunctionTestCase(TestCase):
     self.assertEqual(response.status_code, 401)
     self.assertEqual(response['Content-Type'], 'application/json', response)
     try:
-      models.Assessment.objects.get(target__id=2).answers
-      self.fail('Assessment was created')
+      models.Assessment.objects.get(project=project, rubric=rubric, target=target)
+      self.fail('Found assessment')
     except:
       pass
 
     response = self.authenticated_client.post(
       '/assessment/',
       {
-        'project': proj_id,
-        'target': target_id,
-        'rubric': rub_id,
+        'project': project.id,
+        'target': target.id,
+        'rubric': rubric.id,
         'methodology': 'test',
         'answers': [
           {
@@ -1012,8 +1012,7 @@ class InteractFunctionTestCase(TestCase):
     )
     self.assertEqual(response.status_code, 201)
     self.assertEqual(response['Content-Type'], 'application/json', response)
-    try:
-      models.Assessment.objects.get(target__id=2).answers
-    except:
-      self.fail('Assessment was not created')
-  
+    self.assertEqual(
+      models.Assessment.objects.get(assessor=author, project=project, rubric=rubric, target=target).answers.count(),
+      3
+    )
