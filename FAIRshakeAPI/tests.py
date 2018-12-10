@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from pyswaggerclient.util import bind
 from . import models
+from unittest import skip
 
 def setUp(cls, Client=Client):
   user = models.Author.objects.create(
@@ -32,6 +33,7 @@ def setUp(cls, Client=Client):
   for metric in metrics:
     rubric.metrics.add(metric)
   obj = models.DigitalObject.objects.create(
+    title='digital object test',
     url='https://fairshake.cloud/',
   )
   obj.rubrics.add(rubric)
@@ -52,6 +54,10 @@ def setUp(cls, Client=Client):
       metric=metric,
       answer='yes',
     )
+  obj2 = models.DigitalObject.objects.create(
+    title='test object create',
+    url='https://fairshake.cloud'
+  )
   cls.anonymous_client = Client()
   cls.authenticated_client = Client()
   cls.authenticated_client.force_login(user)
@@ -338,6 +344,507 @@ class ViewsFunctionTestCase(TestCase):
     self.assertEqual(response.status_code, 200)
     self.assertEqual(response['Content-Type'], 'application/json', response)
 
+  def test_assessment_prepare_all_params(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_prepare_no_params(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_prepare_target(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_prepare_target_rubric(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_prepare_target_project(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_prepare_rubric(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        rubric=models.Rubric.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        rubric=models.Rubric.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_prepare_rubric_project(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_prepare_project(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?project={project}'.format(
+        baseUrl=reverse(
+          'assessment-prepare'
+        ), 
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+
+  def test_assessment_perform_all_params(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+  
+  def test_assessment_perform_target_only(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_perform_target_rubric(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}&rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        rubric=models.Rubric.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_perform_target_project(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?target={target}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?target={target}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        target=models.DigitalObject.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_perform_rubric(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        rubric=models.Rubric.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?rubric={rubric}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        rubric=models.Rubric.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_perform_rubric_project(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?rubric={rubric}&project={project}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        rubric=models.Rubric.objects.first().pk,
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_perform_project_only(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}?project={project}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}?project={project}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+        project=models.Project.objects.first().pk,
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_assessment_perform_no_params(self):
+    response = self.anonymous_client.get(
+      '{baseUrl}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      '{baseUrl}'.format(
+        baseUrl=reverse(
+          'assessment-perform'
+        ), 
+      ),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+
+  def test_add_rubric(self):
+    response = self.anonymous_client.get(
+      reverse('rubric-add'),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.post(
+      reverse('rubric-add'),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+
+  def test_stats_project_view(self):
+    # stats
+    response = self.anonymous_client.get(
+      reverse('project-stats', kwargs=dict(
+        pk=models.Project.objects.first().pk
+      )),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.get(
+      reverse('project-stats', kwargs=dict(
+        pk=models.Project.objects.first().pk
+      )),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_modify_project_view(self):
+    response = self.authenticated_client.get(
+      reverse('project-modify', kwargs=dict(
+        pk=models.Project.objects.first().pk
+      )),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+    response = self.authenticated_client.post(
+      reverse('project-modify', kwargs=dict(
+        pk=models.Project.objects.first().pk
+      )),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+
+  def test_digital_object_remove(self):
+    pk = models.Project.objects.first().pk
+
+    response = self.anonymous_client.get(
+      reverse('project-remove', kwargs=dict(
+        pk=pk
+      )),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302, 'Login redirect expected')
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+    self.assertEqual(models.DigitalObject.objects.first().pk, pk)
+
+    response = self.authenticated_client.get(
+      reverse('project-remove', kwargs=dict(
+        pk=pk
+      )),
+      HTTP_ACCEPT='text/html',
+    )
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
+    try:
+      models.Project.objects.get(pk=pk)
+      self.fail('Project was not deleted')
+    except:
+      pass
+
+
 class InteractFunctionTestCase(TestCase):
   setUp = bind(setUp, Client=APIClient)
 
@@ -438,3 +945,75 @@ class InteractFunctionTestCase(TestCase):
       self.fail('Project was not deleted')
     except:
       pass
+  
+  ################################
+  @skip('Assessment not posting')
+  def test_assessment_create(self):
+    proj_id=models.Project.objects.first().id
+    rub_id=models.Rubric.objects.first().id
+    # target_id=models.DigitalObject.objects.first().id
+    target_id=models.DigitalObject.objects.get(title='test object create').id
+
+    response = self.anonymous_client.post(
+      '/assessment/',
+      {
+        'project': proj_id,
+        'target': target_id,
+        'rubric': rub_id,
+        'methodology': 'test',
+        'answers': [
+          {
+            'metric': 1,
+            'answer': 'no',
+          },
+          {
+            'metric': 2,
+            'answer': 'no',
+          },
+          {
+            'metric': 3,
+            'answer': 'no',
+          },
+        ],
+      },
+      HTTP_ACCEPT='application/json',
+    )
+    self.assertEqual(response.status_code, 401)
+    self.assertEqual(response['Content-Type'], 'application/json', response)
+    try:
+      models.Assessment.objects.get(target__id=2).answers
+      self.fail('Assessment was created')
+    except:
+      pass
+
+    response = self.authenticated_client.post(
+      '/assessment/',
+      {
+        'project': proj_id,
+        'target': target_id,
+        'rubric': rub_id,
+        'methodology': 'test',
+        'answers': [
+          {
+            'metric': 1,
+            'answer': 'no',
+          },
+          {
+            'metric': 2,
+            'answer': 'no',
+          },
+          {
+            'metric': 3,
+            'answer': 'no',
+          },
+        ],
+      },
+      HTTP_ACCEPT='application/json',
+    )
+    self.assertEqual(response.status_code, 201)
+    self.assertEqual(response['Content-Type'], 'application/json', response)
+    try:
+      models.Assessment.objects.get(target__id=2).answers
+    except:
+      self.fail('Assessment was not created')
+  
