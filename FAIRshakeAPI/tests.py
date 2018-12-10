@@ -1,3 +1,4 @@
+import json
 from django.test import TestCase, Client
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -947,7 +948,6 @@ class InteractFunctionTestCase(TestCase):
       pass
   
   ################################
-  @skip('Assessment not posting')
   def test_assessment_create(self):
     project=models.Project.objects.first()
     rubric=models.Rubric.objects.first()
@@ -956,12 +956,11 @@ class InteractFunctionTestCase(TestCase):
 
     response = self.anonymous_client.post(
       '/assessment/',
-      {
+      json.dumps({
         'project': project.id,
         'target': target.id,
         'rubric': rubric.id,
-        'methodology': 'test',
-        'answers': [
+        'answers': json.dumps([
           {
             'metric': 1,
             'answer': 'no',
@@ -974,8 +973,9 @@ class InteractFunctionTestCase(TestCase):
             'metric': 3,
             'answer': 'no',
           },
-        ],
-      },
+        ]),
+      }),
+      content_type='application/json',
       HTTP_ACCEPT='application/json',
     )
     self.assertEqual(response.status_code, 401)
@@ -988,11 +988,10 @@ class InteractFunctionTestCase(TestCase):
 
     response = self.authenticated_client.post(
       '/assessment/',
-      {
+      json.dumps({
         'project': project.id,
         'target': target.id,
         'rubric': rubric.id,
-        'methodology': 'test',
         'answers': [
           {
             'metric': 1,
@@ -1007,7 +1006,8 @@ class InteractFunctionTestCase(TestCase):
             'answer': 'no',
           },
         ],
-      },
+      }),
+      content_type='application/json',
       HTTP_ACCEPT='application/json',
     )
     self.assertEqual(response.status_code, 201)
