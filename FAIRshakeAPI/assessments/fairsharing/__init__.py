@@ -54,7 +54,7 @@ class Assessment:
 
     return {
       key: {
-        'answer': 'yes' if data.get(attr) else 'no',
+        'answer': 1.0 if data.get(attr) else 0.0,
         'comment': data.get(attr),
       }
       for key, attr in metric_to_attr.items()

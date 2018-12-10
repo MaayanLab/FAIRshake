@@ -50,7 +50,7 @@ def setUp(cls, Client=Client):
     models.Answer.objects.create(
       assessment=assessment,
       metric=metric,
-      answer='yes',
+      answer=1.0,
     )
   cls.anonymous_client = Client()
   cls.authenticated_client = Client()
