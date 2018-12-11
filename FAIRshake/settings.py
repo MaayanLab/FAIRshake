@@ -185,21 +185,22 @@ AUTH_USER_MODEL = 'FAIRshakeAPI.Author'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-MYSQL_CONFIG = os.environ.get(
-    'MYSQL_CONFIG',
-    '/ssl/my.cnf' if os.path.isfile('/ssl/my.cnf') else None
-)
+try:
+    POSTGRESQL_CONFIG_FILE = os.environ.get(
+        'POSTGRESQL_CONFIG_FILE',
+        '/ssl/psql.json' if os.path.isfile('/ssl/psql.json') else None
+    )
+    POSTGRESQL_CONFIG = json.load(open(POSTGRESQL_CONFIG_FILE, 'r'))
+except:
+    POSTGRESQL_CONFIG = None
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    } if MYSQL_CONFIG is None else {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': MYSQL_CONFIG,
-        },
-    }
+    } if POSTGRESQL_CONFIG is None else dict({
+        'ENGINE': 'django.db.backends.postgresql',
+    }, **POSTGRESQL_CONFIG)
 }
 
 
