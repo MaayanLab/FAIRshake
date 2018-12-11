@@ -188,7 +188,7 @@ with FTP('ftp.ncbi.nlm.nih.gov') as ftp:
           results = metric['query']
         answers[metric['desc']] = {
           'metric': metric.get('metric',''),
-          'answer': 'yes' if matches and (metric['pattern'] is None or metric['pattern'].match(results)) else 'no',
+          'answer': 1.0 if matches and (metric['pattern'] is None or metric['pattern'].match(results)) else 0.0,
           'comment': results,
         }
     except Exception as e:
@@ -206,21 +206,21 @@ with FTP('ftp.ncbi.nlm.nih.gov') as ftp:
       varreport = [file for file in files if file.startswith('varreports')][0]
       answers['Standardized metadata'] = {
         'metric': 107,
-        'answer': 'yes',
+        'answer': 1.0,
         'comment': 'data dictionary and variable report exists'
       }
     except Exception as e:
       print(study+':'+' Variable report and data dictionary not found')
       answers['Standardized metadata'] = {
         'metric': 107,
-        'answer': 'no',
+        'answer': 0.0,
         'comment': 'data dictionary and variable report not found'
       }
     # variable terms between studies are currently not interoperable or community-accepted
     #   and no way to assert this
     answers['Variables linked to standards'] = {
       'metric': 95,
-      'answer': 'no',
+      'answer': 0.0,
       'comment': 'Variables are not represented using a formal, accessible, and broadly applicable language'
     }
     res[study] = answers

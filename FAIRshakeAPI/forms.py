@@ -1,7 +1,8 @@
 from django import forms
+from django.forms import fields
+from collections import OrderedDict
 from FAIRshakeAPI import models
 from ajax_select.fields import AutoCompleteSelectMultipleField, AutoCompleteSelectField
-from . import fields
 
 class IdentifiableForm(forms.ModelForm):
   authors = AutoCompleteSelectMultipleField('authors', required=True, help_text=None)
@@ -111,37 +112,91 @@ class AnswerForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(AnswerForm, self).__init__(*args, **kwargs)
 
-    answer_field = fields.answer_fields.get(self.instance.metric.type, None)
-    if answer_field is not None:
-      self.fields['answer'] = answer_field
-  
-  answer = forms.CharField()
-
-  comment = forms.CharField(
-    widget=forms.Textarea(
-      attrs={
-        'placeholder': 'Please explain or describe your answer.',
-        'rows': '2',
-      },
-    ),
-    required=False,
-  )
-
-  url_comment = forms.CharField(
-    widget=forms.Textarea(
-      attrs={
-        'placeholder': 'Enter URLs, if applicable and available. Separate URLs by spaces or new lines.',
-        'rows': '2',
-      },
-    ),
-    required=False,
-  )
+    if self.instance.metric.type == 'yesno':
+      self.fields = OrderedDict([
+        ('answer', fields.TypedChoiceField(
+          choices=[
+            ('1.0', 'Yes'),
+            ('0.0', 'No'),
+          ],
+          coerce=lambda v: float(v),
+          widget=forms.RadioSelect(),
+        )),
+      ])
+    elif self.instance.metric.type == 'yesnobut':
+      self.fields = OrderedDict([
+        ('answer', fields.TypedChoiceField(
+          choices=[
+            ('1.0', 'Yes'),
+            ('0.75', 'Yes, but'),
+            ('0.25', 'No, but'),
+            ('0.0', 'No'),
+          ],
+          coerce=lambda v: float(v),
+          widget=forms.RadioSelect(),
+        )),
+        ('url_comment', forms.CharField(
+          widget=forms.Textarea(
+            attrs={
+              'placeholder': 'Enter URLs, if applicable and available. Separate URLs by spaces or new lines.',
+              'rows': '2',
+            },
+          ),
+          required=False,
+        )),
+        ('comment', forms.CharField(
+          widget=forms.Textarea(
+            attrs={
+              'placeholder': 'Please explain or describe your answer.',
+              'rows': '2',
+            },
+          ),
+          required=False,
+        )),
+      ])
+    elif self.instance.metric.type == 'yesnomaybe':
+      self.fields = OrderedDict([
+        ('answer', fields.TypedChoiceField(
+          choices=[
+            ('1.0', 'Yes'),
+            ('0.50', 'Maybe'),
+            ('0.0', 'No'),
+          ],
+          coerce=lambda v: float(v),
+          widget=forms.RadioSelect(),
+        )),
+      ])
+    elif self.instance.metric.type == 'url':
+      self.fields = OrderedDict([
+        ('url_comment', forms.CharField(
+          widget=forms.Textarea(
+            attrs={
+              'placeholder': 'Enter URLs, if applicable and available. Separate URLs by spaces or new lines.',
+              'rows': '2',
+            },
+          ),
+          required=False,
+        )),
+      ])
+    elif self.instance.metric.type == 'text':
+      self.fields = OrderedDict([
+        ('comment', forms.CharField(
+          widget=forms.Textarea(
+            attrs={
+              'placeholder': 'Please explain or describe your answer.',
+              'rows': '2',
+            },
+          ),
+          required=False,
+        )),
+      ])
+    else:
+      raise 'Type is invalid'
 
   class Meta:
     model = models.Answer
-    exclude = (
-      'assessment',
-      'metric',
+    fields = (
+      'answer',
     )
 
 class AssessmentRequestForm(forms.ModelForm):

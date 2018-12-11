@@ -5,18 +5,8 @@ from plotly import tools
 from collections import Counter
 import numpy as np
 
-# Dictionary converts all answers to scores
-answer_score_dict = {"yes":1,"yesbut":0.75,"nobut":0.25,"no":0,'':0}
-
 def _iplot(*args, **kwargs):
   return opy.plot(*args, **kwargs, auto_open=False, output_type='div')
-
-# Function turns answers into scores
-def Scoring(answers):
-  scores=[]
-  for ans in answers:
-    scores.append(answer_score_dict[ans])
-  return(scores)
 
 # Build Bar charts
 def BarGraphs(data):
@@ -26,7 +16,7 @@ def BarGraphs(data):
       data_dict[x]=0
   if len(np.unique(data))>1:
     hist=[go.Bar(x=list(data_dict.keys()),y=list(data_dict.values()))]
-    layout = go.Layout(xaxis=dict(title="FAIR score (0=no,0.25=nobut,0.75=yesbut,1=yes)",ticks='outside',tickvals=[0,0.25,0.5,0.75,1]),yaxis=dict(title='Responses'),width=400,height=400)
+    layout = go.Layout(xaxis=dict(title="FAIR score (0=no,0.25=nobut,0.5=maybe,0.75=yesbut,1=yes)",ticks='outside',tickvals=[0,0.25,0.5,0.75,1]),yaxis=dict(title='Responses'),width=400,height=400)
     fig = go.Figure(data=hist, layout=layout)
     yield _iplot(fig)
 
@@ -44,13 +34,13 @@ def RubricsInProjectsOverlay(answers_within_project,projectid):
   rubrics=np.unique(models.Rubric.objects.filter(assessments__project__id__in=[projectid]).values_list('id',flat=True))
   all_trace=[]
   for rubric in rubrics:
-    responses=answers_within_project.filter(assessment__rubric__id=rubric).values_list('answer',flat=True)
+    responses=[answer.annotate() for answer in answers_within_project.filter(assessment__rubric__id=rubric)]
     if len(responses)>0:
       scores_dict=Counter(responses)
-      for x in ['no','nobut','yesbut','yes']:
+      for x in ['no','nobut','maybe','yesbut','yes']:
         if x not in scores_dict.keys():
           scores_dict[x]=0
-      trace = go.Bar(x=['no (0)', 'no but (0.25)','yes but (0.75)','yes (1)'],y=[scores_dict['no'],scores_dict['nobut'],scores_dict['yesbut'],scores_dict['yes']],
+      trace = go.Bar(x=['no (0)', 'no but (0.25)', 'maybe (0.5)', 'yes but (0.75)','yes (1)'],y=[scores_dict['no'],scores_dict['nobut'],scores_dict['maybe'],scores_dict['yesbut'],scores_dict['yes']],
             name= models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get())
       all_trace.append(trace)
   layout = {'xaxis': {'title': 'Answer'},
@@ -67,8 +57,7 @@ def _QuestionBarGraphs(metric_count_dict):
 
 def QuestionBreakdown(query):
   metric_ids=iter(np.array(query4.values_list('metric',flat=True)))
-  answers=iter(np.array(query4.values_list('answer',flat=True)))
-  scores=Scoring(answers)
+  scores=iter(np.array(query4.values_list('answer',flat=True)))
   d={}
   for x,y in zip(metric_ids,scores):
     if x in d:
@@ -109,9 +98,8 @@ def _DigitalObjectBarGraph(scores_dict):
 def DigitalObjectBarBreakdown(project):
   object_score_dict={}
   for obj in project.digital_objects.all():
-    answers=list(models.Answer.objects.filter(assessment__target__id=obj.id).values_list("answer",flat=True))
-    if len(answers)>0:
-      scores=Scoring(answers)
+    scores=list(models.Answer.objects.filter(assessment__target__id=obj.id).values_list("answer",flat=True))
+    if len(scores)>0:
       mean_score=np.mean(scores)
       object_score_dict[models.DigitalObject.objects.filter(id=obj.id).values_list('title', flat=True).get()]=mean_score
   return _DigitalObjectBarGraph(object_score_dict)
@@ -123,8 +111,7 @@ def DigitalObjectBarBreakdown(project):
 def SingleQuery(querySet, PARAM, ID):
   if PARAM=="project":
     title=models.Project.objects.filter(id=ID).values_list('title', flat=True).get()
-    responses=querySet.values_list('answer', flat=True)
-    scores=Scoring(responses)
+    scores=querySet.values_list('answer', flat=True)
     if len(scores)!=0:
       print("Overall FAIR Evaluations for the project:",models.Project.objects.filter(id=ID).values_list('title', flat=True).get(),"(project id:",ID,")","\n")
       print("Mean FAIR score:",round(np.mean(scores),2))
@@ -134,8 +121,7 @@ def SingleQuery(querySet, PARAM, ID):
       return BarGraphs(scores)
   if PARAM=="rubric":
     title=models.Rubric.objects.filter(id=ID).values_list('title', flat=True).get()
-    responses=querySet.values_list('answer', flat=True)
-    scores=Scoring(responses)
+    scores=querySet.values_list('answer', flat=True)
     if len(scores)!=0:
       print("Overall FAIR Evaluations for the rubric:",models.Rubric.objects.filter(id=ID).values_list('title', flat=True).get(),"(rubric id:",ID,")","\n")
       print("Mean FAIR score:",round(np.mean(scores),2))
@@ -145,8 +131,7 @@ def SingleQuery(querySet, PARAM, ID):
       return BarGraphs(scores)
   if PARAM=="metric":
     title=models.Metric.objects.filter(id=ID).values_list('title', flat=True).get()
-    responses=querySet.values_list('answer', flat=True)
-    scores=Scoring(responses)
+    scores=querySet.values_list('answer', flat=True)
     if len(scores)!=0:
       print("Overall FAIR Evaluations for the metric:",models.Metric.objects.filter(id=ID).values_list('title', flat=True).get(),"(metric id:",ID,")","\n")
       print("Mean FAIR score:",round(np.mean(scores),2))
@@ -209,8 +194,7 @@ def RubricsByMetricsBreakdown(projectid):
     for metric in rubric_query.metrics.all():
       metric_dict[metric.id] = metric.title 
     metric_ids=iter(np.array(answer_query.values_list('metric',flat=True)))
-    answers=iter(np.array(answer_query.values_list('answer',flat=True)))
-    scores=Scoring(answers)
+    scores=list(answer_query.values_list('answer',flat=True))
     d={}
     for x, y in zip(metric_ids, scores):
       if x in d:

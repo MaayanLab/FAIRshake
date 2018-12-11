@@ -53,7 +53,7 @@ def setUp(cls, Client=Client):
     models.Answer.objects.create(
       assessment=assessment,
       metric=metric,
-      answer='yes',
+      answer=1.0,
     )
   obj2 = models.DigitalObject.objects.create(
     title='test object create',

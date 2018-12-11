@@ -609,7 +609,7 @@ class ScoreViewSet(
             metrics[answer.metric.id] = answer.metric.title
           if scores[assessment.rubric.id].get(answer.metric.id) is None:
             scores[assessment.rubric.id][answer.metric.id] = []
-          scores[assessment.rubric.id][answer.metric.id].append(answer.value())
+          scores[assessment.rubric.id][answer.metric.id].append(answer.answer)
         # Keep track of targets, rubrics, and projects used in this insignia
         if assessment.target:
           targets.add(assessment.target.pk)
@@ -670,8 +670,7 @@ class ScoreViewSet(
       answers = {}
       for assessment in self.filter_queryset(self.get_queryset()):
         for answer in assessment.answers.all():
-          value = answer.value()
-          answers[value] = answers.get(value, 0) + 1
+          answers[answer.answer] = answers.get(answer.answer, 0) + 1
       cache.set(key, answers, 60 * 60)
       
     return response.Response(answers)

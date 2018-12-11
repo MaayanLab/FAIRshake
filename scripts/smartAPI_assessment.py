@@ -120,17 +120,17 @@ metrics = [
   },
   {
     'metric': 89,
-    'answer': 'yes',
+    'answer': 1.0,
     'desc': 'Machine readable metadata exists'
   },
   {
     'metric': 24,
-    'answer': 'yes',
+    'answer': 1.0,
     'desc': 'Data is in an established data repository'
   },
   {
     'metric': 25,
-    'answer': 'yes',
+    'answer': 1.0,
     'desc': 'Data can be downloaded for free from the repository'
   }
 ]
@@ -173,11 +173,6 @@ def get_ratio(ROOT, sample, n, u):
     total = total/len(sample)    
     r = (total)/len(list(ROOT.execute(n)))
   return(r)
-
-def linear_map_to(nums, cats):
-  sX, eX = nums
-  sY, eY = 1, len(cats)
-  return lambda x: cats[round(x * ((eY - sY) / (eX - sX)))]
 
 def smartapi_get_all(smartapi, **kwargs):
   '''
@@ -274,7 +269,7 @@ def assess_smartapi_obj(smartapi_obj):
     if metric.get('query') is None:
       answers[metric['desc']] = {
         'metric': metric.get('metric', ''),
-        'answer': metric.get('answer', 'yes'),
+        'answer': metric.get('answer', 1.0),
         'comment': metric['desc'],
       }
     else:
@@ -297,7 +292,7 @@ def assess_smartapi_obj(smartapi_obj):
       if ratio == None:
         answers[metric['desc']] = {
           'metric': metric.get('metric',''),
-          'answer': 'yes' if len(results)>0 and metric['pattern'].match(results) else 'no',
+          'answer': 1.0 if len(results)>0 and metric['pattern'].match(results) else 0.0,
           'comment': results,
         }
       else:
@@ -305,10 +300,7 @@ def assess_smartapi_obj(smartapi_obj):
           'metric': metric.get('metric',''),
           'comment': metric['desc'],
         }
-        answers[metric['desc']]['answer'] = linear_map_to(
-          [0, 1],
-          ['no', 'nobut', 'yesbut', 'yes'],
-        )(ratio)
+        answers[metric['desc']]['answer'] = ratio
 
   return answers
 

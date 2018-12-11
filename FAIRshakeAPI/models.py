@@ -1,6 +1,7 @@
 import re
 import json
 import logging
+from scripts.linear_map import linear_map
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
@@ -240,7 +241,7 @@ class Answer(models.Model):
   id = models.AutoField(primary_key=True)
   assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='answers')
   metric = models.ForeignKey('Metric', on_delete=models.CASCADE, related_name='answers')
-  answer = models.TextField(blank=True, null=False, default='')
+  answer = models.FloatField(null=True, default=0.0)
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
 
@@ -253,26 +254,14 @@ class Answer(models.Model):
     ret = super(Answer, self).save(*args, **kwargs)
     self.assessment.invalidate_cache()
     return ret
-  
-# yesnomaybe (depends on metric__type)
-  def value(self):
-    return {
-      'yes': 1,
-      'yesbut': 0.75,
-      'maybe': 0.5,
-      'nobut': 0.25,
-      'no': 0,
-      '': 0,
-    }.get(self.answer, 1)
-  
-  def inverse(self):
-    return {
-      1: 'yes',
-      0.75: 'yesbut',
-      0.5: 'maybe',
-      0.25: 'nobut',
-      0: 'no',
-    }.get(self.answer, 'yes')
+
+  def annotate(self):
+    ''' Convert value to nearest human-readable verbose representation
+    '''
+    return linear_map(
+      [0, 1],
+      ['no', 'nobut', 'maybe', 'yesbut', 'yes'],
+    )(self.answer)
 
   def has_permission(self, user, perm):
     return (self and self.assessment.has_permission(user, perm)) or user.is_staff
