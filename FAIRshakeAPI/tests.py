@@ -995,15 +995,15 @@ class InteractFunctionTestCase(TestCase):
         'answers': [
           {
             'metric': 1,
-            'answer': 'no',
+            'answer': 0.0,
           },
           {
             'metric': 2,
-            'answer': 'no',
+            'answer': 0.0,
           },
           {
             'metric': 3,
-            'answer': 'no',
+            'answer': 0.0,
           },
         ],
       }),
