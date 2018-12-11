@@ -353,7 +353,7 @@ class AssessmentViewSet(CustomModelViewSet):
           '%s-%s' % (answer.metric.id, key): getattr(answer, key)
           for answer in assessment.answers.all()
           for key in ['answer', 'comment', 'url_comment']
-          if getattr(answer, key)
+          if getattr(answer, key, None) is not None
         },
         self.request.GET,
       )
@@ -368,7 +368,7 @@ class AssessmentViewSet(CustomModelViewSet):
         for answer in assessment.answers.all():
           for key, attr in auto_assessment_results.get('metric:%d' % (answer.metric.id), {}).items():
             k = '%s-%s' % (answer.metric.id, key)
-            if attr and not initial.get(k):
+            if attr is not None and initial.get(k) is not None:
               initial[k] = attr
 
       return [
