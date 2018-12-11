@@ -120,7 +120,9 @@ class AnswerForm(forms.ModelForm):
             ('0.0', 'No'),
           ],
           coerce=lambda v: float(v),
+          empty_value='',
           widget=forms.RadioSelect(),
+          required=True,
         )),
       ])
     elif self.instance.metric.type == 'yesnobut':
@@ -132,8 +134,10 @@ class AnswerForm(forms.ModelForm):
             ('0.25', 'No, but'),
             ('0.0', 'No'),
           ],
-          coerce=lambda v: float(v),
+          coerce=lambda v: float('nan') if v == '' else float(v),
+          empty_value='',
           widget=forms.RadioSelect(),
+          required=True,
         )),
         ('url_comment', forms.CharField(
           widget=forms.Textarea(
@@ -159,15 +163,27 @@ class AnswerForm(forms.ModelForm):
         ('answer', fields.TypedChoiceField(
           choices=[
             ('1.0', 'Yes'),
-            ('0.50', 'Maybe'),
+            ('0.5', 'Maybe'),
             ('0.0', 'No'),
           ],
           coerce=lambda v: float(v),
+          empty_value='',
           widget=forms.RadioSelect(),
+          required=True,
         )),
       ])
     elif self.instance.metric.type == 'url':
       self.fields = OrderedDict([
+        ('answer', fields.TypedChoiceField(
+          choices=[
+            ('1.0', 'Yes'),
+            ('0.0', 'No'),
+          ],
+          coerce=lambda v: float(v),
+          empty_value='',
+          widget=forms.RadioSelect(),
+          required=True,
+        )),
         ('url_comment', forms.CharField(
           widget=forms.Textarea(
             attrs={
@@ -175,11 +191,21 @@ class AnswerForm(forms.ModelForm):
               'rows': '2',
             },
           ),
-          required=False,
+          required=True,
         )),
       ])
     elif self.instance.metric.type == 'text':
       self.fields = OrderedDict([
+        ('answer', fields.TypedChoiceField(
+          choices=[
+            ('1.0', 'Yes'),
+            ('0.0', 'No'),
+          ],
+          coerce=lambda v: float(v),
+          empty_value='',
+          widget=forms.RadioSelect(),
+          required=True,
+        )),
         ('comment', forms.CharField(
           widget=forms.Textarea(
             attrs={
@@ -187,7 +213,7 @@ class AnswerForm(forms.ModelForm):
               'rows': '2',
             },
           ),
-          required=False,
+          required=True,
         )),
       ])
     else:
@@ -197,6 +223,8 @@ class AnswerForm(forms.ModelForm):
     model = models.Answer
     fields = (
       'answer',
+      'comment',
+      'url_comment',
     )
 
 class AssessmentRequestForm(forms.ModelForm):
