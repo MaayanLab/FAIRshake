@@ -2,7 +2,7 @@
 {% load filters %}
 <form
   role="form"
-  action="{% url model|add:'-add' %}?target={{ item.target.slug }}&rubric={{ item.rubric.slug }}{% if item.project %}&project={{ item.project.slug }}{% endif %}"
+  action="{% url model|add:'-perform' %}?{{ request.GET|as_path }}"
   enctype="multipart/form-data"
   method="POST"
   novalidate
@@ -15,7 +15,7 @@
       for <a href="{% url 'project-detail' item.project.slug %}">{{ item.project.title }}</a>
     {% endif %}
     &nbsp;
-    <a href="{{ request.get_full_path }}&prepare">
+    <a href="{% url model|add:'-prepare' %}?{{ request.GET|as_path }}">
       <span
         class="glyphicon glyphicon-edit"
         style="font-size:20px;color:#666666;"
@@ -23,7 +23,6 @@
     </a>
   </legend>
   {% csrf_token %}
-  {{ form|bootstrap }}
   {% for answer in answers %}
     <div class="row">
       {% with model="metric" item=answer.instance.metric %}

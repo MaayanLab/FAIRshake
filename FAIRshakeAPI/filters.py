@@ -5,9 +5,12 @@ from . import models, search
 class AllInFilter(filters.AllValuesFilter, filters.BaseInFilter):
   pass
 
+class AllInModelFilter(filters.ModelChoiceFilter, filters.BaseInFilter):
+  pass
+
 class IdentifiableFilterSet(filters.FilterSet):
-  id = AllInFilter()
-  authors = AllInFilter()
+  id = AllInFilter(field_name='id')
+  authors = AllInModelFilter(queryset=models.Author.objects.all())
   q = filters.CharFilter(field_name='id', method='filter_query')
   url = filters.CharFilter(field_name='url', lookup_expr='icontains')
 

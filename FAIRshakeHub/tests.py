@@ -68,10 +68,27 @@ class ViewsFunctionTestCase(TestCase):
       'RubricPieChart',
       'RubricsInProjectsOverlay',
       'DigitalObjectBarBreakdown',
+      'RubricsByMetricsBreakdown',
     ]:
       response = self.anonymous_client.get(reverse('stats'), {
         'model': 'project',
-        'item': item.id,
+        'item': item.slug,
         'plot': plot,
       })
       self.assertEqual(response.status_code, 200)
+
+  def test_project_stats_view_no_project_id(self):
+    item = models.Project.objects.first()
+    for plot in [
+      'TablePlot',
+      'RubricPieChart',
+      'RubricsInProjectsOverlay',
+      'DigitalObjectBarBreakdown',
+      'RubricsByMetricsBreakdown',
+    ]:
+      response = self.anonymous_client.get(reverse('stats'), {
+        'model': 'project',
+        'plot': plot,
+      })
+      self.assertEqual(response.status_code, 200)
+

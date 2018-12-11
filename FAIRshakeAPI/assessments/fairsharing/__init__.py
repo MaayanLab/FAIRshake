@@ -1,6 +1,6 @@
 import re
 from django.conf import settings
-from scripts.pyswagger_wrapper import SwaggerClient
+from pyswaggerclient import SwaggerClient
 
 url_re = re.compile(r'^https?://doi.org/(.+)$')
 
@@ -24,7 +24,7 @@ class Assessment:
 
   @classmethod
   def perform(kls, inputs):
-    urls = inputs['target:url'].splitlines()
+    urls = inputs['target:url']
     dois = [m.group(1) for m in map(url_re.match, urls) if m]
 
     if dois:
@@ -54,7 +54,7 @@ class Assessment:
 
     return {
       key: {
-        'answer': 'yes' if data.get(attr) else 'no',
+        'answer': 1.0 if data.get(attr) else 0.0,
         'comment': data.get(attr),
       }
       for key, attr in metric_to_attr.items()

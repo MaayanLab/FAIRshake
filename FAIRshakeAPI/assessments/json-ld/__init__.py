@@ -91,7 +91,7 @@ class Assessment:
 
   @classmethod
   def perform(kls, inputs):
-    urls = inputs['target:url'].splitlines()
+    urls = inputs['target:url']
     for url in urls:
       try:
         r = requests.get(url)
@@ -105,13 +105,13 @@ class Assessment:
     return dict(
       **{
         'metric:30': {
-          'answer': 'yes' if data else 'no',
+          'answer': 1.0 if data else 0.0,
           'comment': 'jsonld was found and properly parsed' if data else 'jsonld could not be parsed',
         },
       },
       **{
         key: {
-          'answer': 'yes' if attr else 'no',
+          'answer': 1.0 if attr else 0.0,
           'comment': attr if attr else 'json-ld %s not found' % (' '.join(to_schema[key])),
         } if key.startswith('metric:') else attr
         for key, attr in zip(

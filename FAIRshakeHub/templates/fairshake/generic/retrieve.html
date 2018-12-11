@@ -49,9 +49,11 @@
     {% if item.url %}
       <p>
         <strong>URL(s):</strong>
+        <ul style="list-style: none; padding: 0;">
         {% for url in item.urls_as_list %}
-          <a href="{{ url }}">{{ url|limit:75 }}</a>
+          <li><a href="{{ url }}">{{ url|limit:75 }}</a></li>
         {% endfor %}
+        </ul>
       </p>
     {% endif %}
     <div
@@ -71,7 +73,7 @@
     {% if model == "digital_object" and user.is_authenticated %}
     <div>
       <a
-        href="{% url 'assessment-add' %}?target={{ item.slug }}"
+        href="{% url 'assessment-perform' %}?target={{ item.slug }}"
         class="btn btn-xs"
         style="padding:5px;border:2px solid #428bca;position:absolute;top:0; left:13%; box-shadow: 0 0 4px 4px white;"
       >

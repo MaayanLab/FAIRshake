@@ -61,27 +61,29 @@ def handler(code, message):
     ))
   return _handler
 
-def handler403(request, *args, **kwargs):
-  if request.user.is_anonymous:
-    return redirect(reverse('account_login') + '?next=' + request.get_full_path())
-  return handler(403, 'Permission denied')(request, *args, **kwargs)
-
 handler400 = handler(400, 'Bad Request')
+handler403 = handler(403, 'Permission denied')
 handler404 = handler(404, 'Page not Found')
 handler500 = handler(500, 'Server error')
 
 def stats_view(request):
   if request.GET.get('model') == 'project':
-    page = ''
-    for res in {
-      'TablePlot': lambda item: stats.TablePlot(item),
-      'RubricPieChart': lambda item: stats.RubricPieChart(item.assessments),
-      'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(
-        models.Answer.objects.filter(assessment__project__id=item.id),
-        item.id,
-      ),
-      'DigitalObjectBarBreakdown': lambda item: stats.DigitalObjectBarBreakdown(item),
-    }.get(request.GET.get('plot'))(models.Project.objects.get(id=request.GET.get('item'))):
-      page += res
-    return http.HttpResponse(page)
+    try:
+      if not models.Project.objects.get(id=request.GET.get('item')).assessments:
+        raise Exception()
+      page = ''
+      for res in {
+        'TablePlot': lambda item: stats.TablePlot(item),
+        'RubricPieChart': lambda item: stats.RubricPieChart(item.assessments),
+        'RubricsByMetricsBreakdown': lambda item: stats.RubricsByMetricsBreakdown(item.id),
+        'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(
+          models.Answer.objects.filter(assessment__project__id=item.id),
+          item.id,
+        ),
+        'DigitalObjectBarBreakdown': lambda item: stats.DigitalObjectBarBreakdown(item),
+      }.get(request.GET.get('plot'))(models.Project.objects.get(id=request.GET.get('item'))):
+        page += res
+      return http.HttpResponse(page)
+    except:
+      return http.HttpResponse('Not enough information was present to construct a plot.')
   return http.HttpResponseNotFound()

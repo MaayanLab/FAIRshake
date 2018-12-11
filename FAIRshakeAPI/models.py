@@ -1,5 +1,7 @@
-import logging
+import re
 import json
+import logging
+from scripts.linear_map import linear_map
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
@@ -27,21 +29,31 @@ class IdentifiableModelMixin(models.Model):
   authors = models.ManyToManyField('Author', blank=True)
 
   def urls_as_list(self):
-    return self.url.splitlines()
+    ''' Split urls by space or newline '''
+    return [
+      url
+      for url in map(str.strip, re.split(r'[\n ]+', self.url))
+      if url
+    ]
 
   def tags_as_list(self):
-    return self.tags.split()
-
+    ''' Split tags by commas explicitly '''
+    return [
+      tag
+      for tag in map(str.strip, re.split(r'[,\n]+', self.tags))
+      if tag
+    ]
+  
   def model_name(self):
     return self._meta.verbose_name_raw
   
   def attrs(self):
     return {
       'title': self.title,
-      'url': self.url,
+      'url': self.urls_as_list(),
       'description': self.description,
       'image': self.image,
-      'tags': self.tags,
+      'tags': self.tags_as_list(),
       'type': self.type,
     }
 
@@ -156,7 +168,7 @@ class Assessment(models.Model):
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def has_permission(self, user, perm):
-    if perm in ['list', 'create', 'add', 'modify', 'remove', 'delete', 'retrieve', 'update', 'partial_update', 'destroy']:
+    if perm in ['list', 'create', 'prepare', 'perform', 'delete', 'retrieve', 'update', 'partial_update', 'destroy']:
       if self is None:
         return user.is_authenticated or user.is_staff
       else:
@@ -165,26 +177,47 @@ class Assessment(models.Model):
       logging.warning('perm %s not handled' % (perm))
       return user.is_staff
 
+  def delete(self, *args, **kwargs):
+    ret = super(Assessment, self).delete(*args, **kwargs)
+    self.invalidate_cache()
+    return ret
+
   def save(self, *args, **kwargs):
+    ret = super(Assessment, self).save(*args, **kwargs)
+    self.invalidate_cache()
+    return ret
+  
+  def invalidate_cache(self):
     if self.target is not None:
-      k = '#digital_object={slug}'.format(slug=self.target.slug)
-      l = cache.get(k)
-      l = json.loads(l) if l else []
-      l += [k]
+      k = '#target={slug}'.format(slug=self.target.slug)
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
       cache.delete_many(l)
     if self.rubric is not None:
       k = '#rubric={slug}'.format(slug=self.rubric.slug)
-      l = cache.get(k)
-      l = json.loads(l) if l else []
-      l += [k]
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
       cache.delete_many(l)
     if self.project is not None:
       k = '#project={slug}'.format(slug=self.project.slug)
-      l = cache.get(k)
-      l = json.loads(l) if l else []
-      l += [k]
+      l = list(
+        set(
+          json.loads(
+            cache.get(k, "[]")
+          )
+        ).union([k])
+      )
       cache.delete_many(l)
-    return super(Assessment, self).save(*args, **kwargs)
 
   def __str__(self):
     return '{methodology} assessment on Target[{target}] for Project[{project}] with Rubric[{rubric}] ({id})'.format(
@@ -209,29 +242,27 @@ class Answer(models.Model):
   id = models.AutoField(primary_key=True)
   assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='answers')
   metric = models.ForeignKey('Metric', on_delete=models.CASCADE, related_name='answers')
-  answer = models.TextField(blank=True, null=False, default='')
+  answer = models.FloatField(null=True, default=0.0)
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
 
-# yesnomaybe (depends on metric__type)
-  def value(self):
-    return {
-      'yes': 1,
-      'yesbut': 0.75,
-      'maybe': 0.5,
-      'nobut': 0.25,
-      'no': 0,
-      '': 0,
-    }.get(self.answer, 1)
-  
-  def inverse(self):
-    return {
-      1: 'yes',
-      0.75: 'yesbut',
-      0.5: 'maybe',
-      0.25: 'nobut',
-      0: 'no',
-    }.get(self.answer, 'yes')
+  def delete(self, *args, **kwargs):
+    ret = super(Answer, self).delete(*args, **kwargs)
+    self.assessment.invalidate_cache()
+    return ret
+
+  def save(self, *args, **kwargs):
+    ret = super(Answer, self).save(*args, **kwargs)
+    self.assessment.invalidate_cache()
+    return ret
+
+  def annotate(self):
+    ''' Convert value to nearest human-readable verbose representation
+    '''
+    return linear_map(
+      [0, 1],
+      ['no', 'nobut', 'maybe', 'yesbut', 'yes'],
+    )(self.answer)
 
   def has_permission(self, user, perm):
     return (self and self.assessment.has_permission(user, perm)) or user.is_staff

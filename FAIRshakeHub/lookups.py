@@ -19,6 +19,34 @@ class IdentifiableLookupChannel(LookupChannel):
       ),
     )
 
+class EmbeddedIdentifiableLookupChannel(IdentifiableLookupChannel):
+  def format_item_display(self, item):
+    return render_to_string(
+      'fairshake/generic/element.html',
+      dict(
+        model=self.model._meta.verbose_name_raw,
+        item=item,
+        embedded=True,
+      ),
+    )
+
+@register('digital_objects-embedded')
+class DigitalObjectLookup(EmbeddedIdentifiableLookupChannel):
+  model = models.DigitalObject
+
+@register('projects-embedded')
+class ProjectLookup(EmbeddedIdentifiableLookupChannel):
+  model = models.Project
+
+@register('rubrics-embedded')
+class RubricLookup(EmbeddedIdentifiableLookupChannel):
+  model = models.Rubric
+
+@register('metrics-embedded')
+class MetricLookup(EmbeddedIdentifiableLookupChannel):
+  model = models.Metric
+
+
 @register('digital_objects')
 class DigitalObjectLookup(IdentifiableLookupChannel):
   model = models.DigitalObject
