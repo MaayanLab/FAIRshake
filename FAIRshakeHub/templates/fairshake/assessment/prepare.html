@@ -25,19 +25,19 @@
     <div class="col-md-4 col-sm-12">
       {{ form.target|bootstrap }}
       {% for target in suggestions.targets %}
-        <a class="label label-primary" href="javascript:update_selection('target',{{target.id}})">{{ target.title }}</a>
+        <a class="label label-primary" href="javascript:update_selection('target',{{target.slug}})">{{ target.title }}</a>
       {% endfor %}
     </div>
     <div class="col-md-4 col-sm-12">
       {{ form.rubric|bootstrap }}
       {% for rubric in suggestions.rubrics %}
-        <a class="label label-primary" href="javascript:update_selection('rubric',{{rubric.id}})">{{ rubric.title }}</a>
+        <a class="label label-primary" href="javascript:update_selection('rubric',{{rubric.slug}})">{{ rubric.title }}</a>
       {% endfor %}
     </div>
     <div class="col-md-4 col-sm-12">
       {{ form.project|bootstrap }}
       {% for project in suggestions.projects %}
-        <a class="label label-primary" href="javascript:update_selection('project',{{project.id}})">{{ project.title }}</a>
+        <a class="label label-primary" href="javascript:update_selection('project',{{project.slug}})">{{ project.title }}</a>
       {% endfor %}
     </div>
   </div>
@@ -48,8 +48,8 @@
   </div>
 </form>
 <script>
-  function update_selection(field, id) {
-    $('#id_'+field).val(id)
+  function update_selection(field, slug) {
+    $('#id_'+field).val(slug)
     if(field=='target') {
       $('#id_rubric').val('')
       $('#id_project').val('')

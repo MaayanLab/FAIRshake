@@ -13,14 +13,17 @@ def setUp(cls, Client=Client):
   )
   metrics = [
     models.Metric.objects.create(
+      slug='1',
       title='yesnobut test',
       type='yesnobut',
     ),
     models.Metric.objects.create(
+      slug='2',
       title='text test',
       type='text',
     ),
     models.Metric.objects.create(
+      slug='3',
       title='url test',
       type='url',
     ),
@@ -28,17 +31,20 @@ def setUp(cls, Client=Client):
   for metric in metrics:
     metric.authors.add(user)
   rubric = models.Rubric.objects.create(
+    slug='1',
     title='rubric test',
   )
   rubric.authors.add(user)
   for metric in metrics:
     rubric.metrics.add(metric)
   obj = models.DigitalObject.objects.create(
+    slug='1',
     title='digital object test',
     url='https://fairshake.cloud/',
   )
   obj.rubrics.add(rubric)
   project = models.Project.objects.create(
+    slug='1',
     title='project test',
   )
   project.authors.add(user)
@@ -56,6 +62,7 @@ def setUp(cls, Client=Client):
       answer=1.0,
     )
   obj2 = models.DigitalObject.objects.create(
+    slug='2',
     title='test object create',
     url='https://fairshake.cloud'
   )
@@ -163,7 +170,7 @@ class ViewsFunctionTestCase(TestCase):
   def test_project_viewset_detail(self):
     response = self.anonymous_client.get(
       reverse('project-detail', kwargs=dict(
-        pk=models.Project.objects.first().pk
+        slug=models.Project.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -172,7 +179,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.anonymous_client.get(
       reverse('project-detail', kwargs=dict(
-        pk=models.Project.objects.first().pk
+        slug=models.Project.objects.first().slug
       )),
       HTTP_ACCEPT='application/json',
     )
@@ -181,7 +188,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('project-detail', kwargs=dict(
-        pk=models.Project.objects.first().pk
+        slug=models.Project.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -190,7 +197,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('project-detail', kwargs=dict(
-        pk=models.Project.objects.first().pk
+        slug=models.Project.objects.first().slug
       )),
       HTTP_ACCEPT='application/json',
     )
@@ -200,7 +207,7 @@ class ViewsFunctionTestCase(TestCase):
   def test_digital_object_viewset_detail(self):
     response = self.anonymous_client.get(
       reverse('digital_object-detail', kwargs=dict(
-        pk=models.DigitalObject.objects.first().pk
+        slug=models.DigitalObject.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -209,7 +216,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.anonymous_client.get(
       reverse('digital_object-detail', kwargs=dict(
-        pk=models.DigitalObject.objects.first().pk
+        slug=models.DigitalObject.objects.first().slug
       )),
       HTTP_ACCEPT='application/json',
     )
@@ -218,7 +225,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('digital_object-detail', kwargs=dict(
-        pk=models.DigitalObject.objects.first().pk
+        slug=models.DigitalObject.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -227,7 +234,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('digital_object-detail', kwargs=dict(
-        pk=models.DigitalObject.objects.first().pk
+        slug=models.DigitalObject.objects.first().slug
       )),
       HTTP_ACCEPT='application/json',
     )
@@ -237,7 +244,7 @@ class ViewsFunctionTestCase(TestCase):
   def test_rubric_viewset_detail(self):
     response = self.anonymous_client.get(
       reverse('rubric-detail', kwargs=dict(
-        pk=models.Rubric.objects.first().pk
+        slug=models.Rubric.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -246,7 +253,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.anonymous_client.get(
       reverse('rubric-detail', kwargs=dict(
-        pk=models.Rubric.objects.first().pk
+        slug=models.Rubric.objects.first().slug
       )),
       HTTP_ACCEPT='application/json',
     )
@@ -255,7 +262,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('rubric-detail', kwargs=dict(
-        pk=models.Rubric.objects.first().pk
+        slug=models.Rubric.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -264,7 +271,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('rubric-detail', kwargs=dict(
-        pk=models.Rubric.objects.first().pk
+        slug=models.Rubric.objects.first().slug
       )),
       HTTP_ACCEPT='application/json',
     )
@@ -274,7 +281,7 @@ class ViewsFunctionTestCase(TestCase):
   def test_metric_viewset_detail(self):
     response = self.anonymous_client.get(
       reverse('metric-detail', kwargs=dict(
-        pk=models.Metric.objects.first().pk
+        slug=models.Metric.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -283,7 +290,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.anonymous_client.get(
       reverse('metric-detail', kwargs=dict(
-        pk=models.Metric.objects.first().pk
+        slug=models.Metric.objects.first().slug
       )),
       HTTP_ACCEPT='application/json',
     )
@@ -292,7 +299,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('metric-detail', kwargs=dict(
-        pk=models.Metric.objects.first().pk
+        slug=models.Metric.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -301,7 +308,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('metric-detail', kwargs=dict(
-        pk=models.Metric.objects.first().pk
+        slug=models.Metric.objects.first().slug
       )),
       HTTP_ACCEPT='application/json',
     )
@@ -351,9 +358,9 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        rubric=models.Rubric.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        rubric=models.Rubric.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -365,9 +372,9 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        rubric=models.Rubric.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        rubric=models.Rubric.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -403,7 +410,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        target=models.DigitalObject.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -415,7 +422,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        target=models.DigitalObject.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -428,8 +435,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        rubric=models.Rubric.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        rubric=models.Rubric.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -441,8 +448,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        rubric=models.Rubric.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        rubric=models.Rubric.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -455,8 +462,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -468,8 +475,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -482,7 +489,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        rubric=models.Rubric.objects.first().pk,
+        rubric=models.Rubric.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -494,7 +501,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        rubric=models.Rubric.objects.first().pk,
+        rubric=models.Rubric.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -507,8 +514,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        rubric=models.Rubric.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        rubric=models.Rubric.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -520,8 +527,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        rubric=models.Rubric.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        rubric=models.Rubric.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -534,7 +541,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        project=models.Project.objects.first().pk,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -546,7 +553,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-prepare'
         ), 
-        project=models.Project.objects.first().pk,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -560,9 +567,9 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        rubric=models.Rubric.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        rubric=models.Rubric.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -574,9 +581,9 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        rubric=models.Rubric.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        rubric=models.Rubric.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -589,7 +596,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        target=models.DigitalObject.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -601,7 +608,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        target=models.DigitalObject.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -614,8 +621,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        rubric=models.Rubric.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        rubric=models.Rubric.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -627,8 +634,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        rubric=models.Rubric.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        rubric=models.Rubric.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -641,8 +648,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -654,8 +661,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        target=models.DigitalObject.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        target=models.DigitalObject.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -668,7 +675,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        rubric=models.Rubric.objects.first().pk,
+        rubric=models.Rubric.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -680,7 +687,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        rubric=models.Rubric.objects.first().pk,
+        rubric=models.Rubric.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -693,8 +700,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        rubric=models.Rubric.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        rubric=models.Rubric.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -706,8 +713,8 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        rubric=models.Rubric.objects.first().pk,
-        project=models.Project.objects.first().pk,
+        rubric=models.Rubric.objects.first().slug,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -720,7 +727,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        project=models.Project.objects.first().pk,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -732,7 +739,7 @@ class ViewsFunctionTestCase(TestCase):
         baseUrl=reverse(
           'assessment-perform'
         ), 
-        project=models.Project.objects.first().pk,
+        project=models.Project.objects.first().slug,
       ),
       HTTP_ACCEPT='text/html',
     )
@@ -783,7 +790,7 @@ class ViewsFunctionTestCase(TestCase):
     # stats
     response = self.anonymous_client.get(
       reverse('project-stats', kwargs=dict(
-        pk=models.Project.objects.first().pk
+        slug=models.Project.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -792,7 +799,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.get(
       reverse('project-stats', kwargs=dict(
-        pk=models.Project.objects.first().pk
+        slug=models.Project.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -802,7 +809,7 @@ class ViewsFunctionTestCase(TestCase):
   def test_modify_project_view(self):
     response = self.authenticated_client.get(
       reverse('project-modify', kwargs=dict(
-        pk=models.Project.objects.first().pk
+        slug=models.Project.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -811,7 +818,7 @@ class ViewsFunctionTestCase(TestCase):
 
     response = self.authenticated_client.post(
       reverse('project-modify', kwargs=dict(
-        pk=models.Project.objects.first().pk
+        slug=models.Project.objects.first().slug
       )),
       HTTP_ACCEPT='text/html',
     )
@@ -819,28 +826,28 @@ class ViewsFunctionTestCase(TestCase):
     self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
 
   def test_digital_object_remove(self):
-    pk = models.Project.objects.first().pk
+    slug = models.Project.objects.first().slug
 
     response = self.anonymous_client.get(
       reverse('project-remove', kwargs=dict(
-        pk=pk
+        slug=slug
       )),
       HTTP_ACCEPT='text/html',
     )
     self.assertEqual(response.status_code, 302, 'Login redirect expected')
     self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
-    self.assertEqual(models.DigitalObject.objects.first().pk, pk)
+    self.assertEqual(models.DigitalObject.objects.first().slug, slug)
 
     response = self.authenticated_client.get(
       reverse('project-remove', kwargs=dict(
-        pk=pk
+        slug=slug
       )),
       HTTP_ACCEPT='text/html',
     )
     self.assertEqual(response.status_code, 302)
     self.assertEqual(response['Content-Type'], 'text/html; charset=utf-8', response)
     try:
-      models.Project.objects.get(pk=pk)
+      models.Project.objects.get(slug=slug)
       self.fail('Project was not deleted')
     except:
       pass
@@ -868,6 +875,7 @@ class InteractFunctionTestCase(TestCase):
     response = self.authenticated_client.post(
       '/project/',
       {
+        'slug': '2',
         'title': 'test project 2',
       },
       HTTP_ACCEPT='application/json',
@@ -881,7 +889,7 @@ class InteractFunctionTestCase(TestCase):
 
   def test_project_update(self):
     response = self.anonymous_client.put(
-      '/project/{pk}/'.format(pk=models.Project.objects.first().pk),
+      '/project/{slug}/'.format(slug=models.Project.objects.first().slug),
       {
         'title': 'test project improved',
       },
@@ -892,7 +900,7 @@ class InteractFunctionTestCase(TestCase):
     self.assertNotEqual(models.Project.objects.first().title, 'test project improved')
 
     response = self.authenticated_client.patch(
-      '/project/{pk}/'.format(pk=models.Project.objects.first().pk),
+      '/project/{slug}/'.format(slug=models.Project.objects.first().slug),
       {
         'title': 'test project improved',
       },
@@ -904,7 +912,7 @@ class InteractFunctionTestCase(TestCase):
 
   def test_project_partial_update(self):
     response = self.anonymous_client.patch(
-      '/project/{pk}/'.format(pk=models.Project.objects.first().pk),
+      '/project/{slug}/'.format(slug=models.Project.objects.first().slug),
       {
         'description': 'test improved',
       },
@@ -915,7 +923,7 @@ class InteractFunctionTestCase(TestCase):
     self.assertNotEqual(models.Project.objects.first().description, 'test improved')
 
     response = self.authenticated_client.patch(
-      '/project/{pk}/'.format(pk=models.Project.objects.first().pk),
+      '/project/{slug}/'.format(slug=models.Project.objects.first().slug),
       {
         'description': 'test improved',
       },
@@ -926,23 +934,23 @@ class InteractFunctionTestCase(TestCase):
     self.assertEqual(models.Project.objects.first().description, 'test improved')
 
   def test_project_destroy(self):
-    pk = models.Project.objects.first().pk
+    slug = models.Project.objects.first().slug
     response = self.anonymous_client.delete(
-      '/project/{pk}/'.format(pk=pk),
+      '/project/{slug}/'.format(slug=slug),
       HTTP_ACCEPT='application/json',
     )
     self.assertEqual(response.status_code, 401)
     self.assertEqual(response['Content-Type'], 'application/json', response)
-    self.assertEqual(models.Project.objects.first().pk, pk)
+    self.assertEqual(models.Project.objects.first().slug, slug)
 
     response = self.authenticated_client.delete(
-      '/project/{pk}/'.format(pk=pk),
+      '/project/{slug}/'.format(slug=slug),
       HTTP_ACCEPT='application/json',
     )
     self.assertEqual(response.status_code, 204)
     # self.assertEqual(response['Content-Type'], 'application/json', response)
     try:
-      models.Project.objects.get(pk=pk)
+      models.Project.objects.get(slug=slug)
       self.fail('Project was not deleted')
     except:
       pass
@@ -957,9 +965,9 @@ class InteractFunctionTestCase(TestCase):
     response = self.anonymous_client.post(
       '/assessment/',
       json.dumps({
-        'project': project.id,
-        'target': target.id,
-        'rubric': rubric.id,
+        'project': project.slug,
+        'target': target.slug,
+        'rubric': rubric.slug,
         'answers': json.dumps([
           {
             'metric': 1,
@@ -989,9 +997,9 @@ class InteractFunctionTestCase(TestCase):
     response = self.authenticated_client.post(
       '/assessment/',
       json.dumps({
-        'project': project.id,
-        'target': target.id,
-        'rubric': rubric.id,
+        'project': project.slug,
+        'target': target.slug,
+        'rubric': rubric.slug,
         'answers': [
           {
             'metric': 1,

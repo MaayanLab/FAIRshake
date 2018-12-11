@@ -4,18 +4,18 @@
     <div
       class="insignia"
       style="display: table-cell; width: 40px; height: 40px;"
-      data-target='{ "id": "{{ item.id }}" }'
+      data-target='{ "id": "{{ item.slug }}" }'
     >
     </div>
     <div style="display: table-cell; vertical-align: middle; padding-left: 10px;">
       {{ model|unslugify }}
-      of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>
-      with <a href="{% url 'rubric-detail' item.rubric.id %}">{{ item.rubric.title }}</a>
+      of <a href="{% url 'digital_object-detail' item.target.slug %}">{{ item.target.title }}</a>
+      with <a href="{% url 'rubric-detail' item.rubric.slug %}">{{ item.rubric.title }}</a>
       {% if item.project %}
-        for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
+        for <a href="{% url 'project-detail' item.project.slug %}">{{ item.project.title }}</a>
       {% endif %}
       &nbsp;
-      <a href="{% url model|add:'-perform' %}?target={{ item.target.id }}&rubric={{ item.rubric.id }}&project={{ item.project.id }}">
+      <a href="{% url model|add:'-perform' %}?target={{ item.target.slug }}&rubric={{ item.rubric.slug }}&project={{ item.project.slug }}">
         <span
           class="glyphicon glyphicon-edit"
           style="font-size:20px;color:#666666;"

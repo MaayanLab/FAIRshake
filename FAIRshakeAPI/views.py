@@ -63,6 +63,8 @@ class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
     return view.get_template_context(request, context)
 
 class CustomModelViewSet(viewsets.ModelViewSet):
+  lookup_field = 'slug'
+
   renderer_classes = [
     renderers.JSONRenderer,
     CustomTemplateHTMLRenderer,
@@ -130,7 +132,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     detail=False, methods=['get', 'post'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def add(self, request, pk=None, **kwargs):
+  def add(self, request, slug=None, **kwargs):
     self.check_permissions(request)
     if request.method == 'GET':
       return response.Response()
@@ -153,7 +155,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
         ))
       return callback_or_redirect(request,
         self.get_model_name()+'-detail',
-        pk=instance.id,
+        slug=instance.slug,
       )
     return response.Response()
 
@@ -162,7 +164,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     methods=['get', 'post'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def modify(self, request, pk=None):
+  def modify(self, request, slug=None):
     item = self.get_object()
     if request.method == 'GET':
       return response.Response()
@@ -171,7 +173,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     if instance:
       return callback_or_redirect(request,
         self.get_model_name()+'-detail',
-        pk=pk,
+        slug=instance.slug,
       )
     return response.Response()
 
@@ -179,7 +181,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     detail=True,
     methods=['get'],
   )
-  def remove(self, request, pk=None):
+  def remove(self, request, slug=None):
     item = self.get_object()
     self.check_object_permissions(request, item)
     item.delete()
@@ -257,7 +259,7 @@ class ProjectViewSet(IdentifiableModelViewSet):
     methods=['get'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
-  def stats(self, request, pk=None):
+  def stats(self, request, slug=None):
     item = self.get_object()
     self.check_object_permissions(request, item)
     return response.Response()
@@ -282,6 +284,7 @@ class RubricViewSet(IdentifiableModelViewSet):
   filter_class = filters.RubricFilterSet
 
 class AssessmentViewSet(CustomModelViewSet):
+  lookup_field = 'pk'
   model = models.Assessment
   serializer_class = serializers.AssessmentSerializer
   filter_class = filters.AssessmentFilterSet
@@ -350,7 +353,7 @@ class AssessmentViewSet(CustomModelViewSet):
     if assessment:
       initial = query_dict(
         {
-          '%s-%s' % (answer.metric.id, key): getattr(answer, key)
+          '%s-%s' % (answer.metric.slug, key): getattr(answer, key)
           for answer in assessment.answers.all()
           for key in ['answer', 'comment', 'url_comment']
           if getattr(answer, key, None) is not None
@@ -366,8 +369,8 @@ class AssessmentViewSet(CustomModelViewSet):
           target=assessment.target,
         )
         for answer in assessment.answers.all():
-          for key, attr in auto_assessment_results.get('metric:%d' % (answer.metric.id), {}).items():
-            k = '%s-%s' % (answer.metric.id, key)
+          for key, attr in auto_assessment_results.get('metric:%s' % (answer.metric.slug), {}).items():
+            k = '%s-%s' % (answer.metric.slug, key)
             if attr is not None and initial.get(k) is not None:
               initial[k] = attr
 
@@ -375,7 +378,7 @@ class AssessmentViewSet(CustomModelViewSet):
         forms.AnswerForm(
           initial,
           instance=answer,
-          prefix=answer.metric.id,
+          prefix=answer.metric.slug,
         )
         for answer in assessment.answers.all()
       ]
@@ -407,7 +410,7 @@ class AssessmentViewSet(CustomModelViewSet):
     ]
 
     if target:
-      targets = models.DigitalObject.objects.filter(id=target)
+      targets = models.DigitalObject.objects.filter(slug=target)
     else:
       if target_filters:
         targets = models.DigitalObject.objects.filter(
@@ -416,7 +419,7 @@ class AssessmentViewSet(CustomModelViewSet):
             target_filters,
             None,
           )
-        ).order_by('id').distinct()
+        ).order_by('slug').distinct()
       else:
         targets = None
 
@@ -424,13 +427,13 @@ class AssessmentViewSet(CustomModelViewSet):
         targets = search.DigitalObjectSearchVector().query(q)
       
       if targets.count() == 1:
-        target = targets.first().id
+        target = targets.first().slug
 
     if rubric:
       if target:
         rubrics = targets.first().rubrics.all()
       else:
-        rubrics = models.Rubric.objects.filter(id=rubric)
+        rubrics = models.Rubric.objects.filter(slug=rubric)
     else:
       rubrics = None
       if target:
@@ -438,13 +441,13 @@ class AssessmentViewSet(CustomModelViewSet):
       if rubrics is None or not rubrics.exists():
         rubrics = models.Rubric.objects.all()
       if rubrics.count() == 1:
-        rubric = rubrics.first().id
+        rubric = rubrics.first().slug
 
     if project:
       if target:
         projects = targets.first().projects.all()
       else:
-        projects = models.Project.objects.filter(id=project)
+        projects = models.Project.objects.filter(slug=project)
     else:
       projects = None
       if target:
@@ -452,7 +455,7 @@ class AssessmentViewSet(CustomModelViewSet):
       if projects is None or not projects.exists():
         projects = models.Project.objects.all()
       if projects.count() == 1:
-        project = projects.first().id
+        project = projects.first().slug
 
     return {
       'target': target,
@@ -502,7 +505,7 @@ class AssessmentViewSet(CustomModelViewSet):
       if self.save_answer_forms(answer_forms):
         return callback_or_redirect(request,
           'digital_object-detail',
-          pk=assessment.target.id,
+          slug=assessment.target.slug,
         )
     return response.Response()
 

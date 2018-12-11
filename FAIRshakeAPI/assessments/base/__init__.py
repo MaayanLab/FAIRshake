@@ -4,7 +4,7 @@ assessments = []
 
 class Assessment:
   def perform(target, rubric):
-    want = ['metric:%d' % (metric.id) for metric in rubric.metrics.all()]
+    want = ['metric:%s' % (metric.slug) for metric in rubric.metrics.all()]
     have = dict({
         'target:%s' % (attr): v
         for attr, v in target.attrs().items()

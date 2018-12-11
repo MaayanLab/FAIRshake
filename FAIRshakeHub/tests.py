@@ -72,7 +72,7 @@ class ViewsFunctionTestCase(TestCase):
     ]:
       response = self.anonymous_client.get(reverse('stats'), {
         'model': 'project',
-        'item': item.id,
+        'item': item.slug,
         'plot': plot,
       })
       self.assertEqual(response.status_code, 200)

@@ -17,7 +17,21 @@ class IdentifiableForm(forms.ModelForm):
         help_text=None,
         initial=getattr(self.instance, child).all() if self.instance and self.instance.id else [],
       )
-  
+
+  def clean_slug(self):
+    slug = self.cleaned_data.get('slug')
+    try:
+      if any([
+        self.Meta.model.objects.current.get(slug=slug) != self.instance,
+        self.Meta.model.objects.get(id=slug) != self.instance,
+      ]):
+        raise forms.ValidationError(
+          'Slug was already taken, please try something different.'
+        )
+    except self.Meta.model.DoesNotExist:
+      pass
+    return slug
+
   def save(self, *args, commit=True, **kwargs):
     ''' Explicitly add children for children in the reverse direction.
     '''
@@ -44,6 +58,7 @@ class ProjectForm(IdentifiableForm):
       'image',
       'tags',
       'type',
+      'slug',
       'digital_objects',
       'authors',
     )
@@ -58,6 +73,7 @@ class DigitalObjectForm(IdentifiableForm):
       'image',
       'tags',
       'type',
+      'slug',
       'rubrics',
       'authors',
     )
@@ -72,6 +88,7 @@ class RubricForm(IdentifiableForm):
       'image',
       'tags',
       'type',
+      'slug',
       'license',
       'metrics',
       'authors',
@@ -87,6 +104,7 @@ class MetricForm(IdentifiableForm):
       'image',
       'tags',
       'type',
+      'slug',
       'license',
       'rationale',
       'principle',

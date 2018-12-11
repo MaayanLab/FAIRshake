@@ -9,10 +9,10 @@
 >
   <legend>
     {{ model|unslugify }}
-    of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>
-    with <a href="{% url 'rubric-detail' item.rubric.id %}">{{ item.rubric.title }}</a>
+    of <a href="{% url 'digital_object-detail' item.target.slug %}">{{ item.target.title }}</a>
+    with <a href="{% url 'rubric-detail' item.rubric.slug %}">{{ item.rubric.title }}</a>
     {% if item.project %}
-      for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
+      for <a href="{% url 'project-detail' item.project.slug %}">{{ item.project.title }}</a>
     {% endif %}
     &nbsp;
     <a href="{% url model|add:'-prepare' %}?{{ request.GET|as_path }}">

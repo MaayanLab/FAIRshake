@@ -12,6 +12,7 @@ class IdentifiableModelMixin(models.Model):
 
   title = models.CharField(max_length=255, blank=False)
   url = models.TextField(blank=True, null=False, default='')
+  slug = models.CharField(max_length=255, unique=True, blank=False, null=False)
   description = models.TextField(blank=True, null=False, default='')
   image = models.CharField(max_length=255, blank=True, null=False, default='')
   tags = models.CharField(max_length=255, blank=True, null=False, default='')
@@ -55,7 +56,7 @@ class IdentifiableModelMixin(models.Model):
       'tags': self.tags_as_list(),
       'type': self.type,
     }
-  
+
   def has_permission(self, user, perm):
     if perm in ['list', 'retrieve', 'stats']:
       return True
@@ -188,7 +189,7 @@ class Assessment(models.Model):
   
   def invalidate_cache(self):
     if self.target is not None:
-      k = '#target={pk}'.format(pk=self.target.pk)
+      k = '#target={slug}'.format(slug=self.target.slug)
       l = list(
         set(
           json.loads(
@@ -198,7 +199,7 @@ class Assessment(models.Model):
       )
       cache.delete_many(l)
     if self.rubric is not None:
-      k = '#rubric={pk}'.format(pk=self.rubric.pk)
+      k = '#rubric={slug}'.format(slug=self.rubric.slug)
       l = list(
         set(
           json.loads(
@@ -208,7 +209,7 @@ class Assessment(models.Model):
       )
       cache.delete_many(l)
     if self.project is not None:
-      k = '#project={pk}'.format(pk=self.project.pk)
+      k = '#project={slug}'.format(slug=self.project.slug)
       l = list(
         set(
           json.loads(

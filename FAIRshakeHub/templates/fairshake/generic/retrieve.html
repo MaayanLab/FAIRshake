@@ -59,12 +59,12 @@
     <div
       class="insignia"
       style="width: 80px; height: 80px; padding: 10px;"
-      data-target='{ "{{ model }}": {{ item.id }} }'
+      data-target='{ "{{ model }}": "{{ item.slug }}" }'
     ></div>
     {% if model == "project" %}
       <a
         class="btn btn-primary"
-        href="{% url model|add:'-stats' item.id %}"
+        href="{% url model|add:'-stats' item.slug %}"
       >
         View Analytics
       </a>
@@ -73,7 +73,7 @@
     {% if model == "digital_object" and user.is_authenticated %}
     <div>
       <a
-        href="{% url 'assessment-perform' %}?target={{ item.id }}"
+        href="{% url 'assessment-perform' %}?target={{ item.slug }}"
         class="btn btn-xs"
         style="padding:5px;border:2px solid #428bca;position:absolute;top:0; left:13%; box-shadow: 0 0 4px 4px white;"
       >
@@ -85,7 +85,7 @@
     {% if edit_perm %}
       <div>
         <a
-          href="{% url model|add:'-modify' item.id %}"
+          href="{% url model|add:'-modify' item.slug %}"
         >
           <span
             class="glyphicon glyphicon-edit"
