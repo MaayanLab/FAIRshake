@@ -173,3 +173,6 @@ h1 {
     color: dimgray;
 }
 
+.tour-backdrop {
+    opacity: .2;
+}
