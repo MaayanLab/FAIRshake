@@ -241,7 +241,7 @@ class Answer(models.Model):
   id = models.AutoField(primary_key=True)
   assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='answers')
   metric = models.ForeignKey('Metric', on_delete=models.CASCADE, related_name='answers')
-  answer = models.FloatField(null=True, default=0.0)
+  answer = models.FloatField(null=True)
   comment = models.TextField(blank=True, null=False, default='')
   url_comment = models.TextField(blank=True, null=False, default='')
 
