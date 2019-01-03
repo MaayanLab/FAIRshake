@@ -191,7 +191,7 @@ class AnswerForm(forms.ModelForm):
               'rows': '2',
             },
           ),
-          required=True,
+          required=False,
         )),
       ])
     elif self.instance.metric.type == 'text':
@@ -213,11 +213,37 @@ class AnswerForm(forms.ModelForm):
               'rows': '2',
             },
           ),
-          required=True,
+          required=False,
         )),
       ])
     else:
       raise 'Type is invalid'
+  
+  def clean(self):
+    cleaned_data = super().clean()
+    metric_type = self.instance.metric.type
+    answer = cleaned_data.get('answer')
+    comment = cleaned_data.get('comment')
+    url_comment = cleaned_data.get('url_comment')
+
+    if metric_type == 'url':
+      if answer == '1.0':
+        if url_comment is None or len(url_comment) <= 0:
+          raise forms.ValidationError(
+            'URL required if answer is yes'
+          )
+        else:
+          cleaned_data['url_comment'] = ''
+    elif metric_type == 'text':
+      if answer == '1.0':
+        if comment is None or len(comment) <= 0:
+          raise forms.ValidationError(
+            'comment required if answer is yes'
+          )
+        else:
+          cleaned_data['comment'] = ''
+
+    return cleaned_data
 
   class Meta:
     model = models.Answer
