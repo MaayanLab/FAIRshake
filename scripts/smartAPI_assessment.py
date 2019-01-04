@@ -4,7 +4,7 @@ import itertools
 from pyswaggerclient import SwaggerClient
 from pyswaggerclient.fetch import read_spec
 from objectpath import Tree
-from .merging import prompt_merge_attr, prompt_select_dups
+from merging import prompt_merge_attr, prompt_select_dups
 
 # Configure API credentials for FAIRshake
 #  FAIRshake allows you to get your API_KEY with your USERNAME
@@ -142,8 +142,8 @@ def smartapi_obj_to_fairshake_obj(smartapi_obj):
   '''
   return {
     "title": smartapi_obj['info']['title'],
-    "description": smartapi_obj['info']['description'],
-    "tags": ','.join([t['name'] for t in smartapi_obj['tags']]),
+    "description": smartapi_obj['info'].get('description', ''),
+    "tags": ','.join([t['name'] for t in smartapi_obj.get('tags', '')]),
     "url": '\n'.join(
       map(''.join,
         itertools.product(
@@ -188,14 +188,14 @@ def smartapi_get_all(smartapi, **kwargs):
   '''
   n_results = 0
   while True:
-    resp = smartapi.actions.query_all.call(**kwargs, **{'from': n_results})
+    resp = smartapi.actions.query_get.call(**kwargs, **{'from': n_results})
     for hit in resp['hits']:
       n_results += 1
       yield hit
     if n_results >= resp['total']:
       break
     else:
-      resp = smartapi.actions.query_all.call(**kwargs)
+      resp = smartapi.actions.query_get.call(**kwargs)
 
 def get_fairshake_client(api_key=None, username=None, email=None, password=None):
   ''' Using either the api_key directly, or with fairshake
@@ -219,7 +219,7 @@ def get_fairshake_client(api_key=None, username=None, email=None, password=None)
   )
   return fairshake
 
-def get_smartapi_client(harmonizome_spec):
+def get_smartapi_client():
   ''' Create a swagger client for smartapi.
   '''
   smartapi = SwaggerClient('https://smart-api.info/api/metadata/27a5b60716c3a401f2c021a5b718c5b1?format=yaml')
@@ -236,33 +236,37 @@ def register_fairshake_obj_if_not_exists(fairshake, fairshake_obj):
   FAIRShake digital_object_create api endpoint if they do choose to register
   the object.
   '''
-  existing = fairshake.actions.digital_object_list.call(
-    title=fairshake_obj['title'],
-  )['results'] + fairshake.actions.digital_object_list.call(
-    url=fairshake_obj['url'],
-  )['results']
+  try:
+    existing = fairshake.actions.digital_object_list.call(
+      title=fairshake_obj['title'],
+    )['results'] + fairshake.actions.digital_object_list.call(
+      url=fairshake_obj['url'],
+    )['results']
+  except:
+    existing = []
 
-  if existing:
-    print('Similar objects were found')
-    print(*existing, sep='\n')
-  else:
-    print('No similar objects were found')
-
-  print('Object to add')
-  print(fairshake_obj)
-  print('Add this object? [y/N]')
-
-  ans = input()
-  if ans in ['y', 'Y']:
-    obj = fairshake.actions.digital_object_create.call(data=fairshake_obj)
-    print('Registered', obj, end='\n\n')
-  else:
-    print('Skipping.', end='\n\n')
+  for result in prompt_select_dups(*existing, fairshake_obj):
+    if result.get('id'):
+      print('Updating %s...' % (str(result['id'])))
+      id = result['id']
+      del result['id']
+      try:
+        fairshake.actions.digital_object_update.call(id=id, data=result)
+      except:
+        pass
+    else:
+      print('Creating...')
+      if result.get('id') is not None:
+        del result['id']
+      obj = fairshake.actions.digital_object_create.call(data=result)
+      id = obj['id']
+  return id
 
 def assess_smartapi_obj(smartapi_obj):
   ''' Given a smartapi object from the API, assess it for its fairness
   '''
   root = Tree(smartapi_obj)
+  print('Performing assessment...')
 
   answers = {}
   for metric in metrics:
@@ -293,7 +297,7 @@ def assess_smartapi_obj(smartapi_obj):
         answers[metric['desc']] = {
           'metric': metric.get('metric',''),
           'answer': 1.0 if len(results)>0 and metric['pattern'].match(results) else 0.0,
-          'comment': results,
+          'comment': str(results),
         }
       else:
         answers[metric['desc']] = {
@@ -304,28 +308,44 @@ def assess_smartapi_obj(smartapi_obj):
 
   return answers
 
-def register_fairshake_assessment(fairshake, answers=None, project=None, target=None):
+def register_fairshake_assessment(fairshake, answers=None, project=None, rubric=None, target=None):
   ''' Register the assessment if it hasn't yet been registered.
   '''
-  assessment_id = fairshake.actions.assessment_get.call(
-    project=project,
-    target=target,
-    rubric=rubric,
-  )
+  print('Registering assessment...', answers)
+  try:
+    assessment_id = fairshake.actions.assessment_list.call(
+      project=project,
+      target=target,
+      rubric=rubric,
+      methodology='auto',
+    )['results'][0]['id']
+  except:
+    assessment_id = None
   if assessment_id:
-    assessment_id = fairshake.actions.assessment_update.call(
-      id=assessment_id,
-      project=project,
-      target=target,
-      rubric=rubric,
-      answers=answers,
-    )
+    print('Updating assessment...')
+    try:
+      assessment_id = fairshake.actions.assessment_update.call(
+        id=assessment_id,
+        data=dict(
+          project=project,
+          target=target,
+          rubric=rubric,
+          answers=answers,
+          methodology='auto',
+        )
+      )
+    except:
+      pass
   else:
+    print('Creating assessment...')
     assessment_id = fairshake.actions.assessment_create.call(
-      project=project,
-      target=target,
-      rubric=rubric,
-      answers=answers,
+      data=dict(
+        project=project,
+        target=target,
+        rubric=rubric,
+        answers=answers,
+        methodology='auto',
+      )
     )
 
   return assessment_id
@@ -336,18 +356,23 @@ def register_and_assess_all_smartapi_objects(smartapi=None, fairshake=None):
   assess them.
   '''
   for smartapi_obj in map(read_spec, itertools.chain(
-    get_all(q='openapi:3'), get_all(q='swagger:2'),
+    smartapi_get_all(smartapi, q='openapi:3'),
+    smartapi_get_all(smartapi, q='swagger:2'),
   )):
     fairshake_obj = smartapi_obj_to_fairshake_obj(smartapi_obj)
     fairshake_obj_id = register_fairshake_obj_if_not_exists(fairshake, fairshake_obj)
-
     fairshake_assessment = assess_smartapi_obj(smartapi_obj)
-    assessment_id = register_fairshake_assessment(fairshake,
-      answers=fairshake_assessment,
+    assessment_result = register_fairshake_assessment(fairshake,
+      answers=[
+        answer
+        for answer in fairshake_assessment.values()
+        if answer.get('answer') is not None
+      ],
       project=project,
       rubric=rubric,
       target=fairshake_obj_id,
     )
+    print(assessment_result)
 
 def main():
   ''' Main function of this script. Establish connections to FAIRshake
