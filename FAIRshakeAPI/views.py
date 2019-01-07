@@ -469,8 +469,8 @@ class AssessmentViewSet(CustomModelViewSet):
     for answer_form in answer_forms:
       if answer_form.is_valid():
         answer_form.save()
-      else:
-        answer_form.instance.delete()
+      # else:
+      #   answer_form.instance.delete()
     return True
 
   @decorators.action(
@@ -561,6 +561,16 @@ class AssessmentRequestViewSet(CustomModelViewSet):
     instance.save()
     return instance
 
+def agg_values(values):
+  values_filtered = [
+    v for v in values
+    if v != float('nan') and v is not None
+  ]
+  if len(values_filtered) > 0:
+    return sum(values_filtered) / len(values_filtered)
+  else:
+    return None
+
 class ScoreViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
@@ -621,7 +631,7 @@ class ScoreViewSet(
       result = {
         'scores': {
           rubric: {
-            metric: sum(value)/len(value)
+            metric: agg_values(value)
             for metric, value in score.items()
           }
           for rubric, score in scores.items()
@@ -670,7 +680,7 @@ class ScoreViewSet(
       answers = {}
       for assessment in self.filter_queryset(self.get_queryset()):
         for answer in assessment.answers.all():
-          answers[answer.answer] = answers.get(answer.answer, 0) + 1
+          answers[answer.answer] = answers.get(answer.answer, None) + 1
       cache.set(key, answers, 60 * 60)
       
     return response.Response(answers)
