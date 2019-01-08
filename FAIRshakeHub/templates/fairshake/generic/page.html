@@ -34,7 +34,7 @@
 {% block content %}
 <div class="container">
   {% if action == 'list' %}
-    <h1 class="text-left">{{ model|unslugify }}s</h1>
+    <h1 class="text-left">{{ model|unslugify }}s ({{ items.paginator.count }})</h1>
   {% endif %}
   {% select_template "fairshake/"|add:model|add:"/"|add:action|add:".html" "fairshake/generic/"|add:action|add:".html" %}
 </div>

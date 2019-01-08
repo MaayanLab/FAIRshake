@@ -100,7 +100,7 @@
     {% for model, items in children.items %}
       <div class="col-xs-12">
         <hr />
-        <h2>Associated {{ model|unslugify }}s</h2>
+        <h2>Associated {{ model|unslugify }}s ({{ items.paginator.count }})</h2>
         {% include "fairshake/generic/list.html" %}
       </div>
     {% endfor %}
