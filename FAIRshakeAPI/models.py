@@ -261,7 +261,7 @@ class Answer(models.Model):
     return linear_map(
       [0, 1],
       ['no', 'nobut', 'maybe', 'yesbut', 'yes'],
-    )(self.answer)
+    )(self.answer) if self.answer is not None else ''
 
   def has_permission(self, user, perm):
     return (self and self.assessment.has_permission(user, perm)) or user.is_staff

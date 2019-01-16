@@ -71,7 +71,7 @@ def QuestionBreakdown(query):
 
 def _DigitalObjectBarGraph(scores_dict):
   action_dict={}
-  sorted_d = sorted((value,key) for (key,value) in scores_dict.items())
+  sorted_d = sorted((value,key) for (key,value) in scores_dict.items() if value is not None)
   for kv in sorted_d:
     if kv[0]<0.25:
       action_dict[kv[1]]='Poor'
@@ -98,7 +98,7 @@ def _DigitalObjectBarGraph(scores_dict):
 def DigitalObjectBarBreakdown(project):
   object_score_dict={}
   for obj in project.digital_objects.all():
-    scores=list(models.Answer.objects.filter(assessment__target__id=obj.id).values_list("answer",flat=True))
+    scores=[a for a in models.Answer.objects.filter(assessment__target__id=obj.id).values_list("answer",flat=True) if a is not None]
     if len(scores)>0:
       mean_score=np.mean(scores)
       object_score_dict[models.DigitalObject.objects.filter(id=obj.id).values_list('title', flat=True).get()]=mean_score
@@ -194,7 +194,7 @@ def RubricsByMetricsBreakdown(projectid):
     for metric in rubric_query.metrics.all():
       metric_dict[metric.id] = metric.title 
     metric_ids=iter(np.array(answer_query.values_list('metric',flat=True)))
-    scores=list(answer_query.values_list('answer',flat=True))
+    scores=[a for a in answer_query.values_list('answer',flat=True) if a is not None]
     d={}
     for x, y in zip(metric_ids, scores):
       if x in d:
