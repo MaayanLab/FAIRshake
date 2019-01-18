@@ -27,6 +27,9 @@
   <li class="{% block account_nav_delete %}{% endblock %}">
     <a href="{% url 'account_delete' %}">{% trans 'Delete Account' %}</a>
   </li>
+  <li class="{% block account_nav_api_access %}{% endblock %}">
+    <a href="{% url 'account_api_access' %}">{% trans 'API Access' %}</a>
+  </li>
 </ul>
 {% block account_content %}
 {% endblock %}

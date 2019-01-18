@@ -1,0 +1,49 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "API Access" %}{% endblock %}
+
+{% block account_content %}
+
+<div class="container">
+  <div class="col-sm-12">
+    <p>
+      <br />
+      For more information about how to access the API,
+      please refer to our <a href="{% url 'documentation' %}">extensive documentation</a>.
+    </p>
+  </div>
+  <div class="col-sm-12">
+    <p>
+      <b>{% trans 'Your API Key is:' %}</b>
+      <input
+        type="text"
+        readonly
+        value="{{ api_key }}"
+        style="width: 100%;"
+      />
+    </p>
+    <p>
+      This should be used in the authorization header of API requests, e.g.
+      <textarea id="teststatus" style="width: 100%;" rows="4" readonly>curl -X GET "https://fairshake.cloud/auth/user/" -H "accept: application/json" -H "Authorization: Token {{ api_key }}"</textarea>
+      <input type="submit" value="Try Me" onclick="javascript:testapi('{{ api_key }}')">
+    </p>
+  </div>
+</div>
+<script>
+  function testapi(api_key) {
+    fetch("https://fairshake.cloud/auth/user/", {
+      headers: {
+        Authorization: 'Token ' + api_key,
+      }
+    }).then(function (response) {
+      return response.json()
+    }).then(function (result) {
+      $('#teststatus').text($('#teststatus').text() + '\n' + JSON.stringify(result));
+    }).catch(function (error) {
+      $('#teststatus').text($('#teststatus').text() + '\n' + 'Error:' + JSON.stringify(error));
+    })
+  }
+</script>
+{% endblock %}
