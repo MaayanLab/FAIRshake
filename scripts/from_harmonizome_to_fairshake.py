@@ -6,7 +6,7 @@
 # It makes working with swagger-described APIs easy.
 import os
 from pyswaggerclient import SwaggerClient
-from merging import prompt_merge_attr, prompt_select_dups
+from merging import prompt_select_dups
 
 # Configure API credentials for FAIRshake
 #  FAIRshake allows you to get your API_KEY with your USERNAME
