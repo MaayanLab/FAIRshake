@@ -1,0 +1,105 @@
+{% load filters %}
+<div class="container">
+  {% include "fairshake/generic/retrieve_element.html" %}
+  <h1 class="text-left">{{ model|unslugify }} Assessments ({{ assessments.count }})</h1>
+  <div class="col-sm-12 table-responsive">
+    <br />
+    <table class="table table-bordered table-hover" style="overflow-x: auto; max-width: 100%;">
+      <tbody>
+        <tr>
+          <th colspan="{% if model == 'metric' %}4{% else %}3{% endif %}">
+            Assessment
+          </th>
+          <th colspan="100%">
+            Metrics
+          </th>
+        </tr>
+        <tr>
+          {% if model != "digital_object" %}
+          <th>
+            Target
+          </th>
+          {% endif %}
+          {% if model != "rubric" %}
+          <th>
+            Rubric
+          </th>
+          {% endif %}
+          {% if model != "project" %}
+          <th>
+            Project
+          </th>
+          {% endif %}
+          <th>
+            &nbsp;
+          </th>
+          {% for metric in metrics %}
+            <th>
+              <a href="{% url 'metric-detail' pk=metric.pk %}">
+                {{ metric.title|limit:40 }}
+              </a>
+            </th>
+          {% endfor %}
+        </tr>
+        {% for assessment in assessments %}
+          <tr>
+            {% if model != "digital_object" %}
+            <th>
+              <a href="{% url 'digital_object-detail' pk=assessment.target.pk %}">
+                {{ assessment.target.title }}
+              </a>
+            </th>
+            {% endif %}
+            {% if model != "rubric" %}
+            <th>
+              <a href="{% url 'rubric-detail' pk=assessment.rubric.pk %}">
+                {{ assessment.rubric.title }}
+              </a>
+            </th>
+            {% endif %}
+            {% if model != "project" %}
+            <th>
+              {% if assessment.project %}
+                <a href="{% url 'project-detail' pk=assessment.project.pk %}">
+                  {{ assessment.project.title }}
+                </a>
+              {% endif %}
+            </th>
+            {% endif %}
+            <th>
+              <div
+                class="insignia"
+                style="width: 40px; height: 40px; min-width:40px; min-height: 40px;"
+                data-target='{ "assessment": "{{ assessment.id }}" }'
+              >
+              </div>
+              {% has_permission assessment 'retrieve' as view_details_perm %}
+              {% if view_details_perm %}
+                <a href="{% url 'assessment-detail' pk=assessment.id %}">
+                  Details
+                </a>
+              {% endif %}
+            </th>
+            {% for metric in metrics %}
+              {% with assessment_pk=assessment.pk|jsonify metric_pk=metric.pk|jsonify %}
+              {% with assessment_metric=assessment_pk|add:"-"|add:metric_pk %}
+              {% with answer=answers|return_item:assessment_metric %}
+              {% if answer %}
+                <td style="white-space: nowrap; background-color: {{ answer.color }};">
+                  {{ answer.annotate }} ({{ answer.answer }})
+                </td>
+              {% else %}
+                <td style="white-space: nowrap; background-color: rgba(221,221,221,0.25);">
+                  &nbsp;
+                </td>
+              {% endif %}
+              {% endwith %}
+              {% endwith %}
+              {% endwith %}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

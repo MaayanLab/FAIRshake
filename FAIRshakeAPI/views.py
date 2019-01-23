@@ -127,6 +127,14 @@ class IdentifiableModelViewSet(CustomModelViewSet):
       return instance
 
   @decorators.action(
+    detail=True, methods=['get'],
+    renderer_classes=[CustomTemplateHTMLRenderer],
+  )
+  def assessments(self, request, pk=None, **kwargs):
+    self.check_permissions(request)
+    return response.Response()
+
+  @decorators.action(
     detail=False, methods=['get', 'post'],
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
@@ -232,6 +240,42 @@ class IdentifiableModelViewSet(CustomModelViewSet):
       ).get_page(
         request.GET.get('page')
       ),
+    )
+  
+  def get_assessments_template_context(self, request, context):
+    item = self.get_object()
+    model = self.get_model_name()
+    if model == 'digital_object':
+      q = Q(target=item)
+    elif model == 'metric':
+      q = Q(rubric__metrics=item)
+    else:
+      q = Q(**{ model: item })
+
+    assessments = models.Assessment.objects.filter(q)
+
+    if model == 'metric':
+      metrics = [item]
+    elif model == 'rubric':
+      metrics = item.metrics.all()
+    else:
+      metrics = set([
+        answer.metric
+        for assessment in assessments
+        for answer in assessment.answers.all()
+      ])
+
+    answers = {
+      '%d-%d' % (assessment.id, answer.metric.id): answer
+      for assessment in assessments
+      for answer in assessment.answers.all()
+    }
+
+    return dict(context,
+      item=item,
+      assessments=assessments,
+      metrics=metrics,
+      answers=answers,
     )
 
 class DigitalObjectViewSet(IdentifiableModelViewSet):
@@ -529,6 +573,14 @@ class AssessmentViewSet(CustomModelViewSet):
       form=form,
       suggestions=suggestions,
     )
+  
+  def get_retrieve_template_context(self, request, context):
+    assessment = self.get_object()
+    if not assessment:
+      return context
+    return dict(
+      item=assessment
+    )
 
   def get_perform_template_context(self, request, context):
     assessment = self.get_assessment()
@@ -582,12 +634,34 @@ class ScoreViewSet(
   filter_class = filters.ScoreFilterSet
   pagination_class = None
 
+  def _retrieve(self, assessment):
+    '''
+    Generate scores for a single assessment by id.
+    '''
+    result = {
+      'scores': {
+        assessment.rubric.id: {
+          answer.metric.id: answer.answer
+        }
+        for answer in assessment.answers.all()
+      },
+      'metrics': {
+        answer.metric.id: answer.metric.title
+        for answer in assessment.answers.all()
+      },
+    }
+    return response.Response(result)
+
   def list(self, request):
     '''
     Generate aggregate scores on a per-rubric and per-metric basis.
     '''
-    # Treat `digital_object` as equivalent target here
     GET = request.GET.dict()
+
+    if GET.get('assessment') is not None:
+      return self._retrieve(models.Assessment.objects.get(pk=GET.get('assessment')))
+
+    # Treat `digital_object` as equivalent target here
     if GET.get('digital_object') is not None:
       GET['target'] = GET['digital_object']
       del GET['digital_object']
@@ -665,6 +739,9 @@ class ScoreViewSet(
             )
 
     return response.Response(result)
+
+  def retrieve(self, request, pk=None):
+    return self._retrieve(self.get_object())
 
   @decorators.action(
     detail=False, methods=['get'],

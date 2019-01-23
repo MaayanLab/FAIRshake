@@ -8,7 +8,7 @@
     >
     </div>
     <div style="display: table-cell; vertical-align: middle; padding-left: 10px;">
-      {{ model|unslugify }}
+      <a href="{% url 'assessment-detail' item.id %}">{{ model|unslugify }}</a>
       of <a href="{% url 'digital_object-detail' item.target.id %}">{{ item.target.title }}</a>
       with <a href="{% url 'rubric-detail' item.rubric.id %}">{{ item.rubric.title }}</a>
       {% if item.project %}

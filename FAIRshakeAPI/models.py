@@ -1,7 +1,8 @@
 import re
 import json
 import logging
-from scripts.linear_map import linear_map
+from scripts.colors import hex_to_rgba
+from scripts.linear_map import linear_map, linear_map_ints
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
@@ -57,7 +58,7 @@ class IdentifiableModelMixin(models.Model):
     }
   
   def has_permission(self, user, perm):
-    if perm in ['list', 'retrieve', 'stats']:
+    if perm in ['list', 'retrieve', 'stats', 'assessments']:
       return True
     elif perm in ['create', 'add']:
       return user.is_authenticated or user.is_staff
@@ -262,6 +263,17 @@ class Answer(models.Model):
       [0, 1],
       ['no', 'nobut', 'maybe', 'yesbut', 'yes'],
     )(self.answer) if self.answer is not None else ''
+
+  def color(self, alpha=0.25):
+    ''' Convert value to nearest human-readable verbose representation
+    '''
+    return hex_to_rgba(
+      linear_map_ints(
+        [0, 1],
+        [0xff0000, 0x0000ff],
+      )(self.answer) if self.answer is not None else 0x666666,
+      alpha,
+    )
 
   def has_permission(self, user, perm):
     return (self and self.assessment.has_permission(user, perm)) or user.is_staff

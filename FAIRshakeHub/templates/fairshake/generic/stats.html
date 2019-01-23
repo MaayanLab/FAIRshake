@@ -1,14 +1,18 @@
-<h3>{{ item.title }}: Analytics</h3>
-{% for plot in plots %}
-  <div class="col-lg-12 col-sm-12">
-    <div class="panel panel-default">
-      <div class="panel-body">
-        <iframe
-          style="border: 0; width: 100%; height: 400px;"
-          src="/stats/?model={{ model }}&item={{ item.id }}&plot={{ plot }}"
-        >
-        </iframe>
+{% load filters %}
+<div class="container">
+  {% include "fairshake/generic/retrieve_element.html" %}
+  <h1 class="text-left">{{ model|unslugify }} Analytics</h1>
+  {% for plot in plots %}
+    <div class="col-lg-12 col-sm-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <iframe
+            style="border: 0; width: 100%; height: 400px;"
+            src="/stats/?model={{ model }}&item={{ item.id }}&plot={{ plot }}"
+          >
+          </iframe>
+        </div>
       </div>
     </div>
-  </div>
-{% endfor %}
+  {% endfor %}
+</div>
