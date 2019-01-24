@@ -68,7 +68,7 @@
         View Associations
       </a>
     {% endif %}
-    {% if action != "analytics" and model == "project" %}
+    {% if action != "stats" and model == "project" %}
       <a
         class="btn btn-primary"
         href="{% url model|add:'-stats' item.id %}"
