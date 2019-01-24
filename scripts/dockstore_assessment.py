@@ -2,9 +2,8 @@ import os
 import re
 import itertools
 from pyswaggerclient import SwaggerClient
-from pyswaggerclient.fetch import read_spec
 from objectpath import Tree
-from merging import prompt_merge_attr, prompt_select_dups
+from merging import prompt_select_dups
 
 # Configure API credentials for FAIRshake
 #  FAIRshake allows you to get your API_KEY with your USERNAME
@@ -16,144 +15,157 @@ FAIRSHAKE_USERNAME = os.environ.get('FAIRSHAKE_USERNAME')
 FAIRSHAKE_EMAIL = os.environ.get('FAIRSHAKE_EMAIL')
 FAIRSHAKE_PASSWORD = os.environ.get('FAIRSHAKE_PASSWORD')
 
-# Rubric we'll be evaluating (smartapi)
-rubric = 28
+# Rubric we'll be evaluating (fairmetrics)
+rubric = 25
 
-# Project we'll be evaluating (smartapi)
-project = 53
+# Project we'll be evaluating (dockstore)
+project = 69
 
-# Metrics we'll be evaluating
-# query: objectpath query
-# desc: Description of the metric
-# metric: The id of the metric we're evaluating
-# pattern: valid content of query result
+# Example metadata:
+# {'aliases': [],
+#  'author': 'Francesco Favero',
+#  'checker_url': '',
+#  'contains': [],
+#  'description': '![](https://bytebucket.org/sequenza_tools/icons/raw/da034ccc8c1ab5f5f8e020402267bd3f2dd5d361/svg/sequenza_tools/sequenzaalpha_150.svg)\n\n![build_status](https://img.shields.io/docker/build/sequenza/sequenza.svg)\n![docker_pulls](https://img.shields.io/docker/pulls/sequenza/sequenza.svg)\n![docker_builds](https://img.shields.io/docker/automated/sequenza/sequenza.svg)\n\n**Sequenza workflow**\n\nAllele-specific SCNA analysis from tumor/normal sequencing with the sequenza docker container',
+#  'has_checker': False,
+#  'id': 'registry.hub.docker.com/sequenza/sequenza',
+#  'meta_version': '2018-08-15 07:46:18.076',
+#  'organization': 'sequenza',
+#  'signed': False,
+#  'toolclass': {'description': 'CommandLineTool',
+#   'id': '0',
+#   'name': 'CommandLineTool'},
+#  'toolname': 'sequenza',
+#  'url': 'https://dockstore.org/api/api/ga4gh/v2/tools/registry.hub.docker.com%2Fsequenza%2Fsequenza',
+#  'verified': False,
+#  'verified_source': '[]',
+#  'versions': [{'containerfile': True,
+#    'descriptor_type': ['CWL', 'WDL'],
+#    'id': 'registry.hub.docker.com/sequenza/sequenza:2.2.0.9000',
+#    'image': '',
+#    'image_name': 'registry.hub.docker.com/sequenza/sequenza',
+#    'meta_version': 'Thu Jan 01 00:00:00 UTC 1970',
+#    'name': '2.2.0.9000',
+#    'registry_url': 'registry.hub.docker.com',
+#    'url': 'https://dockstore.org/api/api/ga4gh/v2/tools/registry.hub.docker.com%2Fsequenza%2Fsequenza/versions/2.2.0.9000',
+#    'verified': False,
+#    'verified_source': ''},
+#   {'containerfile': True,
+#    'descriptor_type': ['CWL', 'WDL'],
+#    'id': 'registry.hub.docker.com/sequenza/sequenza:latest',
+#    'image': '',
+#    'image_name': 'registry.hub.docker.com/sequenza/sequenza',
+#    'meta_version': 'Thu Jan 01 00:00:00 UTC 1970',
+#    'name': 'latest',
+#    'registry_url': 'registry.hub.docker.com',
+#    'url': 'https://dockstore.org/api/api/ga4gh/v2/tools/registry.hub.docker.com%2Fsequenza%2Fsequenza/versions/latest',
+#    'verified': False,
+#    'verified_source': ''}
+
+# Measurements:
 metrics = [
   {
-    'query': '$..info.x-accessRestriction.name',
-    'desc': 'access restriction', 
-    'metric': 92,
+    'query': '$..id',
+    'desc': 'globally unique identifier', 
+    'metric': 104,
+    'pattern': re.compile(r'.+'),
+    'answer': 0.5,
+  },
+  {
+    'query': '$..id',
+    'desc': 'persistent identifier', 
+    'metric': 105,
+    'pattern': re.compile(r'.+'),
+    'answer': 0.5,
+  },
+  {
+    'desc': 'machine readable metadata', 
+    'metric': 106,
+    'answer': 1,
+  },
+  {
+    'query': '$.author',
+    'desc': 'standardized metadata',
+    'metric': 107,
+    'pattern': re.compile(r'.+'),
+    'answer': 0.5,
+  },
+  {
+    'query': '$..id',
+    'desc': 'resource identifier',
+    'metric': 108,
     'pattern': re.compile(r'.+'),
   },
   {
-    'query': '$..tags.name',
-    'desc': 'tags', 
-    'metric': 123,
+    'query': '$..url',
+    'desc': 'resource discovery',
+    'metric': 109,
     'pattern': re.compile(r'.+'),
   },
   {
-    'query': '$..info.version',
-    'desc': 'Has version information', 
-    'metric': 26,
+    'desc': 'open, free, standardized access protocol',
+    'metric': 110,
+    'answer': 1,
+    'comment': 'docker',
+  },
+  {
+    'desc': 'protocol to access restricted content',
+    'metric': 111,
+    'answer': None,
+  },
+  {
+    'desc': 'persistence of resource and metadata',
+    'metric': 112,
+    'answer': 0.5,
+  },
+  {
+    'query': '$..@context',
+    'desc': 'formal language',
+    'metric': 113,
+  },
+  {
+    'query': '$..@context.@vocab',
+    'desc': 'fair vocab',
+    'metric': 114,
+  },
+  {
+    'query': '$..versions',
+    'desc': 'linked',
+    'metric': 115,
     'pattern': re.compile(r'.+'),
   },
   {
-    'query': '$..contact.email',
-    'desc': 'Has contact',
-    'metric': 27,
-    'pattern': re.compile(r'.+@.+'),
+    'desc': 'digital resource license',
+    'metric': 116,
+    'answer': 0,
   },
   {
-    'query': '$..info.license.name',
-    'desc': 'License',
+    'query': '$..license',
+    'desc': 'metadata license',
     'metric': 117,
-    'pattern': re.compile(r'.+'),
-  },
-
-  {
-    'query': '$..info.termsOfService',
-    'desc': 'Usage Protocol/TOS',
-    'metric':122,
-    'pattern': re.compile(r'.+'),
   },
   {
-    'query': '$..info.title',
-    'desc': 'Has a title',
-    'metric': 60,
-    'pattern': re.compile(r'.+'),
+    'desc': 'provenance scheme',
+    'metric': 118,
+    'answer': 0,
   },
   {
-    'query': '$..info.description',
-    'desc': 'Has a description',
-    'metric': 63,
-    'pattern': re.compile(r'.+'),
-  },
-  {
-    'query': '$..contact.name',
-    'desc': 'Metadata specifies the creators',
-    'metric': 61,
-    'pattern': re.compile(r'.+'),
-  },
-  {
-    'query': '$..paths..parameters.description',
-    'ratio': [['$..paths..parameters[@.description is not None]'],'$..paths..parameters','all'], # ratio of those with descriptions
-    'desc': 'All parameters have descriptions',
-    'metric': 124,
-    'pattern': re.compile(r'.+'),
-  },
-  {
-    'query': '$..paths.description',
-    'ratio': [['$..paths[@.description is not None]'],'$..paths','all'], # ratio of those with descriptions
-    'desc': 'All paths have descriptions',
-    'metric': 125,
-    'pattern': re.compile(r'.+'),
-  },
-  {
-    'query': 'map(values, $..paths..responses.*).*[@.description is not  None].description',
-    'ratio': [['map(values, $..paths..responses.*).*[@.description is not  None].description'],'map(values, $..paths..responses.*)','all'], # ratio of those with descriptions
-    'desc': 'All responses have descriptions',
-    'metric': 126,
-    'pattern': re.compile(r'.+'),
-  },
-  {
-    'query': '$..paths..operationId',
-    'ratio': [['$..paths..operationId'],'$..paths..operationId','unique'], # ratio of unique ids
-    'desc': 'All paths have unique operation Ids',
-    'metric': 127,
-    'pattern': re.compile(r'.+'),
-  },
-  {
-    'query': '$.."x-externalResources"[@."x-url"]',
-    'ratio': [['$.."x-externalResources"[@."x-type" is not None]','$.."x-externalResources"[@."x-description" is not None]'],'$.."x-externalResources"[@."x-url" is not None]','all'],
-    'desc': 'x-url (smartAPI fields all described w/ x-type and x-description)',
-    'metric': 128,
-    'pattern': re.compile(r'.+'),
-  },
-  {
-    'metric': 89,
-    'answer': 1.0,
-    'desc': 'Machine readable metadata exists'
-  },
-  {
-    'metric': 24,
-    'answer': 1.0,
-    'desc': 'Data is in an established data repository'
-  },
-  {
-    'metric': 25,
-    'answer': 1.0,
-    'desc': 'Data can be downloaded for free from the repository'
+    'desc': 'certificate of compliance',
+    'metric': 119,
+    'answer': 0,
   }
 ]
 
-def smartapi_obj_to_fairshake_obj(smartapi_obj):
-  ''' Convert a smartapi object entry into a FAIRshake
-  object entry, mapping the field names in the smartapi
+def dockstore_obj_to_fairshake_obj(dockstore_obj):
+  ''' Convert a dockstore object entry into a FAIRshake
+  object entry, mapping the field names in the dockstore
   object to those in FAIRshake.
   '''
   return {
-    "title": smartapi_obj['info']['title'],
-    "description": smartapi_obj['info'].get('description', ''),
-    "tags": ','.join([t['name'] for t in smartapi_obj.get('tags', '')]),
-    "url": '\n'.join(
-      map(''.join,
-        itertools.product(
-          smartapi_obj['schemes'],
-          ['://'],
-          [smartapi_obj['host']],
-          list(set(['', smartapi_obj['basePath']])),
-        )
-      )
-    ),
+    "title": dockstore_obj['toolname'],
+    "description": dockstore_obj['description'].rstrip('\n'),
+    "tags": ','.join([t['name'] for t in dockstore_obj.get('tags', '')]),
+    "url": dockstore_obj['url'],
     "projects": [project],
     "rubrics": [rubric],
   }
@@ -174,28 +186,11 @@ def get_ratio(ROOT, sample, n, u):
     r = (total)/len(list(ROOT.execute(n)))
   return(r)
 
-def smartapi_get_all(smartapi, **kwargs):
+def dockstore_get_all(dockstore, **kwargs):
   '''
-  Yield paginated query operation using `from` syntax.
-
-    query(from=0) == {
-      [...] first 10
-    }
-    query(from=10) == {
-      [...] second 10
-    }
-    ...
+  Get all dockstore tools
   '''
-  n_results = 0
-  while True:
-    resp = smartapi.actions.query_get.call(**kwargs, **{'from': n_results})
-    for hit in resp['hits']:
-      n_results += 1
-      yield hit
-    if n_results >= resp['total']:
-      break
-    else:
-      resp = smartapi.actions.query_get.call(**kwargs)
+  return dockstore.actions.toolsGet.call(**kwargs)
 
 def get_fairshake_client(api_key=None, username=None, email=None, password=None):
   ''' Using either the api_key directly, or with fairshake
@@ -219,11 +214,11 @@ def get_fairshake_client(api_key=None, username=None, email=None, password=None)
   )
   return fairshake
 
-def get_smartapi_client():
-  ''' Create a swagger client for smartapi.
+def get_dockstore_client():
+  ''' Create a swagger client for dockstore.
   '''
-  smartapi = SwaggerClient('https://smart-api.info/api/metadata/27a5b60716c3a401f2c021a5b718c5b1?format=yaml')
-  return smartapi
+  dockstore = SwaggerClient('https://dockstore.org/swagger.json')
+  return dockstore
 
 def register_fairshake_obj_if_not_exists(fairshake, fairshake_obj):
   ''' Register the FAIRshake object, first checking to see if it
@@ -262,10 +257,10 @@ def register_fairshake_obj_if_not_exists(fairshake, fairshake_obj):
       id = obj['id']
   return id
 
-def assess_smartapi_obj(smartapi_obj):
-  ''' Given a smartapi object from the API, assess it for its fairness
+def assess_dockstore_obj(dockstore_obj):
+  ''' Given a dockstore object from the API, assess it for its fairness
   '''
-  root = Tree(smartapi_obj)
+  root = Tree(dockstore_obj)
   print('Performing assessment...')
 
   answers = {}
@@ -282,7 +277,7 @@ def assess_smartapi_obj(smartapi_obj):
       ratio = None
       if matches != None:
           matches = list(itertools.chain(matches))
-          results = '; '.join([e.strip() for e in matches]).strip()
+          results = '; '.join([str(e).strip() for e in matches]).strip()
           try:
             ratio = get_ratio(
               root,
@@ -350,18 +345,15 @@ def register_fairshake_assessment(fairshake, answers=None, project=None, rubric=
 
   return assessment_id
 
-def register_and_assess_all_smartapi_objects(smartapi=None, fairshake=None):
-  ''' Gather all smartapi objects using `read_spec` to ensure they all
-  follow the same smartapi format. Register them in FAIRshake and then
+def register_and_assess_all_dockstore_objects(dockstore=None, fairshake=None):
+  ''' Gather all dockstore objects using `read_spec` to ensure they all
+  follow the same dockstore format. Register them in FAIRshake and then
   assess them.
   '''
-  for smartapi_obj in map(read_spec, itertools.chain(
-    smartapi_get_all(smartapi, q='openapi:3'),
-    smartapi_get_all(smartapi, q='swagger:2'),
-  )):
-    fairshake_obj = smartapi_obj_to_fairshake_obj(smartapi_obj)
+  for dockstore_obj in dockstore_get_all(dockstore):
+    fairshake_obj = dockstore_obj_to_fairshake_obj(dockstore_obj)
     fairshake_obj_id = register_fairshake_obj_if_not_exists(fairshake, fairshake_obj)
-    fairshake_assessment = assess_smartapi_obj(smartapi_obj)
+    fairshake_assessment = assess_dockstore_obj(dockstore_obj)
     assessment_result = register_fairshake_assessment(fairshake,
       answers=[
         answer
@@ -376,8 +368,8 @@ def register_and_assess_all_smartapi_objects(smartapi=None, fairshake=None):
 
 def main():
   ''' Main function of this script. Establish connections to FAIRshake
-  and to SmartAPI with the api keys, if necessary, and then send evaluate
-  the smartAPI objects with FAIRshake
+  and to Dockstore with the api keys, if necessary, and then send evaluate
+  the Dockstore objects with FAIRshake
   '''
   fairshake = get_fairshake_client(
     username=FAIRSHAKE_USERNAME,
@@ -385,10 +377,10 @@ def main():
     password=FAIRSHAKE_PASSWORD,
     api_key=FAIRSHAKE_API_KEY,
   )
-  smartapi = get_smartapi_client()
+  dockstore = get_dockstore_client()
 
-  register_and_assess_all_smartapi_objects(
-    smartapi=smartapi,
+  register_and_assess_all_dockstore_objects(
+    dockstore=dockstore,
     fairshake=fairshake,
   )
 
