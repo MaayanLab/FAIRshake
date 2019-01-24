@@ -10,7 +10,7 @@ from django.http import QueryDict, HttpResponse
 from django.utils.html import escape
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Avg, Count
 from django.forms import ModelChoiceField
 from django.urls import reverse
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
@@ -259,16 +259,12 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     elif model == 'rubric':
       metrics = item.metrics.all()
     else:
-      metrics = set([
-        answer.metric
-        for assessment in assessments
-        for answer in assessment.answers.all()
-      ])
+      metrics = models.Metric.objects.filter(id__in=assessments.order_by().values_list('answers__metric', flat=True).distinct())
 
     answers = {
-      '%d-%d' % (assessment.id, answer.metric.id): answer
+      '%d-%d' % (assessment.id, answer.metric_id): answer
       for assessment in assessments
-      for answer in assessment.answers.all()
+      for answer in assessment.answers.filter(metric__in=metrics)
     }
 
     return dict(context,
@@ -394,7 +390,7 @@ class AssessmentViewSet(CustomModelViewSet):
     if assessment:
       initial = query_dict(
         {
-          '%s-%s' % (answer.metric.id, key): getattr(answer, key)
+          '%s-%s' % (answer.metric_id, key): getattr(answer, key)
           for answer in assessment.answers.all()
           for key in ['answer', 'comment', 'url_comment']
           if getattr(answer, key, None) is not None
@@ -410,8 +406,8 @@ class AssessmentViewSet(CustomModelViewSet):
           target=assessment.target,
         )
         for answer in assessment.answers.all():
-          for key, attr in auto_assessment_results.get('metric:%d' % (answer.metric.id), {}).items():
-            k = '%s-%s' % (answer.metric.id, key)
+          for key, attr in auto_assessment_results.get('metric:%d' % (answer.metric_id), {}).items():
+            k = '%s-%s' % (answer.metric_id, key)
             if attr is not None and initial.get(k) is not None:
               initial[k] = attr
 
@@ -419,7 +415,7 @@ class AssessmentViewSet(CustomModelViewSet):
         forms.AnswerForm(
           initial,
           instance=answer,
-          prefix=answer.metric.id,
+          prefix=answer.metric_id,
         )
         for answer in assessment.answers.all()
       ]
@@ -546,7 +542,7 @@ class AssessmentViewSet(CustomModelViewSet):
       if self.save_answer_forms(answer_forms):
         return callback_or_redirect(request,
           'digital_object-detail',
-          pk=assessment.target.id,
+          pk=assessment.target_id,
         )
     return response.Response()
 
@@ -640,13 +636,13 @@ class ScoreViewSet(
     '''
     result = {
       'scores': {
-        assessment.rubric.id: {
-          answer.metric.id: answer.answer
+        assessment.rubric_id: {
+          answer.metric_id: answer.answer
         }
         for answer in assessment.answers.all()
       },
       'metrics': {
-        answer.metric.id: answer.metric.title
+        answer.metric_id: answer.metric.title
         for answer in assessment.answers.all()
       },
     }
@@ -667,7 +663,8 @@ class ScoreViewSet(
       del GET['digital_object']
   
     key = ','.join(map('='.join, GET.items()))
-    result = cache.get(key)
+    # result = cache.get(key)
+    result = None
 
     if result is None:
       scores = {}
@@ -685,32 +682,26 @@ class ScoreViewSet(
       if GET.get('project'):
         projects.add(GET['project'])
 
-      for assessment in self.filter_queryset(self.get_queryset()):
-        if scores.get(assessment.rubric.id) is None:
-          scores[assessment.rubric.id] = {}
-        for answer in assessment.answers.all():
-          if metrics.get(answer.metric.id) is None:
-            metrics[answer.metric.id] = answer.metric.title
-          if scores[assessment.rubric.id].get(answer.metric.id) is None:
-            scores[assessment.rubric.id][answer.metric.id] = []
-          scores[assessment.rubric.id][answer.metric.id].append(answer.answer)
-        # Keep track of targets, rubrics, and projects used in this insignia
-        if assessment.target:
-          targets.add(assessment.target.pk)
-        if assessment.rubric:
-          rubrics.add(assessment.rubric.pk)
-        if assessment.project:
-          projects.add(assessment.project.pk)
+      assessments = self.filter_queryset(self.get_queryset())
+
+      scores = assessments.values(
+        'rubric', 'answers__metric'
+      ).order_by().distinct().annotate(
+        answers__answer=Avg('answers__answer')
+      )
+      metrics = assessments.order_by().values_list('answers__metric', 'answers__metric__title').distinct()
 
       result = {
-        'scores': {
-          rubric: {
-            metric: agg_values(value)
-            for metric, value in score.items()
-          }
-          for rubric, score in scores.items()
-        },
-        'metrics': metrics,
+        'scores': reduce(lambda scores, row: dict(scores,
+          **{
+            str(row['rubric']): dict(scores.get(str(row['rubric']), {}), **{
+              str(row['answers__metric']): row['answers__answer']
+            } if row['answers__metric'] is not None else {})
+          } if row['rubric'] is not None else {}),
+          scores,
+          {}
+        ),
+        'metrics': {k: v for k, v in metrics if k is not None},
       }
 
       # Only cache if we actually got anything
@@ -754,10 +745,9 @@ class ScoreViewSet(
     answers = cache.get(key)
 
     if answers is None:
-      answers = {}
-      for assessment in self.filter_queryset(self.get_queryset()):
-        for answer in assessment.answers.all():
-          answers[answer.answer] = answers.get(answer.answer, None) + 1
+      assessments = self.filter_queryset(self.get_queryset())
+      result = assessments.order_by().values_list('answers__answer').annotate(Count('answers__answer')).distinct()
+      answers = {k: v for k, v in result if k is not None}
       cache.set(key, answers, 60 * 60)
-      
+
     return response.Response(answers)
