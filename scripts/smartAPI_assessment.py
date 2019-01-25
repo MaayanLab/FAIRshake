@@ -85,21 +85,33 @@ metrics = [
   },
   {
     'query': '$..paths..parameters.description',
-    'ratio': [['$..paths..parameters[@.description is not None]'],'$..paths..parameters','all'], # ratio of those with descriptions
+    'ratio': [ # ratio of those with descriptions
+      ['map(values, map(values, map(values, $..paths[type(@) is "object"])[type(@) is "object"]).parameters)[@.description is not None]'],
+      'map(values, map(values, map(values, $..paths[type(@) is "object"])[type(@) is "object"]).parameters)',
+      'all'
+    ],
     'desc': 'All parameters have descriptions',
     'metric': 124,
     'pattern': re.compile(r'.+'),
   },
   {
-    'query': '$..paths.description',
-    'ratio': [['$..paths[@.description is not None]'],'$..paths','all'], # ratio of those with descriptions
+    'query': '$..paths.*.description',
+    'ratio': [ # ratio of those with descriptions
+      ['map(values, map(values, $..paths[type(@) is "object"])[type(@) is "object"])[@.description is not None]'],
+      'map(values, map(values, $..paths[type(@) is "object"])[type(@) is "object"])',
+      'all'
+    ],
     'desc': 'All paths have descriptions',
     'metric': 125,
     'pattern': re.compile(r'.+'),
   },
   {
     'query': 'map(values, $..paths..responses.*).*[@.description is not  None].description',
-    'ratio': [['map(values, $..paths..responses.*).*[@.description is not  None].description'],'map(values, $..paths..responses.*)','all'], # ratio of those with descriptions
+    'ratio': [ # ratio of those with descriptions
+      ['map(values, map(values, map(values, $..paths[type(@) is "object"])[type(@) is "object"]).responses)[@.description is not None]'],
+      'map(values, map(values, map(values, $..paths[type(@) is "object"])[type(@) is "object"]).responses)',
+      'all'
+    ], 
     'desc': 'All responses have descriptions',
     'metric': 126,
     'pattern': re.compile(r'.+'),
@@ -290,7 +302,8 @@ def assess_smartapi_obj(smartapi_obj):
               metric['ratio'][1],
               metric['ratio'][2],
             )
-          except:
+          except Exception as e:
+            print(e)
             pass
     
       if ratio == None:
@@ -301,10 +314,10 @@ def assess_smartapi_obj(smartapi_obj):
         }
       else:
         answers[metric['desc']] = {
+          'answer': ratio,
           'metric': metric.get('metric',''),
           'comment': metric['desc'],
         }
-        answers[metric['desc']]['answer'] = ratio
 
   return answers
 
