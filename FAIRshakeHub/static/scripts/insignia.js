@@ -80,6 +80,8 @@ define(function(require) {
     var d3 = require('d3')
 
     // Default settings
+    if (scores === undefined)
+      scores = {}
     if (settings === undefined)
       settings = {}
 
