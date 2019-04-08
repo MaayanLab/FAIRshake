@@ -32,7 +32,7 @@
               </div>
               <div style="padding-left: 5px;">
                 <a href="{% url 'metric-detail' pk=answer.metric.pk %}">
-                  {{ answer.metric.title|limit:80 }}
+                  {{ answer.metric.title }}
                 </a>
                 <p>{{ answer.metric.description }}</p>
               </div>

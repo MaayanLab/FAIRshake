@@ -36,7 +36,7 @@
           {% for metric in metrics %}
             <th>
               <a href="{% url 'metric-detail' pk=metric.pk %}">
-                {{ metric.title|limit:40 }}
+                {{ metric.title }}
               </a>
             </th>
           {% endfor %}
