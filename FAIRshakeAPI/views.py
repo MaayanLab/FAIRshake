@@ -15,6 +15,7 @@ from django.forms import ModelChoiceField
 from django.urls import reverse
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
 from functools import reduce
+from collections import OrderedDict
 
 def callback_or_redirect(request, *args, **kwargs):
   callback = request.GET.get('callback', None)
@@ -216,15 +217,15 @@ class IdentifiableModelViewSet(CustomModelViewSet):
 
     return dict(context,
       item=item,
-      children={
-        child: paginator_cls(
+      children=OrderedDict([
+        (child, paginator_cls(
           child_attr,
           page_size,
         ).get_page(
           request.GET.get('page')
-        )
+        ))
         for child, child_attr in self.get_model_children(item)
-      },
+      ]),
     )
 
   def get_list_template_context(self, request, context):
