@@ -15,10 +15,9 @@
       <p>&nbsp;</p>
     </div>
     <div class="col-sm-offset-1 col-sm-9 text-center">
-      <form class="form-inline" method="GET">
+      <form class="form" method="GET">
         <div
           class="input-group input-group-lg"
-          style="display: flex; flex-direction:row"
         >
           <input
             aria-label="Search"
@@ -30,17 +29,83 @@
             type="text"
             value="{{ query }}"
           />
-          <button
-            type="submit"
-            class="form-control btn btn-primary"
-          >
-            Search
-          </button>
+          <div class="input-group-btn">
+            <button
+              type="submit"
+              class="btn btn-primary"
+            >
+              Search
+            </button>
+          </div>
         </div>
+        {% if query %}
+          <div class="well">
+            <label class="checkbox-inline">
+              <input
+                name="projects"
+                type="checkbox"
+                value="1"
+                onchange="this.form.submit()"
+                {% if filter_projects %}checked{% endif %}
+              >
+              Projects
+            </label>
+            <label class="checkbox-inline">
+              <input
+                name="digitalobjects"
+                type="checkbox"
+                value="1"
+                onchange="this.form.submit()"
+                {% if filter_digital_objects %}checked{% endif %}
+              >
+              Digital Objects
+            </label>
+            <label class="checkbox-inline">
+              <input
+                name="rubrics"
+                type="checkbox"
+                value="1"
+                onchange="this.form.submit()"
+                {% if filter_rubrics %}checked{% endif %}
+              >
+              Rubrics
+            </label>
+            <label class="checkbox-inline">
+              <input
+                name="metrics"
+                type="checkbox"
+                value="1"
+                onchange="this.form.submit()"
+                {% if filter_metrics %}checked{% endif %}
+              >
+              Metrics
+            </label>
+          </div>
+        {% else %}
+          <input
+            name="projects"
+            type="hidden"
+            value="1" />
+          <input
+            name="digitalobjects"
+            type="hidden"
+            value="1" />
+          <input
+            name="rubrics"
+            type="hidden"
+            value="1" />
+          <input
+            name="metrics"
+            type="hidden"
+            value="1" />
+        {% endif %}
       </form>
     </div>
     <div class="col-sm-12">
       <p>&nbsp;</p>
+      {% if query and not items %}
+        No results with this query.
+      {% endif %}
       {% for item in items %}
         {% with model=item.model_name %}
           {% include "fairshake/generic/element.html" %}

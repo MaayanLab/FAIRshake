@@ -9,17 +9,30 @@ def index(request):
   ''' FAIRshakeHub Home Page
   '''
   q = request.GET.get('q', '')
+  filter_projects = bool(request.GET.get('projects', 0))
+  filter_digital_objects = bool(request.GET.get('digitalobjects', 0))
+  filter_rubrics = bool(request.GET.get('rubrics', 0))
+  filter_metrics = bool(request.GET.get('metrics', 0))
+
   page = request.GET.get('page', 1)
   page_size = settings.REST_FRAMEWORK['SEARCH_PAGE_SIZE']
+
+
+  vectors = []
+  if q:
+    if filter_projects:
+      vectors.append(search.ProjectSearchVector())
+    if filter_digital_objects:
+      vectors.append(search.DigitalObjectSearchVector())
+    if filter_rubrics:
+      vectors.append(search.RubricSearchVector())
+    if filter_metrics:
+      vectors.append(search.MetricSearchVector())
+
   items = [
     result
-    for vector in [
-      search.ProjectSearchVector(),
-      search.DigitalObjectSearchVector(),
-      search.RubricSearchVector(),
-      search.MetricSearchVector(),
-    ]
-    for result in (vector.query(q) if q else [])
+    for vector in vectors
+    for result in vector.query(q)
   ]
   paginator = Paginator(
     items,
@@ -29,6 +42,10 @@ def index(request):
   return render(request, 'fairshake/index.html', dict(
       query=q,
       items=paginator.get_page(page),
+      filter_projects=filter_projects,
+      filter_digital_objects=filter_digital_objects,
+      filter_rubrics=filter_rubrics,
+      filter_metrics=filter_metrics,
     )
   )
 
