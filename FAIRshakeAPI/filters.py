@@ -12,7 +12,7 @@ class IdentifiableFilterSet(filters.FilterSet):
   id = AllInFilter(field_name='id')
   authors = AllInModelFilter(queryset=models.Author.objects.all())
   q = filters.CharFilter(field_name='id', method='filter_query')
-  url = filters.CharFilter(field_name='url', lookup_expr='icontains')
+  url = filters.CharFilter(field_name='url', lookup_expr='url_similar')
 
   def get_search_vector(self):
     return self.__class__.Meta.search_vector
@@ -76,7 +76,7 @@ class ScoreFilterSet(filters.FilterSet):
   id = AllInFilter()
 
   digital_object = filters.BaseInFilter(field_name='target')
-  url = filters.CharFilter(field_name='target__url', lookup_expr='icontains')
+  url = filters.CharFilter(field_name='target__url', lookup_expr='url_similar')
   metric = filters.BaseInFilter(field_name='rubric__metrics')
 
   class Meta:

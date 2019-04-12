@@ -27,7 +27,7 @@ class SearchVector:
 class IdentifiableSearchVector(SearchVector):
   filters = [
     lambda q: Q(title__icontains=q),
-    lambda q: Q(url__icontains=q),
+    lambda q: Q(url__url_similar=q),
     lambda q: Q(description__icontains=q),
     lambda q: Q(tags__icontains=q),
     lambda q: Q(type__icontains=q),
