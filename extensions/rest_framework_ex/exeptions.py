@@ -10,7 +10,7 @@ def handler(exc, context):
     return response
   request = context['request']
 
-  logging.warn('exception occured', request, response, exc)
+  logging.debug('exception occured', request, response, exc)
   if all([
     'text/html' in request.META['HTTP_ACCEPT'],
     request.user.is_anonymous,
