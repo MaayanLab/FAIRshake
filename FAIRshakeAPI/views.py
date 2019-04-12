@@ -42,7 +42,7 @@ def get_or_create(model, **kwargs):
 
 def redirect_with_params(request, *args, **kwargs):
   return shortcuts.redirect(
-    reverse(*args, **kwargs) + '?' + '&'.join(map('='.join, request.GET.items()))
+    reverse(*args, **kwargs) + '?' + request.GET.urlencode()
   )
 
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
