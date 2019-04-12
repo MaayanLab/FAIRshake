@@ -84,6 +84,7 @@ class Project(IdentifiableModelMixin):
     verbose_name = 'project'
     verbose_name_plural = 'projects'
     ordering = ['id']
+    get_latest_by = ['-assessments__timestamp', '-id']
 
   class MetaEx:
     children = [
@@ -101,6 +102,7 @@ class DigitalObject(IdentifiableModelMixin):
     verbose_name = 'digital_object'
     verbose_name_plural = 'digital_objects'
     ordering = ['id']
+    get_latest_by = ['-assessments__timestamp', '-id']
 
   class MetaEx:
     children = [
@@ -117,6 +119,7 @@ class Rubric(IdentifiableModelMixin):
     verbose_name = 'rubric'
     verbose_name_plural = 'rubrics'
     ordering = ['id']
+    get_latest_by = ['-assessments__timestamp', '-id']
 
   class MetaEx:
     children = [
@@ -147,6 +150,7 @@ class Metric(IdentifiableModelMixin):
     verbose_name = 'metric'
     verbose_name_plural = 'metrics'
     ordering = ['id']
+    get_latest_by = ['-answers__assessment__timestamp', '-id']
 
   class MetaEx:
     children = [
@@ -232,6 +236,7 @@ class Assessment(models.Model):
     verbose_name = 'assessment'
     verbose_name_plural = 'assessments'
     ordering = ['id']
+    get_latest_by = ['-timestamp', '-id']
 
   class MetaEx:
     children = [
@@ -290,6 +295,7 @@ class Answer(models.Model):
     verbose_name = 'answer'
     verbose_name_plural = 'answers'
     ordering = ['id']
+    get_latest_by = ['-assessment__timestamp', '-id']
 
 class AssessmentRequest(models.Model):
   id = models.AutoField(primary_key=True)
@@ -322,6 +328,7 @@ class AssessmentRequest(models.Model):
     verbose_name = 'assessment_request'
     verbose_name_plural = 'assessment_requests'
     ordering = ['id']
+    get_latest_by = ['-timestamp', '-id']
 
 class Author(AbstractUser):
   def delete(self, *args, **kwargs):

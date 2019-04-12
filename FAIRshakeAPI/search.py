@@ -22,7 +22,11 @@ class SearchVector:
         self.get_filters(),
         None,
       )
-    ).order_by(*self.get_model()._meta.ordering).distinct()
+    ).order_by(
+      *self.get_model()._meta.get_latest_by
+    ).distinct(
+      *self.get_model()._meta.ordering
+    )
 
 class IdentifiableSearchVector(SearchVector):
   filters = [

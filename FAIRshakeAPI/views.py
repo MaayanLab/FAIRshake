@@ -82,7 +82,11 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   
   def filter_queryset(self, qs):
     ''' Ensure all resulting filter sets are distinct '''
-    return super().filter_queryset(qs).order_by(*self.get_model()._meta.ordering).distinct()
+    return super().filter_queryset(qs).order_by(
+      *self.get_model()._meta.get_latest_by
+    ).distinct(
+      *self.get_model()._meta.ordering
+    )
 
   def get_template_names(self):
     return ['fairshake/generic/page.html']
