@@ -5,8 +5,9 @@ import logging
 from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
 from .assessments import Assessment
+from .util import query_dict
 from django import shortcuts, forms as django_forms
-from django.http import QueryDict, HttpResponse
+from django.http import HttpResponse
 from django.utils.html import escape
 from django.conf import settings
 from django.core.cache import cache
@@ -43,18 +44,6 @@ def redirect_with_params(request, *args, **kwargs):
   return shortcuts.redirect(
     reverse(*args, **kwargs) + '?' + '&'.join(map('='.join, request.GET.items()))
   )
-
-def query_dict(*args, **kwargs):
-  if len(args) > 0 and isinstance(args[0], QueryDict):
-    qd = args[0].copy()
-    args = args[1:]
-  else:
-    qd = QueryDict(mutable=True)
-  for arg in list(args)+[kwargs]:
-    assert isinstance(arg, dict) or isinstance(arg, QueryDict), type(arg)
-    for k, v in arg.items():
-      qd[k] = v
-  return qd
 
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):

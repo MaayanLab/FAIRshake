@@ -1,6 +1,7 @@
 import json
 from django import template
 from django.contrib.auth.models import AnonymousUser
+from FAIRshakeAPI.util import query_dict
 
 register = template.Library()
 
@@ -55,3 +56,20 @@ def has_permission(context, obj, perm):
     context.get('user', AnonymousUser()),
     perm,
   )
+
+def grouper(iterable, n, fillvalue=None):
+  from itertools import zip_longest
+  args = [iter(iterable)] * n
+  return zip_longest(*args, fillvalue=fillvalue)
+
+@register.simple_tag(takes_context=True)
+def query(context, *args, **kwargs):
+  ''' In the case of variable arguments, use args
+  {% query a b c=d %}
+  => { context.get(a, 'a'): b, 'c': context.get('d', 'd') }
+  '''
+  new_kwargs = dict(
+    **dict(grouper(args, 2)),
+    **kwargs
+  )
+  return '?' + query_dict(getattr(context.get('request', {}), 'GET', {}), **new_kwargs).urlencode()
