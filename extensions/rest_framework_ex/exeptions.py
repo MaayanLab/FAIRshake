@@ -1,3 +1,4 @@
+import logging
 from rest_framework.views import exception_handler
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -9,6 +10,7 @@ def handler(exc, context):
     return response
   request = context['request']
 
+  logging.warn('exception occured', request, response, exc)
   if all([
     'text/html' in request.META['HTTP_ACCEPT'],
     request.user.is_anonymous,
