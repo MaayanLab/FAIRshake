@@ -15,7 +15,7 @@
         for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
       {% endif %}
       &nbsp;
-      <a href="{% url model|add:'-perform' %}?target={{ item.target.id }}&rubric={{ item.rubric.id }}&project={{ item.project.id }}">
+      <a href="{% url model|add:'-perform' %}{% query target=item.target.id rubric=item.rubric.id project=item.project.id %}">
         <span
           class="glyphicon glyphicon-edit"
           style="font-size:20px;color:#666666;"

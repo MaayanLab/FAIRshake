@@ -1,18 +1,19 @@
+{% load filters %}
 {% if items.paginator.num_pages > 1 %}
   <div class="col-sm-12 text-center">
     <ul class="pagination">
       {% if items.has_previous %}
-        <li class="page-item"><a class="page-link" href="?{% if url_prefix %}{{ url_prefix }}&{% endif %}page=1">First</a></li>
+        <li class="page-item"><a class="page-link" href="{% query page=1 %}">First</a></li>
         {% if items.number > 2 %}
           <li class="page-item">
-            <a class="page-link" href="?{% if url_prefix %}{{ url_prefix }}&{% endif %}page={{ items.number|add:'-2' }}" tabindex="-1">{{ items.number|add:'-2' }}</a>
+            <a class="page-link" href="{% query page=items.number|add:'-2' %}" tabindex="-1">{{ items.number|add:'-2' }}</a>
           </li>
           <li class="page-item">
-            <a class="page-link" href="?{% if url_prefix %}{{ url_prefix }}&{% endif %}page={{ items.number|add:'-1' }}" tabindex="-1">{{ items.number|add:'-1' }}</a>
+            <a class="page-link" href="{% query page=items.number|add:'-1' %}" tabindex="-1">{{ items.number|add:'-1' }}</a>
           </li>
         {% else %}
         <li class="page-item">
-          <a class="page-link" href="?{% if url_prefix %}{{ url_prefix }}&{% endif %}page={{ items.number|add:'-1' }}" tabindex="-1">{{ items.number|add:'-1' }}</a>
+          <a class="page-link" href="{% query page=items.number|add:'-1' %}" tabindex="-1">{{ items.number|add:'-1' }}</a>
         </li>
         {% endif %}
       {% endif %}
@@ -25,17 +26,17 @@
       {% if items.has_next %}
         {% if items.number < items.paginator.num_pages|add:'-2' %}
           <li class="page-item">
-            <a class="page-link" href="?{% if url_prefix %}{{ url_prefix }}&{% endif %}page={{ items.number|add:'1' }}" tabindex="-1">{{ items.number|add:'1' }}</a>
+            <a class="page-link" href="{% query page=items.number|add:'1' %}" tabindex="-1">{{ items.number|add:'1' }}</a>
           </li>
           <li class="page-item">
-            <a class="page-link" href="?{% if url_prefix %}{{ url_prefix }}&{% endif %}page={{ items.number|add:'2' }}" tabindex="-1">{{ items.number|add:'2' }}</a>
+            <a class="page-link" href="{% query page=items.number|add:'2' %}" tabindex="-1">{{ items.number|add:'2' }}</a>
           </li>
         {% else %}
           <li class="page-item">
-            <a class="page-link" href="?{% if url_prefix %}{{ url_prefix }}&{% endif %}page={{ items.number|add:'1' }}" tabindex="-1">{{ items.number|add:'1' }}</a>
+            <a class="page-link" href="{% query page=items.number|add:'1' %}" tabindex="-1">{{ items.number|add:'1' }}</a>
           </li>
         {% endif %}
-        <li class="page-item"><a class="page-link" href="?{% if url_prefix %}{{ url_prefix }}&{% endif %}page={{ items.paginator.num_pages }}">Last</a></li>
+        <li class="page-item"><a class="page-link" href="{% query page=items.paginator.num_pages %}">Last</a></li>
       {% endif %}
     </ul>
   </div>

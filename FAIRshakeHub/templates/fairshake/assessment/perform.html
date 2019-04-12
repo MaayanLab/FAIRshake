@@ -2,7 +2,7 @@
 {% load filters %}
 <form
   role="form"
-  action="{% url model|add:'-perform' %}?{{ request.GET|as_path }}"
+  action="{% url model|add:'-perform' %}{% query %}"
   enctype="multipart/form-data"
   method="POST"
   novalidate
@@ -15,7 +15,7 @@
       for <a href="{% url 'project-detail' item.project.id %}">{{ item.project.title }}</a>
     {% endif %}
     &nbsp;
-    <a href="{% url model|add:'-prepare' %}?{{ request.GET|as_path }}">
+    <a href="{% url model|add:'-prepare' %}{% query %}">
       <span
         class="glyphicon glyphicon-edit"
         style="font-size:20px;color:#666666;"

@@ -9,7 +9,7 @@
   />
   {% if name == "project" or name == "target" or name == "rubric" %}
   <a
-    href="{% url name|to_model|add:'-add' %}?_to_field=id&_popup=1&{{ request.GET|as_path }}"
+    href="{% url name|to_model|add:'-add' %}{% query _to_field=id _popup=1 %}"
     class="add-another addlink"
     id="add_{{ html_id }}"
     onclick="return showAddAnotherPopup(this);"
