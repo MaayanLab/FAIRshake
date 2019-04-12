@@ -25,12 +25,6 @@ def limit(text, amount):
   return ''.join(text[:amount]) + '...' if len(text) > amount else text
 
 @register.filter
-def as_path(req):
-  if not req:
-    return ''
-  return '&'.join(map('='.join, req.items()))
-
-@register.filter
 def to_model(name):
   ''' Note: this is a dirty hack, we really should provide the model name to the context
   '''
