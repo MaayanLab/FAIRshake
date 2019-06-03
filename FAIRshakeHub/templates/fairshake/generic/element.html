@@ -31,22 +31,22 @@
           ></div>
         {% endif %}
       </div>
+      {% if item.type %}
+        <span
+          class="label"
+          style="background-color:#666666;color:white;font-size:10px;position:absolute;top:164px;right:25px;"
+        >
+          {% if model == "project" %}
+            project
+          {% else %}
+            {{ item.type }}
+          {% endif %}
+        </span>
+      {% endif %}
       <div class="caption text-left">
         <p class="item-title" style="margin-right:60px;">
           {{ item.title }}
         </p>
-        {% if item.type %}
-          <span
-            class="label"
-            style="background-color:#666666;color:white;font-size:10px;position:absolute;top:164px;right:25px;"
-          >
-            {% if model == "project" %}
-              project
-            {% else %}
-              {{ item.type }}
-            {% endif %}
-          </span>
-        {% endif %}
         <p>{{ item.description|limit:100 }}</p>
         <div style="position:absolute;bottom:30px;margin-right:60px;">
           <div style="font-size:10px;color:gray;margin-top:5px;">

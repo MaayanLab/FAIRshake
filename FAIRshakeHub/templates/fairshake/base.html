@@ -7,6 +7,7 @@
   {% block head %}
     <link rel="shortcut icon" href="{% static 'image/favicon.ico' %}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.11.0/css/bootstrap-tour.min.css" />
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <meta charset="UTF-8" />
     <meta content="FAIRshake is a system to evaluate the FAIRness of Digital Objects" name="description" />
@@ -160,6 +161,8 @@
 {% block script %}
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.11.0/js/bootstrap-tour.min.js"></script>
+  <script src='{% static "scripts/tour.js" %}'></script>
   <script>
   function render_insignia(q) {
     if (q === undefined)
