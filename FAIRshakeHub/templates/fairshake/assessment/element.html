@@ -21,6 +21,15 @@
           style="font-size:20px;color:#666666;"
         ></span>
       </a>
+      {% has_permission item 'delete' as delete_perm %}
+      {% if delete_perm %}
+      <a href="{% url model|add:'-remove' item.id %}{% query target=item.target.id rubric=item.rubric.id project=item.project.id %}">
+        <span
+          class="glyphicon glyphicon-remove"
+          style="font-size:20px;color:#666666;"
+        ></span>
+      </a>
+      {% endif %}
     </div>
   </div>
 </li>

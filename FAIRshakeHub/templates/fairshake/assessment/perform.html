@@ -21,6 +21,12 @@
         style="font-size:20px;color:#666666;"
       ></span>
     </a>
+    <a href="{% url model|add:'-remove' item.id %}{% query target=item.target.id rubric=item.rubric.id project=item.project.id %}">
+      <span
+        class="glyphicon glyphicon-remove"
+        style="font-size:20px;color:#666666;"
+      ></span>
+    </a>
   </legend>
   {% csrf_token %}
   {% for answer in answers %}
@@ -39,5 +45,6 @@
   {% endfor %}
   <div class="form-group">
     <button type="submit" class="btn btn-primary">Submit</button>
+    <a href="{% url model|add:'-remove' item.id %}" type="text" class="btn btn-danger">Delete</a>
   </div>
 </form>

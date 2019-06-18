@@ -536,6 +536,17 @@ class AssessmentViewSet(CustomModelViewSet):
         )
     return response.Response()
 
+  @decorators.action(
+    detail=True,
+    methods=['get'],
+  )
+  def remove(self, request, pk=None):
+    item = self.get_object()
+    self.check_object_permissions(request, item)
+    item.delete()
+    # TODO: redirect to a more intuitive location
+    return callback_or_redirect(request, 'index')
+
   def get_list_template_context(self, request, context):
     paginator_cls = self.paginator.django_paginator_class
     page_size = settings.REST_FRAMEWORK['VIEW_PAGE_SIZE']
