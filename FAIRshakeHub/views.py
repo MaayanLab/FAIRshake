@@ -42,6 +42,10 @@ def index(request):
   return render(request, 'fairshake/index.html', dict(
       query=q,
       items=paginator.get_page(page),
+      featured=[
+        models.Project.objects.get(id=87),
+        models.Rubric.objects.get(id=25),
+      ],
       filter_projects=filter_projects,
       filter_digital_objects=filter_digital_objects,
       filter_rubrics=filter_rubrics,

@@ -100,21 +100,34 @@
             value="1" />
         {% endif %}
       </form>
-    </div>
-    <div class="col-sm-12">
       <p>&nbsp;</p>
-      {% if query and not items %}
-        No results with this query.
-      {% endif %}
-      {% for item in items %}
-        {% with model=item.model_name %}
-          {% include "fairshake/generic/element.html" %}
-        {% endwith %}
-      {% endfor %}
-      {% with url_prefix="q="|add:query %}
-        {% include "fairshake/generic/page_nav.html" %}
-      {% endwith %}
     </div>
+    {% if query %}
+      <div class="col-sm-12">
+        {% if not items %}
+          No results with this query.
+        {% endif %}
+        {% for item in items %}
+          {% with model=item.model_name %}
+            {% include "fairshake/generic/element.html" %}
+          {% endwith %}
+        {% endfor %}
+        {% with url_prefix="q="|add:query %}
+          {% include "fairshake/generic/page_nav.html" %}
+        {% endwith %}
+      </div>
+    {% else %}
+      <div class="col-sm-12">
+        <h4>Featured Project & Rubric</h4>
+        {% for item in featured %}
+          <div class="col-sm-6">
+          {% with model=item.model_name embedded=True %}
+            {% include "fairshake/generic/element.html" %}
+          {% endwith %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

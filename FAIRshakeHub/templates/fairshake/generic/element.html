@@ -1,5 +1,5 @@
 {% load filters %}
-<div class="{% if embedded %}col-sm-12{% else %}col-md-3 col-sm-6{% endif %}">
+<div class="{% if not embedded %}col-md-3 col-sm-6{% endif %}">
   <div class="panel panel-default" style="height: 320px">
     <div class="panel-body text-center">
       <div class="image-container">
