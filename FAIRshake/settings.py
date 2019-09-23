@@ -107,6 +107,7 @@ REST_FRAMEWORK = {
     'SEARCH_PAGE_SIZE': 11,
     'EXCEPTION_HANDLER': 'extensions.rest_framework_ex.exeptions.handler',
     'URL_FIELD_NAME': 'get_url',
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 LOGGING = {
