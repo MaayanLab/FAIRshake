@@ -21,9 +21,7 @@ uid = $user
 gid = $user
 master = true
 processes = 5
-harakiri = 300
-socket-timeout = 300
-http-timeout = 300
+harakiri = 20
 max-requests = 5000
 vacuum = true
 
@@ -88,10 +86,6 @@ http {
             proxy_set_header   X-Real-IP \$remote_addr;
             proxy_set_header   X-Forwarded-For \$proxy_add_x_forwarded_for;
             proxy_set_header   X-Forwarded-Host \$server_name;
-            proxy_connect_timeout 300;
-            proxy_send_timeout    300;
-            proxy_read_timeout    300;
-            send_timeout          300;
         }
         location /static/ {
             alias $diskroot/static/;
