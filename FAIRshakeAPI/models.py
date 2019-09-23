@@ -256,13 +256,23 @@ class Answer(models.Model):
     self.assessment.invalidate_cache()
     return ret
 
+  @staticmethod
+  def annotate_answer(answer, with_perc=False):
+    return linear_map(
+      [0, 1],
+      [
+        'no (0.0)' if with_perc else 'no',
+        'nobut (0.25)' if with_perc else 'nobut',
+        'maybe (0.5)' if with_perc else 'maybe',
+        'yesbut (0.75)' if with_perc else 'yesbut',
+        'yes (1.0)' if with_perc else 'yes'
+      ],
+    )(answer) if answer is not None else ''
+
   def annotate(self):
     ''' Convert value to nearest human-readable verbose representation
     '''
-    return linear_map(
-      [0, 1],
-      ['no', 'nobut', 'maybe', 'yesbut', 'yes'],
-    )(self.answer) if self.answer is not None else ''
+    return Answer.annotate_answer(self.answer)
 
   def color(self, alpha=0.25):
     ''' Convert value to nearest human-readable verbose representation

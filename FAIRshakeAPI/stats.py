@@ -1,9 +1,12 @@
 from . import models
-import plotly.offline as opy
-import plotly.graph_objs as go
-from plotly import tools
 from collections import Counter
+from django.db.models import Count, Avg
+from plotly import tools
 import numpy as np
+import plotly.graph_objs as go
+import plotly.offline as opy
+
+from scripts.linear_map import linear_map
 
 def _iplot(*args, **kwargs):
   return opy.plot(*args, **kwargs, auto_open=False, output_type='div')
@@ -21,33 +24,42 @@ def BarGraphs(data):
     yield _iplot(fig)
 
 def RubricPieChart(assessments_with_rubric):
-  assessments_with_rubric=assessments_with_rubric.values_list('rubric',flat=True) 
-  rubrics_dict=Counter(assessments_with_rubric)
-  rubrics=list(rubrics_dict.keys())
-  evals=list(rubrics_dict.values())
-  evals = [x/9 for x in evals]
-  rubric_names=[models.Rubric.objects.filter(id=x).values_list('title', flat=True).get() for x in rubrics]
-  fig = [go.Pie(labels=rubric_names, values=evals, hoverinfo='label+value+percent', textinfo='percent')]
+  values = assessments_with_rubric.values('rubric__title').annotate(value=Count('id')).order_by()
+  rubrics, values = map(list, zip(*((val['rubric__title'], val['value']) for val in values)))
+  fig = [
+    go.Pie(
+      labels=rubrics,
+      values=values,
+      hoverinfo='label+value+percent',
+      textinfo='percent',
+    )
+  ]
   yield _iplot(fig)
 
-def RubricsInProjectsOverlay(answers_within_project,projectid):
-  rubrics=np.unique(models.Rubric.objects.filter(assessments__project__id__in=[projectid]).values_list('id',flat=True))
-  all_trace=[]
-  for rubric in rubrics:
-    responses=[answer.annotate() for answer in answers_within_project.filter(assessment__rubric__id=rubric)]
-    if len(responses)>0:
-      scores_dict=Counter(responses)
-      for x in ['no','nobut','maybe','yesbut','yes']:
-        if x not in scores_dict.keys():
-          scores_dict[x]=0
-      trace = go.Bar(x=['no (0)', 'no but (0.25)', 'maybe (0.5)', 'yes but (0.75)','yes (1)'],y=[scores_dict['no'],scores_dict['nobut'],scores_dict['maybe'],scores_dict['yesbut'],scores_dict['yes']],
-            name= models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get())
-      all_trace.append(trace)
-  layout = {'xaxis': {'title': 'Answer'},
-    'yaxis': {'title': 'Responses'},
-    'barmode': 'stack',
+def RubricsInProjectsOverlay(answers_within_project):
+  rubrics = models.Rubric.objects.filter(id__in=[val['rubric'] for val in answers_within_project.values('rubric').order_by().distinct()])
+  values = {
+    rubric.title: list(zip(*sorted([
+      (answer_count['value'], models.Answer.annotate_answer(answer_count['answers__answer'], with_perc=True))
+      for answer_count in answers_within_project.filter(rubric=rubric).values('answers__answer').annotate(value=Count('answers__answer')).order_by()
+    ], reverse=True)))
+    for rubric in rubrics
   }
-  yield _iplot({'data': all_trace, 'layout': layout})
+  yield _iplot({
+    'data': [
+      go.Bar(
+        x=answers,
+        y=counts,
+        name=rubric
+      )
+      for rubric, (counts, answers) in values.items()
+    ],
+    'layout': {
+      'xaxis': {'title': 'Answer'},
+      'yaxis': {'title': 'Responses'},
+      'barmode': 'stack',
+    },
+  })
 
 def _QuestionBarGraphs(metric_count_dict):
   hist=[go.Bar(x=list([metric_dict[x] for x in metric_count_dict.keys()]),y=list(metric_count_dict.values()))]
@@ -69,40 +81,39 @@ def QuestionBreakdown(query):
     average_score[key]=value/(len(scores)/9)
   return _QuestionBarGraphs(average_score)
 
-def _DigitalObjectBarGraph(scores_dict):
-  action_dict={}
-  sorted_d = sorted((value,key) for (key,value) in scores_dict.items() if value is not None)
-  for kv in sorted_d:
-    if kv[0]<0.25:
-      action_dict[kv[1]]='Poor'
-    if kv[0]>=0.25 and kv[0]<=0.75:
-      action_dict[kv[1]]='Good'
-    if kv[0]>0.75:
-      action_dict[kv[1]]='Very FAIR'
-  scores = [sorted_d[x][0] for x in range(0,len(sorted_d))]
-  objects=[sorted_d[x][1] for x in range(0,len(sorted_d))]
-  all_trace=[]
-  for result in [('Poor','rgba(255,10,10,1)'),('Good','rgba(132,0,214,1)'),('Very FAIR','rgba(0,0,214,1)')]:
-    X=[]
-    Y=[]
-    for obj in objects:
-      if action_dict[obj]==result[0]:
-        X.append(obj)
-        Y.append(scores_dict[obj])
-    trace=go.Bar(x=X, y=Y,name=result[0],marker=dict(color=result[1]))
-    all_trace.append(trace)
-  layout=go.Layout(xaxis=dict(title="Resources (n="+str(len(scores))+")",showticklabels=False,titlefont=dict(size=16)),showlegend=True,yaxis=dict(title='Mean FAIR score',titlefont=dict(size=16)))
-  fig = go.Figure(data=all_trace, layout=layout)
-  yield _iplot(fig)
+def DigitalObjectBarBreakdown(answers_within_project):
+  # TODO: Clean this up
 
-def DigitalObjectBarBreakdown(project):
-  object_score_dict={}
-  for obj in project.digital_objects.all():
-    scores=[a for a in models.Answer.objects.filter(assessment__target__id=obj.id).values_list("answer",flat=True) if a is not None]
-    if len(scores)>0:
-      mean_score=np.mean(scores)
-      object_score_dict[models.DigitalObject.objects.filter(id=obj.id).values_list('title', flat=True).get()]=mean_score
-  return _DigitalObjectBarGraph(object_score_dict)
+  colors = {
+    'Poor': 'rgba(255,10,10,1)',
+    'Good': 'rgba(132,0,214,1)',
+    'Very FAIR': 'rgba(0,0,214,1)',
+  }
+  level_mapper = linear_map(
+    [0, 1],
+    ['Poor', 'Good', 'Very FAIR'],
+  )
+  values = list(sorted([
+    (value['value'], value['answers__assessment__target__title'], level_mapper(value['value']))
+    for value in answers_within_project.values('answers__assessment__target__title').annotate(value=Avg('answers__answer')).order_by()
+  ]))
+  grouped_values = {}
+  for value, title, annot in values:
+    if grouped_values.get(annot) is None:
+      grouped_values[annot] = []
+    grouped_values[annot].append((value, title))
+  for annot, vals in grouped_values.items():
+    grouped_values[annot] = list(zip(*vals))
+
+  yield _iplot(
+    go.Figure(
+      data=[
+        go.Bar(y=values, x=titles, name=annot, marker=dict(color=colors[annot]))
+        for annot, (values, titles) in grouped_values.items()
+      ],
+      layout=go.Layout(xaxis=dict(title="Resources (n="+str(len(values))+")",showticklabels=False,titlefont=dict(size=16)),showlegend=True,yaxis=dict(title='Mean FAIR score',titlefont=dict(size=16)))
+    )
+  )
 
 # Overall scores for a particular rubric, project, metric...(***Can be placed on each rubric, project, and metric page***)
 # Get all scores in the database for a particular rubric, project, or metric 
@@ -171,38 +182,28 @@ def TablePlot(project):
   fig = go.Figure(data=data, layout=layout)
   yield _iplot(fig)
 
-def _RubricsByMetricsBarGraphs(rub_scores_dict):
-  num_plots = len(rub_scores_dict)
-  fig = tools.make_subplots(rows=num_plots, cols=1, print_grid=False)
-  for i, rubric in enumerate(rub_scores_dict.keys()):
-    rubric_name = models.Rubric.objects.filter(id=rubric).values_list('title', flat=True).get()
-    hist=go.Bar(x=list([rub_scores_dict[rubric]['metric_dict'][x] for x in rub_scores_dict[rubric]['average_score'].keys()]),y=list(rub_scores_dict[rubric]['average_score'].values()),name=rubric_name)
-    fig.append_trace(hist, i+1, 1)
-    xaxis_num = 'xaxis%d' % (i+1)
-    fig['layout'][xaxis_num].update(showticklabels=False,)
+def RubricsByMetricsBreakdown(answers_within_project):
+  rubrics = models.Rubric.objects.filter(id__in=[val['rubric'] for val in answers_within_project.values('rubric').order_by().distinct()])
+  values = {
+    rubric.title: list(zip(*[
+      (answer_count['answers__metric__title'], answer_count['value'])
+      for answer_count in answers_within_project.filter(rubric=rubric).values('answers__metric__title').annotate(value=Avg('answers__answer')).order_by()
+    ]))
+    for rubric in rubrics
+  }
+  fig = tools.make_subplots(rows=len(rubrics), cols=1, print_grid=False)
+  for ind, (rubric, (metrics, values)) in enumerate(values.items()):
+    fig.append_trace(
+      go.Bar(
+        x=metrics,
+        y=values,
+        name=rubric
+      ),
+      ind+1,
+      1
+    )
+    xaxis_num = 'xaxis%d' % (ind+1)
+    fig['layout'][xaxis_num].update(showticklabels=False)
+  # NOTE: this is supposed to be out of the loop
   fig['layout'][xaxis_num].update(title='Mean FAIR Score by Metric', titlefont=dict(size=16))
   yield _iplot(fig)
-
-def RubricsByMetricsBreakdown(projectid):
-  query=models.Answer.objects.filter(assessment__project__id=projectid, assessment__rubric__id=7).all()
-  rubrics=np.unique(models.Rubric.objects.filter(assessments__project__id__in=[projectid]).values_list('id',flat=True))
-  rubric_scores_dict = {}
-  for rubric in rubrics:
-    answer_query = models.Answer.objects.filter(assessment__project__id=projectid, assessment__rubric__id=rubric).all()
-    rubric_query = models.Rubric.objects.get(id=rubric)
-    metric_dict = {}
-    for metric in rubric_query.metrics.all():
-      metric_dict[metric.id] = metric.title 
-    metric_ids=iter(np.array(answer_query.values_list('metric',flat=True)))
-    scores=[a for a in answer_query.values_list('answer',flat=True) if a is not None]
-    d={}
-    for x, y in zip(metric_ids, scores):
-      if x in d:
-        d[x] = d[x] + y 
-      else:
-        d[x] = y
-    average_score={}
-    for key, value in d.items():
-      average_score[key]=value/(len(scores)/len(metric_dict.keys()))
-    rubric_scores_dict[rubric] = {'average_score': average_score, 'metric_dict': metric_dict}
-  return _RubricsByMetricsBarGraphs(rubric_scores_dict)
