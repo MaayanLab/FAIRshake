@@ -105,6 +105,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 11,
     'VIEW_PAGE_SIZE': 11,
     'SEARCH_PAGE_SIZE': 11,
+    'ASSESSMENTS_PAGE_SIZE': 25,
     'EXCEPTION_HANDLER': 'extensions.rest_framework_ex.exeptions.handler',
     'URL_FIELD_NAME': 'get_url',
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'

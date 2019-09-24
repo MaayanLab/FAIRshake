@@ -1,7 +1,7 @@
 {% load filters %}
 <div class="container">
   {% include "fairshake/generic/retrieve_element.html" %}
-  <h1 class="text-left">{{ model|unslugify }} Assessments ({{ assessments.count }})</h1>
+  <h1 class="text-left">{{ model|unslugify }} Assessments ({{ items.paginator.count }})</h1>
   <div class="col-sm-12 table-responsive">
     <br />
     <table class="table table-bordered table-hover" style="overflow-x: auto; max-width: 100%;">
@@ -41,7 +41,7 @@
             </th>
           {% endfor %}
         </tr>
-        {% for assessment in assessments %}
+        {% for assessment in items %}
           <tr>
             {% if model != "digital_object" %}
             <th>
@@ -101,5 +101,6 @@
         {% endfor %}
       </tbody>
     </table>
+    {% include "fairshake/generic/page_nav.html" %}
   </div>
 </div>

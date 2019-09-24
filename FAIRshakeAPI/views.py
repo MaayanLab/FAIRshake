@@ -233,6 +233,9 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     )
   
   def get_assessments_template_context(self, request, context):
+    paginator_cls = self.paginator.django_paginator_class
+    page_size = settings.REST_FRAMEWORK['ASSESSMENTS_PAGE_SIZE']
+
     item = self.get_object()
     model = self.get_model_name()
     if model == 'digital_object':
@@ -249,17 +252,26 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     elif model == 'rubric':
       metrics = item.metrics.all()
     else:
-      metrics = models.Metric.objects.filter(id__in=assessments.order_by().values_list('answers__metric', flat=True).distinct())
+      metrics = models.Metric.objects.filter(id__in=assessments.values_list('answers__metric', flat=True).order_by().distinct())
+
+    assessments_paginated = paginator_cls(
+      assessments,
+      page_size
+    ).get_page(
+      request.GET.get('page')
+    )
 
     answers = {
       '%d-%d' % (assessment.id, answer.metric_id): answer
-      for assessment in assessments
-      for answer in assessment.answers.filter(metric__in=metrics)
+      for assessment in assessments_paginated.object_list
+      for answer in (assessment.answers.all() if model == 'rubric' else (
+        assessment.answers.filter(metric__in=metrics)
+      ))
     }
 
     return dict(context,
       item=item,
-      assessments=assessments,
+      items=assessments_paginated,
       metrics=metrics,
       answers=answers,
     )
