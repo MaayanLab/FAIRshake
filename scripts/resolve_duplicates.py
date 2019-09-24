@@ -28,7 +28,7 @@ def merge_many_attr(obj, attr, *dups):
       getattr(obj, attr).add(child)
 
 def merge_dups(primary, *dups):
-  for attr in ['title', 'url', 'description', 'image', 'tags', 'type', 'fairsharing']:
+  for attr in ['title', 'url', 'description', 'image', 'tags', 'type', 'fairmetrics']:
     merge_attr(primary, attr, *dups)
   for attr in ['authors', 'rubrics', 'projects', 'assessments']:
     merge_many_attr(primary, attr, *dups)
@@ -56,7 +56,7 @@ full_dups
 
 for _, dups in full_dups.items():
   obj = dups[0]
-  merge_dups(dups[0], dups[1:])
+  merge_dups(dups[0], *dups[1:])
 
 # Find and potentially merge url duplicate digital objects (objects with identical urls)
 potential_url_dups = {}
