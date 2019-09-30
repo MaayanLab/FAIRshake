@@ -104,12 +104,15 @@ def DigitalObjectBarBreakdown(answers_within_project):
   )
   values = {}
   targets_set = set()
-  for row in answers_within_project.values('answers__assessment__target').order_by().annotate(Avg('answers__answer')):
-    target = row['answers__assessment__target']
+  for row in answers_within_project.values('target').order_by().annotate(Avg('answers__answer')):
+    target = row['target']
     targets_set.add(target)
     score = row['answers__answer__avg']
     values[target] = score
-  targets_lookup = dict(models.DigitalObject.objects.filter(id__in=targets_set).values_list('id', 'title'))
+  targets_lookup = {
+    id: '{} (ID: {})'.format(title, id)
+    for id, title in models.DigitalObject.objects.filter(id__in=targets_set).values_list('id', 'title')
+  }
 
   grouped_values = {}
   for target, score in values.items():
@@ -117,16 +120,16 @@ def DigitalObjectBarBreakdown(answers_within_project):
     annot = level_mapper(score)
     if grouped_values.get(annot) is None:
       grouped_values[annot] = []
-    grouped_values[annot].append((score, title))
+    grouped_values[annot].append((score, target))
 
   for annot, vals in grouped_values.items():
-    grouped_values[annot] = list(zip(*vals))
+    grouped_values[annot] = list(zip(*sorted(vals)))
 
   yield _iplot(
     go.Figure(
       data=[
-        go.Bar(y=values, x=titles, name=annot, marker=dict(color=colors[annot]))
-        for annot, (values, titles) in grouped_values.items()
+        go.Bar(y=values, x=list(map(targets_lookup.get, targets)), name=annot, marker=dict(color=colors[annot]))
+        for annot, (values, targets) in grouped_values.items()
       ],
       layout=go.Layout(xaxis=dict(title="Resources (n="+str(len(values))+")",showticklabels=False,titlefont=dict(size=16)),showlegend=True,yaxis=dict(title='Mean FAIR score',titlefont=dict(size=16)))
     )
