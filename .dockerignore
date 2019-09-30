@@ -8,3 +8,4 @@ my.cnf
 README.md
 run.py
 ssl/
+venv/
