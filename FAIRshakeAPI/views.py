@@ -16,7 +16,7 @@ from django.forms import ModelChoiceField
 from django.urls import reverse
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
 from functools import reduce
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 
 def callback_or_redirect(request, *args, **kwargs):
   callback = request.GET.get('callback', None)
@@ -697,24 +697,24 @@ class ScoreViewSet(
 
       assessments = self.filter_queryset(self.get_queryset())
 
-      scores = assessments.values(
+      metrics_set = set()
+      scores = defaultdict(lambda: {})
+      for row in assessments.values(
         'rubric', 'answers__metric'
-      ).order_by().distinct().annotate(
-        answers__answer=Avg('answers__answer')
-      )
-      metrics = assessments.order_by().values_list('answers__metric', 'answers__metric__title').distinct()
+      ).order_by().annotate(
+        Avg('answers__answer')
+      ):
+        rubric = row['rubric']
+        metric = row['answers__metric']
+        metrics_set.add(metric)
+        score = row['answers__answer__avg']
+        scores[rubric][metric] = score
+
+      metrics_lookup = dict(models.Metric.objects.filter(id__in=metrics_set).values_list('id', 'title'))
 
       result = {
-        'scores': reduce(lambda scores, row: dict(scores,
-          **{
-            str(row['rubric']): dict(scores.get(str(row['rubric']), {}), **{
-              str(row['answers__metric']): row['answers__answer']
-            } if row['answers__metric'] is not None else {})
-          } if row['rubric'] is not None else {}),
-          scores,
-          {}
-        ),
-        'metrics': {k: v for k, v in metrics if k is not None},
+        'scores': scores,
+        'metrics': metrics_lookup,
       }
 
       # Only cache if we actually got anything
