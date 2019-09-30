@@ -25,8 +25,14 @@ def BarGraphs(data):
     yield _iplot(fig)
 
 def RubricPieChart(assessments_with_rubric):
-  values = assessments_with_rubric.values('rubric__title').annotate(value=Count('id')).order_by()
-  rubrics, values = map(list, zip(*((val['rubric__title'], val['value']) for val in values)))
+  values = {}
+  rubrics_set = set()
+  for row in assessments_with_rubric.values('rubric').order_by().annotate(count=Count('id')):
+    rubric = row['rubric']
+    rubrics_set.add(rubric)
+    values[rubric] = row['count']
+  rubrics_lookup = dict(models.Rubric.objects.filter(id__in=rubrics_set).values_list('id', 'title'))
+  rubrics, values = zip(*[(rubrics_lookup[rubric], count) for rubric, count in values.items()])
   fig = [
     go.Pie(
       labels=rubrics,
