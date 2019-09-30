@@ -1,5 +1,6 @@
 from . import models
 from collections import Counter
+from collections import defaultdict
 from django.db.models import Count, Avg
 from plotly import tools
 import numpy as np
@@ -83,6 +84,10 @@ def QuestionBreakdown(query):
 
 def DigitalObjectBarBreakdown(answers_within_project):
   # TODO: Clean this up
+
+  if answers_within_project.count() > 10000:
+    yield 'Too many objects for this plot'
+    return
 
   colors = {
     'Poor': 'rgba(255,10,10,1)',
@@ -183,21 +188,28 @@ def TablePlot(project):
   yield _iplot(fig)
 
 def RubricsByMetricsBreakdown(answers_within_project):
-  rubrics = models.Rubric.objects.filter(id__in=[val['rubric'] for val in answers_within_project.values('rubric').order_by().distinct()])
-  values = {
-    rubric.title: list(zip(*[
-      (answer_count['answers__metric__title'], answer_count['value'])
-      for answer_count in answers_within_project.filter(rubric=rubric).values('answers__metric__title').annotate(value=Avg('answers__answer')).order_by()
-    ]))
-    for rubric in rubrics
-  }
-  fig = tools.make_subplots(rows=len(rubrics), cols=1, print_grid=False)
-  for ind, (rubric, (metrics, values)) in enumerate(values.items()):
+  values = defaultdict(lambda: {})
+  rubrics_set = set()
+  metrics_set = set()
+  for row in answers_within_project.values('rubric', 'answers__metric').order_by().annotate(
+    Avg('answers__answer'),
+  ):
+    rubric = row['rubric']
+    rubrics_set.add(rubric)
+    metric = row['answers__metric']
+    metrics_set.add(metric)
+    values[rubric][metric] = row['answers__answer__avg']
+
+  rubrics_lookup = dict(models.Rubric.objects.filter(id__in=rubrics_set).values_list('id', 'title'))
+  metrics_lookup = dict(models.Metric.objects.filter(id__in=metrics_set).values_list('id', 'title'))
+  fig = tools.make_subplots(rows=len(rubrics_set), cols=1, print_grid=False)
+  for ind, (rubric, (metric_scores)) in enumerate(values.items()):
+    metrics, scores = zip(*metric_scores.items())
     fig.append_trace(
       go.Bar(
-        x=metrics,
-        y=values,
-        name=rubric
+        x=list(map(metrics_lookup.get, metrics)),
+        y=scores,
+        name=rubrics_lookup[rubric]
       ),
       ind+1,
       1
