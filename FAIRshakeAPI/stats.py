@@ -89,8 +89,6 @@ def QuestionBreakdown(query):
   return _QuestionBarGraphs(average_score)
 
 def DigitalObjectBarBreakdown(answers_within_project):
-  # TODO: Clean this up
-
   if answers_within_project.count() > 10000:
     yield 'Too many objects for this plot'
     return
@@ -104,15 +102,23 @@ def DigitalObjectBarBreakdown(answers_within_project):
     [0, 1],
     ['Poor', 'Good', 'Very FAIR'],
   )
-  values = list(sorted([
-    (value['value'], value['answers__assessment__target__title'], level_mapper(value['value']))
-    for value in answers_within_project.values('answers__assessment__target__title').annotate(value=Avg('answers__answer')).order_by()
-  ]))
+  values = {}
+  targets_set = set()
+  for row in answers_within_project.values('answers__assessment__target').order_by().annotate(Avg('answers__answer')):
+    target = row['answers__assessment__target']
+    targets_set.add(target)
+    score = row['answers__answer__avg']
+    values[target] = score
+  targets_lookup = dict(models.DigitalObject.objects.filter(id__in=targets_set).values_list('id', 'title'))
+
   grouped_values = {}
-  for value, title, annot in values:
+  for target, score in values.items():
+    title = targets_lookup[target]
+    annot = level_mapper(score)
     if grouped_values.get(annot) is None:
       grouped_values[annot] = []
-    grouped_values[annot].append((value, title))
+    grouped_values[annot].append((score, title))
+
   for annot, vals in grouped_values.items():
     grouped_values[annot] = list(zip(*vals))
 
