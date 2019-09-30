@@ -20,8 +20,8 @@ cat << EOF | tee -a $diskroot/wsgi.ini >> $log
 uid = $user
 gid = $user
 master = true
-processes = 5
-harakiri = 20
+processes = 8
+harakiri = 60
 max-requests = 5000
 vacuum = true
 
@@ -86,6 +86,10 @@ http {
             proxy_set_header   X-Real-IP \$remote_addr;
             proxy_set_header   X-Forwarded-For \$proxy_add_x_forwarded_for;
             proxy_set_header   X-Forwarded-Host \$server_name;
+            proxy_read_timeout 60s;
+            proxy_send_timeout 60s;
+            uwsgi_read_timeout 60s;
+            uwsgi_send_timeout 60s;
         }
         location /static/ {
             alias $diskroot/static/;
