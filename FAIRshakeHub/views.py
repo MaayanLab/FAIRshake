@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from django.urls import reverse
 from django import http
+from django.views.decorators.clickjacking import xframe_options_exempt
 from FAIRshakeAPI import search, models, stats
 
 def index(request):
@@ -107,5 +108,6 @@ def stats_view(request):
       return http.HttpResponse('Not enough information was present to construct a plot.')
   return http.HttpResponseNotFound()
 
+@xframe_options_exempt
 def framed(request):
   return render(request, 'fairshake/framed.html')
