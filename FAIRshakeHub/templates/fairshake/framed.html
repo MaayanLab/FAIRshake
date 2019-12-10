@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js"></script>
 <script src=''></script>
 <script>
-require(['{% static "scripts/insignia.dev.js" %}'], function (insignia) {
+require(['{% if debug %}{% static "scripts/insignia.dev.js" %}{% else %}{% static "scripts/insignia.js" %}{% endif %}'], function (insignia) {
   insignia.build_svg_from_score(
     document.getElementById('insignia'),
     {{ request.GET|jsonify|safe }}
