@@ -22,6 +22,12 @@ pip install -r requirements.txt
 
 Note that `mysqlclient` is the recommended client but `pymysql` can be used as a fallback.
 
+### Staticfiles collection
+To render the page properly in development, it's necessary to collect staticfiles so they can be hosted by django.
+```bash
+./manage.py collectstatic
+```
+
 ### Environment setup
 ```bash
 # Run in debugging mode, show errors and host staticfiles locally
