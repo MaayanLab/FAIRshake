@@ -106,3 +106,6 @@ def stats_view(request):
     except:
       return http.HttpResponse('Not enough information was present to construct a plot.')
   return http.HttpResponseNotFound()
+
+def framed(request):
+  return render(request, 'fairshake/framed.html')
