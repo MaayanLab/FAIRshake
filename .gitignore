@@ -6,4 +6,5 @@ __pycache__
 *.sqlite3
 my.cnf
 ssl/
+/static/
 venv/
