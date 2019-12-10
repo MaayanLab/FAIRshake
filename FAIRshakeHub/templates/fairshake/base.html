@@ -167,7 +167,7 @@
     q.each(function (ind, ele) {
       var $ele = $(ele)
       if($ele.attr('data-rendered') != 'true') {
-        require(['{% static "scripts/insignia.js" %}'], function (insignia) {
+        require(['{% if debug %}{% static "scripts/insignia.dev.js" %}{% else %}{% static "scripts/insignia.js" %}{% endif %}'], function (insignia) {
           insignia.build_svg_from_score(
             ele,
             JSON.parse($ele.attr('data-target')),
