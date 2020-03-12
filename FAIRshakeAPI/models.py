@@ -155,6 +155,7 @@ class Metric(IdentifiableModelMixin):
 
 class Assessment(models.Model):
   id = models.AutoField(primary_key=True)
+  published = models.BooleanField(default=False, null=False)
   project = models.ForeignKey('Project', on_delete=models.SET_NULL, blank=True, null=True, related_name='assessments')
   target = models.ForeignKey('DigitalObject', on_delete=models.CASCADE, related_name='assessments')
   rubric = models.ForeignKey('Rubric', on_delete=models.CASCADE, related_name='assessments')
@@ -168,11 +169,13 @@ class Assessment(models.Model):
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def has_permission(self, user, perm):
-    if perm in ['list', 'create', 'prepare', 'perform', 'delete', 'retrieve', 'update', 'partial_update', 'destroy']:
+    if perm in ['list', 'create', 'prepare', 'perform', 'remove', 'delete', 'retrieve', 'update', 'partial_update', 'destroy']:
       if self is None:
         return user.is_authenticated or user.is_staff
-      else:
+      elif self.published == False:
         return (self and self.assessor == user) or user.is_staff
+      else:
+        return user.is_staff
     else:
       logging.warning('perm %s not handled' % (perm))
       return user.is_staff

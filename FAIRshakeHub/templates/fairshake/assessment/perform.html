@@ -43,8 +43,9 @@
       </div>
     </div>
   {% endfor %}
-  <div class="form-group">
-    <button type="submit" class="btn btn-primary">Submit</button>
+  <div class="form-group text-center">
+    <button type="submit" name="published" value="false" class="btn btn-success">Save</button>
+    <button type="submit" name="published" value="true" class="btn btn-primary">Publish</button>
     <a href="{% url model|add:'-remove' item.id %}" type="text" class="btn btn-danger">Delete</a>
   </div>
 </form>

@@ -351,6 +351,7 @@ class AssessmentViewSet(CustomModelViewSet):
     # Get or create the assessment
     if project_id:
       assessment = get_or_create(models.Assessment,
+        published=False,
         project=models.Project.objects.get(id=project_id),
         target=models.DigitalObject.objects.get(id=target_id),
         rubric=models.Rubric.objects.get(id=rubric_id),
@@ -359,6 +360,7 @@ class AssessmentViewSet(CustomModelViewSet):
       )
     else:
       assessment = get_or_create(models.Assessment,
+        published=False,
         project=None,
         target=models.DigitalObject.objects.get(id=target_id),
         rubric=models.Rubric.objects.get(id=rubric_id),
@@ -542,6 +544,10 @@ class AssessmentViewSet(CustomModelViewSet):
     if request.method == 'POST':
       answer_forms = self.get_answer_forms(assessment)
       if self.save_answer_forms(answer_forms):
+        published = json.loads(request.POST.get('published'))
+        if type(published) == bool and published == True:
+          assessment.published = True
+          assessment.save()
         return callback_or_redirect(request,
           'digital_object-detail',
           pk=assessment.target_id,
@@ -638,10 +644,19 @@ class ScoreViewSet(
   ):
   ''' Request an score for a digital resource
   '''
-  queryset = models.Assessment.objects.all()
   serializer_class = serializers.AssessmentSerializer
   filter_class = filters.ScoreFilterSet
   pagination_class = None
+
+  def get_queryset(self):
+    if self.request.user.is_anonymous:
+      return models.Assessment.objects.filter(published=True)
+    return models.Assessment.objects.filter(
+      Q(target__authors=self.request.user)
+      | Q(project__authors=self.request.user)
+      | Q(assessor=self.request.user)
+      | Q(published=True)
+    )
 
   def _retrieve(self, assessment):
     '''
