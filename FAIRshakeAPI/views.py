@@ -439,14 +439,9 @@ class AssessmentViewSet(CustomModelViewSet):
       if '__' in k and k.split('__')[0] == 'target'
     }
 
-    # Strip protocol from url for search
     target_url = target_q.get('url')
-    if target_url:
-      target_url = ''.join(target_url.split('://')[1:])
-      target_q['url'] = target_url
-
     target_filters = [
-      lambda q, _k=k+'__icontains', _v=v: Q(**{_k: _v})
+      lambda q, _k=k+'__url_similar' if k == 'url' else '__icontains', _v=v: Q(**{_k: _v})
       for k, v in target_q.items()
     ]
 
