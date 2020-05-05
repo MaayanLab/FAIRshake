@@ -4,13 +4,13 @@ from rest_framework.documentation import include_docs_urls
 from . import views
 
 router = routers.CustomRouter()
-router.register(r'assessment_request', views.AssessmentRequestViewSet, base_name='assessment_request')
-router.register(r'assessment', views.AssessmentViewSet, base_name='assessment')
-router.register(r'digital_object', views.DigitalObjectViewSet, base_name='digital_object')
-router.register(r'metric', views.MetricViewSet, base_name='metric')
-router.register(r'project', views.ProjectViewSet, base_name='project')
-router.register(r'rubric', views.RubricViewSet, base_name='rubric')
-router.register(r'score', views.ScoreViewSet, base_name='score')
+router.register(r'assessment_request', views.AssessmentRequestViewSet, basename='assessment_request')
+router.register(r'assessment', views.AssessmentViewSet, basename='assessment')
+router.register(r'digital_object', views.DigitalObjectViewSet, basename='digital_object')
+router.register(r'metric', views.MetricViewSet, basename='metric')
+router.register(r'project', views.ProjectViewSet, basename='project')
+router.register(r'rubric', views.RubricViewSet, basename='rubric')
+router.register(r'score', views.ScoreViewSet, basename='score')
 
 urlpatterns = [
   path('', include(router.urls)),
