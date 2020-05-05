@@ -14,8 +14,8 @@ djangorestframework
 drf-yasg
 dynamic-rest
 extruct
-https://github.com/u8sand/django-allauth/archive/0.36.0-fix.zip
-https://github.com/u8sand/PySwaggerClient/archive/v1.0.zip
+git+https://github.com/u8sand/django-allauth.git@0.36.0-fix
+git+https://github.com/u8sand/PySwaggerClient.git@v1.0
 numpy
 objectpath
 packaging
