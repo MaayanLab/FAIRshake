@@ -2,14 +2,15 @@ FROM debian:stable
 
 RUN apt-get update && \
     apt-get -y install \
+        git \
         nginx \
         python3 \
         python3-dev \
-        python3-pip \
         python3-mysqldb \
+        python3-pip \
         python3-setuptools \
-        vim \
-        uwsgi-core
+        uwsgi-core \
+        vim
 
 ADD requirements.txt /requirements.txt
 RUN pip3 install -Ivr /requirements.txt && \
