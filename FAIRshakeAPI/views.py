@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.utils.html import escape
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Q, Avg, Count
+from django.db.models import Q, Avg, Count, Prefetch
 from django.forms import ModelChoiceField
 from django.urls import reverse
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
@@ -245,14 +245,13 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     else:
       q = Q(**{ model: item })
 
-    assessments = models.Assessment.objects.filter(q)
-
-    if model == 'metric':
-      metrics = [item]
-    elif model == 'rubric':
-      metrics = item.metrics.all()
-    else:
-      metrics = models.Metric.objects.filter(id__in=assessments.values_list('answers__metric', flat=True).order_by().distinct())
+    assessments = models.Assessment.objects.filter(q) \
+      .select_related('rubric') \
+      .select_related('target') \
+      .select_related('project') \
+      .prefetch_related(
+        Prefetch('answers', queryset=models.Answer.objects.select_related('metric'))
+      )
 
     assessments_paginated = paginator_cls(
       assessments,
@@ -261,13 +260,24 @@ class IdentifiableModelViewSet(CustomModelViewSet):
       request.GET.get('page')
     )
 
+    if model == 'metric':
+      metrics = [item]
+    elif model == 'rubric':
+      metrics = item.metrics.all()
+    else:
+      metrics = {
+        answer.metric
+        for assessment in assessments_paginated.object_list
+        for answer in assessment.answers.all()
+      }
+
     answers = {
-      '%d-%d' % (assessment.id, answer.metric_id): answer
+      '%d-%d' % (answer.assessment_id, answer.metric_id): answer
       for assessment in assessments_paginated.object_list
-      for answer in (assessment.answers.all() if model == 'rubric' else (
-        assessment.answers.filter(metric__in=metrics)
-      ))
+      for answer in assessment.answers.all()
+      if answer.metric in metrics
     }
+
 
     return dict(context,
       item=item,
@@ -335,7 +345,7 @@ class AssessmentViewSet(CustomModelViewSet):
       Q(target__authors=self.request.user)
       | Q(project__authors=self.request.user)
       | Q(assessor=self.request.user)
-    )
+    ).select_related('answers__metric')
 
   def get_assessment(self):
     ''' Find or create this specific assessment object
@@ -645,13 +655,13 @@ class ScoreViewSet(
 
   def get_queryset(self):
     if self.request.user.is_anonymous:
-      return models.Assessment.objects.filter(published=True)
+      return models.Assessment.objects.filter(published=True).select_related('answer').select_related('metric')
     return models.Assessment.objects.filter(
       Q(target__authors=self.request.user)
       | Q(project__authors=self.request.user)
       | Q(assessor=self.request.user)
       | Q(published=True)
-    )
+    ).select_related('answer').select_related('metric')
 
   def _retrieve(self, assessment):
     '''
