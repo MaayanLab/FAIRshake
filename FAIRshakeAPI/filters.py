@@ -2,15 +2,8 @@ import django_filters as filters
 import logging
 from . import models, search
 
-class AllInFilter(filters.AllValuesFilter, filters.BaseInFilter):
-  pass
-
-class AllInModelFilter(filters.ModelChoiceFilter, filters.BaseInFilter):
-  pass
-
 class IdentifiableFilterSet(filters.FilterSet):
-  id = AllInFilter(field_name='id')
-  authors = AllInModelFilter(queryset=models.Author.objects.all())
+  authors = filters.ModelMultipleChoiceFilter(queryset=models.Author.objects.all())
   q = filters.CharFilter(field_name='id', method='filter_query')
   url = filters.CharFilter(field_name='url', lookup_expr='url_similar')
   url_strict = filters.CharFilter(field_name='url', lookup_expr='url_strict')
@@ -50,36 +43,30 @@ class RubricFilterSet(IdentifiableFilterSet):
 
 
 class AnswerFilterSet(filters.FilterSet):
-  id = AllInFilter()
   class Meta:
     model = models.Answer
     fields = '__all__'
 
 class AssessmentFilterSet(filters.FilterSet):
-  id = AllInFilter()
   class Meta:
     model = models.Assessment
     fields = '__all__'
 
 class AssessmentRequestFilterSet(filters.FilterSet):
-  id = AllInFilter()
   class Meta:
     model = models.AssessmentRequest
     fields = '__all__'
 
 class AuthorFilterSet(filters.FilterSet):
-  id = AllInFilter()
   class Meta:
     model = models.Author
     fields = '__all__'
 
 class ScoreFilterSet(filters.FilterSet):
-  id = AllInFilter()
-
-  digital_object = filters.BaseInFilter(field_name='target')
+  digital_object = filters.ModelChoiceFilter(queryset=models.DigitalObject.objects.all(), field_name='target')
   url = filters.CharFilter(field_name='target__url', lookup_expr='url_similar')
   url_strict = filters.CharFilter(field_name='target__url', lookup_expr='url_strict')
-  metric = filters.BaseInFilter(field_name='rubric__metrics')
+  metric = filters.ModelChoiceFilter(queryset=models.Metric.objects.all(), field_name='rubric__metrics')
 
   class Meta:
     model = models.Assessment
