@@ -10,7 +10,7 @@ django-extensions
 django-filter
 django-livereload-server
 django-rest-auth
-Django==2.0.12
+Django==2.2.13
 djangorestframework
 drf-yasg
 dynamic-rest
