@@ -441,7 +441,7 @@ class AssessmentViewSet(CustomModelViewSet):
 
     target_url = target_q.get('url')
     target_filters = [
-      lambda q, _k=k+'__url_similar' if k == 'url' else '__icontains', _v=v: Q(**{_k: _v})
+      lambda q, _k=k+('__url_similar' if k == 'url' else '__icontains'), _v=v: Q(**{_k: _v})
       for k, v in target_q.items()
     ]
 
