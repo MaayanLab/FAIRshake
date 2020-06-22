@@ -39,7 +39,9 @@ class DigitalObjectSerializer(IdentifiableModelMixinSerializer):
 class ProjectSerializer(IdentifiableModelMixinSerializer):
   class Meta:
     model = models.Project
-    fields = '__all__'
+    exclude = (
+      'digital_objects',
+    )
 
 class MetricSerializer(IdentifiableModelMixinSerializer):
   class Meta:
