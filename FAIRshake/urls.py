@@ -36,3 +36,9 @@ urlpatterns = [
     path(settings.BASE_URL + 'internal/django-des/', include(des_urls)),
     path(settings.BASE_URL + 'internal/ajax_select/', include(ajax_select_urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

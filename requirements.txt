@@ -4,6 +4,7 @@ django-ajax-selects
 django-analytical
 django-bootstrap-form
 django-cors-headers
+django-debug-toolbar
 django-des
 django-extensions
 django-filter
