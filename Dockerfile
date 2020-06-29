@@ -3,6 +3,8 @@ FROM debian:stable
 RUN apt-get update && \
     apt-get -y install \
         git \
+        libmariadb-dev \
+        libmariadb-dev-compat \
         nginx \
         python3 \
         python3-dev \
