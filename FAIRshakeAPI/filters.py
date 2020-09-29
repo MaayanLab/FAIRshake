@@ -63,10 +63,10 @@ class AuthorFilterSet(filters.FilterSet):
     fields = '__all__'
 
 class ScoreFilterSet(filters.FilterSet):
-  digital_object = filters.ModelChoiceFilter(queryset=models.DigitalObject.objects.all(), field_name='target')
+  digital_object = filters.ModelChoiceFilter(queryset=models.DigitalObject.objects.filter(id__isnull=False), field_name='target')
   url = filters.CharFilter(field_name='target__url', lookup_expr='url_similar')
   url_strict = filters.CharFilter(field_name='target__url', lookup_expr='url_strict')
-  metric = filters.ModelChoiceFilter(queryset=models.Metric.objects.all(), field_name='rubric__metrics')
+  metric = filters.ModelChoiceFilter(queryset=models.Metric.objects.filter(id__isnull=False), field_name='rubric__metrics')
 
   class Meta:
     model = models.Assessment

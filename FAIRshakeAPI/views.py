@@ -30,14 +30,12 @@ def callback_or_redirect(request, *args, **kwargs):
 
 def get_or_create(model, **kwargs):
   objects = model.objects.filter(**kwargs)
-  if objects.count() == 0:
+  if not objects.exists():
     obj = model(**{
       k: v for k, v in kwargs.items() if v
     })
     obj.save()
     return obj
-  if objects.count() > 1:
-    logging.warn('get_or_create got more than 1 object. (%s)' % (kwargs))
   return objects.last()
 
 def redirect_with_params(request, *args, **kwargs):
@@ -67,11 +65,11 @@ class CustomModelViewSet(viewsets.ModelViewSet):
     return self.get_model()._meta.verbose_name_raw
   
   def get_queryset(self):
-    return getattr(self, 'queryset', self.get_model().objects.all())
+    return getattr(self, 'queryset', self.get_model().objects.filter(id__isnull=False).order_by(*self.get_model()._meta.ordering))
   
   def filter_queryset(self, qs):
     ''' Ensure all resulting filter sets are distinct '''
-    return super().filter_queryset(qs).order_by(*self.get_model()._meta.ordering).distinct()
+    return super().filter_queryset(qs).distinct()
 
   def get_template_names(self):
     return ['fairshake/generic/page.html']
@@ -92,7 +90,7 @@ class IdentifiableModelViewSet(CustomModelViewSet):
   def get_model_children(self, obj):
     for child in self.get_model().MetaEx.children:
       child_attr = getattr(obj, child)
-      yield (child_attr.model._meta.verbose_name_raw, child_attr.all())
+      yield (child_attr.model._meta.verbose_name_raw, child_attr.order_by('id'))
 
   def get_form(self):
     form_cls = self.form
@@ -472,8 +470,9 @@ class AssessmentViewSet(CustomModelViewSet):
       if not targets:
         targets = search.DigitalObjectSearchVector().query(q)
       
-      if targets.count() == 1:
-        target = targets.first().id
+      targets = targets[:10]
+      if len(targets) == 1:
+        target = targets[0].id
 
     if rubric:
       if target:
@@ -485,9 +484,10 @@ class AssessmentViewSet(CustomModelViewSet):
       if target:
         rubrics = targets.first().rubrics.all()
       if rubrics is None or not rubrics.exists():
-        rubrics = models.Rubric.objects.all()
-      if rubrics.count() == 1:
-        rubric = rubrics.first().id
+        rubrics = models.Rubric.objects.filter(id__isnull=False)
+      rubrics = rubrics[:10]
+      if len(rubrics) == 1:
+        rubric = rubrics[0].id
 
     if project:
       if target:
@@ -499,17 +499,18 @@ class AssessmentViewSet(CustomModelViewSet):
       if target:
         projects = targets.first().projects.all()
       if projects is None or not projects.exists():
-        projects = models.Project.objects.all()
-      if projects.count() == 1:
-        project = projects.first().id
+        projects = models.Project.objects.filter(id__isnull=False)
+      projects = projects[:10]
+      if len(projects) == 1:
+        project = projects[0].id
 
     return {
       'target': target,
       'rubric': rubric,
       'project': project,
-      'targets': targets[:10],
-      'rubrics': rubrics[:10],
-      'projects': projects[:10],
+      'targets': targets,
+      'rubrics': rubrics,
+      'projects': projects,
     }
 
   def save_answer_forms(self, answer_forms):

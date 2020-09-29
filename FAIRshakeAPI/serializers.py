@@ -28,7 +28,7 @@ class IdentifiableModelMixinSerializer(serializers.ModelSerializer):
 
 class DigitalObjectSerializer(IdentifiableModelMixinSerializer):
   projects = serializers.PrimaryKeyRelatedField(
-    queryset=models.Project.objects.all(),
+    queryset=models.Project.objects.filter(id__isnull=False),
     many=True,
   )
 
@@ -62,9 +62,9 @@ class AnswerSerializer(serializers.ModelSerializer):
     )
 
 class AssessmentSerializer(serializers.ModelSerializer):
-  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.all())
-  target = serializers.PrimaryKeyRelatedField(queryset=models.DigitalObject.objects.all())
-  rubric = serializers.PrimaryKeyRelatedField(queryset=models.Rubric.objects.all())
+  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.filter(id__isnull=False))
+  target = serializers.PrimaryKeyRelatedField(queryset=models.DigitalObject.objects.filter(id__isnull=False))
+  rubric = serializers.PrimaryKeyRelatedField(queryset=models.Rubric.objects.filter(id__isnull=False))
 
   answers = AnswerSerializer(many=True)
 
@@ -86,9 +86,9 @@ class AssessmentSerializer(serializers.ModelSerializer):
     )
 
 class AssessmentResponseSerializer(serializers.ModelSerializer):
-  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.all())
-  target = serializers.PrimaryKeyRelatedField(queryset=models.DigitalObject.objects.all())
-  rubric = serializers.PrimaryKeyRelatedField(queryset=models.Rubric.objects.all())
+  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.filter(id__isnull=False))
+  target = serializers.PrimaryKeyRelatedField(queryset=models.DigitalObject.objects.filter(id__isnull=False))
+  rubric = serializers.PrimaryKeyRelatedField(queryset=models.Rubric.objects.filter(id__isnull=False))
 
   class Meta:
     model = models.Assessment
