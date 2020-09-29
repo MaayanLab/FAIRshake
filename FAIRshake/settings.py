@@ -215,6 +215,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
             'read_default_file': MYSQL_CONFIG,
+            'init_command': 'SET max_execution_time=30000',
         },
     }
 }
