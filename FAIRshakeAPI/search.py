@@ -26,10 +26,10 @@ class SearchVector:
 
 class IdentifiableSearchVector(SearchVector):
   filters = [
-    lambda q: Q(title__icontains=q),
+    lambda q: Q(title__search=q),
     lambda q: Q(url__url_similar=q),
-    lambda q: Q(description__icontains=q),
-    lambda q: Q(tags__icontains=q),
+    lambda q: Q(description__search=q),
+    lambda q: Q(tags__search=q),
     lambda q: Q(authors__first_name__istartswith=q),
     lambda q: Q(authors__last_name__istartswith=q),
     lambda q: Q(authors__email__istartswith=q),

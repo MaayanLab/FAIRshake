@@ -1,5 +1,5 @@
 from django.db.models import Lookup
-from django.db.models.fields import TextField
+from django.db.models.fields import TextField, CharField
 
 def _sql_concat(lhs, rhs):
   return '{lhs} || {rhs}'.format(lhs=lhs, rhs=rhs)
@@ -24,6 +24,17 @@ def _sql_case(*kargs):
     '\n'.join('WHEN {} THEN {}'.format(arg['when'], arg['then']) for arg in args),
     last_arg,
   )
+
+@TextField.register_lookup
+@CharField.register_lookup
+class Search(Lookup):
+  lookup_name = 'search'
+
+  def as_mysql(self, compiler, connection):
+    lhs, lhs_params = self.process_lhs(compiler, connection)
+    rhs, rhs_params = self.process_rhs(compiler, connection)
+    params = lhs_params + rhs_params
+    return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
 
 @TextField.register_lookup
 class UrlSimilar(Lookup):
