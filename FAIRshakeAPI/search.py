@@ -30,8 +30,9 @@ class IdentifiableSearchVector(SearchVector):
     lambda q: Q(url__url_similar=q),
     lambda q: Q(description__icontains=q),
     lambda q: Q(tags__icontains=q),
-    lambda q: Q(type__icontains=q),
-    lambda q: Q(authors__first_name__icontains=q),
+    lambda q: Q(authors__first_name__istartswith=q),
+    lambda q: Q(authors__last_name__istartswith=q),
+    lambda q: Q(authors__email__istartswith=q),
   ]
 
 class ProjectSearchVector(IdentifiableSearchVector):
