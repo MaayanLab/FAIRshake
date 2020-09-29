@@ -11,3 +11,9 @@ def query_dict(*args, **kwargs):
     for k, v in arg.items():
       qd[k] = v
   return qd
+
+def b64_sha1_hash(s):
+  import json, base64, hashlib
+  sha1 = hashlib.sha1()
+  sha1.update(s.encode())
+  return base64.b64encode(sha1.digest(), b'-_').decode()

@@ -1,18 +1,53 @@
 import re
 import json
 import logging
+import urllib.parse
 from scripts.colors import hex_to_rgba
 from scripts.linear_map import linear_map, linear_map_ints
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from collections import OrderedDict
 from django.core.cache import cache
+from FAIRshakeAPI.util import b64_sha1_hash
+
+class Url(models.Model):
+  id = models.CharField(max_length=28, blank=False, primary_key=True)
+  scheme = models.CharField(max_length=16, blank=False)
+  netloc = models.CharField(max_length=255, blank=False)
+  path = models.CharField(max_length=255, blank=False)
+  query = models.CharField(max_length=255, blank=False)
+  fragment = models.CharField(max_length=255, blank=False)
+
+  def to_url(self):
+    url = self.scheme + '://' + self.netloc + self.path
+    if self.query:
+      url += '?' + self.query
+    if self.fragment:
+      url += '?' + self.fragment
+    return url
+
+  @staticmethod
+  def from_url(url):
+    if '://' not in url:
+      url = 'https://identifiers.org/' + url
+    id = b64_sha1_hash(url)
+    try:
+      return Url.objects.get(id=id)
+    except Url.DoesNotExist:
+      url_parsed = urllib.parse.urlparse(url)
+      return Url.objects.create(
+        id=id,
+        scheme=url_parsed.scheme,
+        netloc=url_parsed.netloc,
+        path=url_parsed.path,
+        query=url_parsed.query,
+        fragment=url_parsed.fragment,
+      )
 
 class IdentifiableModelMixin(models.Model):
   id = models.AutoField(primary_key=True)
 
   title = models.CharField(max_length=255, blank=False)
-  url = models.TextField(blank=True, null=False, default='')
   description = models.TextField(blank=True, null=False, default='')
   image = models.CharField(max_length=255, blank=True, null=False, default='')
   tags = models.CharField(max_length=255, blank=True, null=False, default='')
@@ -26,14 +61,14 @@ class IdentifiableModelMixin(models.Model):
     ('tool', 'Tool'),
   ))
 
+  url = models.ManyToManyField('Url', blank=True)
   authors = models.ManyToManyField('Author', blank=True)
 
   def urls_as_list(self):
     ''' Split urls by space or newline '''
     return [
-      url
-      for url in map(str.strip, re.split(r'[\n ]+', self.url))
-      if url
+      url.to_url()
+      for url in self.url
     ]
 
   def tags_as_list(self):
@@ -91,9 +126,9 @@ class Project(IdentifiableModelMixin):
     ]
 
 class DigitalObject(IdentifiableModelMixin):
-  # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
+  # A digital object's title is optional while its url is mandatory, unlike the rest of the identifiables
   title = models.CharField(max_length=255, blank=True, null=False, default='')
-  url = models.TextField(max_length=255, blank=False)
+  url = models.ManyToManyField('Url', blank=False)
 
   rubrics = models.ManyToManyField('Rubric', blank=True, related_name='digital_objects')
 
