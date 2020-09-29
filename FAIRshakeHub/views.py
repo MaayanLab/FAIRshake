@@ -5,6 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 from django import http
 from django.views.decorators.clickjacking import xframe_options_exempt
+from extensions.django.union_paginator import UnionPaginator
 from FAIRshakeAPI import search, models, stats
 
 def index(request):
@@ -31,15 +32,9 @@ def index(request):
     if filter_metrics:
       vectors.append(search.MetricSearchVector())
 
-  items = [
-    result
-    for vector in vectors
-    for result in vector.query(q)
-  ]
-  paginator = Paginator(
-    items,
-    page_size,
-  )
+  paginator = UnionPaginator([
+    vector.query(q) for vector in vectors
+  ], page_size)
 
   return render(request, 'fairshake/index.html', dict(
       query=q,
