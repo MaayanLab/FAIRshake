@@ -73,6 +73,9 @@
           <li{% if active_page == "bookmarklet" %} class="active"{% endif %}>
             <a href="{% url 'bookmarklet' %}">Install Bookmarklet</a>
           </li>
+          <li{% if active_page == "documentation" %} class="active"{% endif %}>
+            <a href="{% url 'documentation' %}">Documentation</a>
+          </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           {% if not user.is_authenticated %}
