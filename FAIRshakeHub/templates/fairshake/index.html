@@ -112,27 +112,25 @@
             {% include "fairshake/generic/element.html" %}
           {% endwith %}
         {% endfor %}
-        {% if user.is_authenticated %}
-          {% if filter_projects %}
-            {% with model='project' %}
-              {% include "fairshake/generic/create.html" %}
-            {% endwith %}
-          {% endif %}
-          {% if filter_digital_objects %}
-            {% with model='digital_object' %}
-              {% include "fairshake/generic/create.html" %}
-            {% endwith %}
-          {% endif %}
-          {% if filter_rubrics %}
-            {% with model='rubric' %}
-              {% include "fairshake/generic/create.html" %}
-            {% endwith %}
-          {% endif %}
-          {% if filter_metrics %}
-            {% with model='metric' %}
-              {% include "fairshake/generic/create.html" %}
-            {% endwith %}
-          {% endif %}
+        {% if filter_projects %}
+          {% with model='project' %}
+            {% include "fairshake/generic/create.html" %}
+          {% endwith %}
+        {% endif %}
+        {% if filter_digital_objects %}
+          {% with model='digital_object' %}
+            {% include "fairshake/generic/create.html" %}
+          {% endwith %}
+        {% endif %}
+        {% if filter_rubrics %}
+          {% with model='rubric' %}
+            {% include "fairshake/generic/create.html" %}
+          {% endwith %}
+        {% endif %}
+        {% if filter_metrics %}
+          {% with model='metric' %}
+            {% include "fairshake/generic/create.html" %}
+          {% endwith %}
         {% endif %}
         {% with url_prefix="q="|add:query %}
           {% include "fairshake/generic/page_nav.html" %}

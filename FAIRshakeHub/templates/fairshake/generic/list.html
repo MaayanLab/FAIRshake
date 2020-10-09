@@ -3,8 +3,6 @@
   {% for item in items %}
     {% include "fairshake/generic/element.html" %}
   {% endfor %}
-  {% if user.is_authenticated %}
-    {% include "fairshake/generic/create.html" %}
-  {% endif %}
+  {% include "fairshake/generic/create.html" %}
   {% include "fairshake/generic/page_nav.html" %}
 </div>
