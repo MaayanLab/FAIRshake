@@ -12,7 +12,7 @@
             {% endif %}
           />
         </a>
-        {% if model == "digital_object" and user.is_authenticated %}
+        {% if model == "digital_object" %}
           <div>
             <a
               href="{% url 'assessment-perform' %}{% if parent_model %}{% query parent_model parent_item.id target=item.id %}{% else %}{% query target=item.id %}{% endif %}"
