@@ -18,7 +18,6 @@ def index(request):
   filter_metrics = bool(request.GET.get('metrics', 0))
 
   page = request.GET.get('page', 1)
-  page_size = settings.REST_FRAMEWORK['SEARCH_PAGE_SIZE']
 
 
   vectors = []
@@ -34,7 +33,7 @@ def index(request):
 
   paginator = UnionPaginator([
     vector.query(q) for vector in vectors
-  ], page_size)
+  ], 12)
 
   return render(request, 'fairshake/index.html', dict(
       query=q,
