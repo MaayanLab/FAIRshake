@@ -12,7 +12,7 @@ class IdentifiableLookupChannel(LookupChannel):
 
   def format_item_display(self, item):
     return render_to_string(
-      'fairshake/generic/element.html',
+      'fairshake/generic/element-offset.html',
       dict(
         model=self.model._meta.verbose_name_raw,
         item=item,
@@ -22,7 +22,7 @@ class IdentifiableLookupChannel(LookupChannel):
 class EmbeddedIdentifiableLookupChannel(IdentifiableLookupChannel):
   def format_item_display(self, item):
     return render_to_string(
-      'fairshake/generic/element.html',
+      'fairshake/generic/element-offset.html',
       dict(
         model=self.model._meta.verbose_name_raw,
         item=item,
