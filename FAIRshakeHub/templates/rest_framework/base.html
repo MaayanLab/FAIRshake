@@ -1,0 +1,17 @@
+{% extends "rest_framework/base.html" %}
+
+{% load google_analytics %}
+
+{% block style %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'style/base.css' %}" />
+{% endblock %}
+
+{% block script %}
+  {{ block.super }}
+  {% google_analytics %}
+{% endblock %}
+
+{% block branding %}
+  <a class="navbar-brand" href="#">FAIRshake API Browser</a>
+{% endblock %}
