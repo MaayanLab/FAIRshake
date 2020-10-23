@@ -10,7 +10,7 @@ class IdentifiableForm(forms.ModelForm):
   def __init__(self, *args, **kwargs):
     super(IdentifiableForm, self).__init__(*args, **kwargs)
 
-    for child in self.Meta.model.MetaEx.children:
+    for child in self.Meta.model.MetaEx.form_children:
       self.fields[child] = AutoCompleteSelectMultipleField(
         child,
         required=False,
@@ -23,7 +23,7 @@ class IdentifiableForm(forms.ModelForm):
     '''
     instance = super(IdentifiableForm, self).save(self, *args, **kwargs)
     if commit:
-      for child in self.Meta.model.MetaEx.children:
+      for child in self.Meta.model.MetaEx.form_children:
         child_attr = getattr(instance, child)
         if child_attr.reverse:
           child_attr.clear()
@@ -44,7 +44,6 @@ class ProjectForm(IdentifiableForm):
       'image',
       'tags',
       'type',
-      'digital_objects',
       'authors',
     )
 

@@ -88,7 +88,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
 class IdentifiableModelViewSet(CustomModelViewSet):
   def get_model_children(self, obj):
-    for child in self.get_model().MetaEx.children:
+    for child in self.get_model().MetaEx.visual_children:
       child_attr = getattr(obj, child)
       yield (child_attr.model._meta.verbose_name_raw, child_attr.order_by('id'))
 

@@ -77,6 +77,18 @@ class IdentifiableModelMixin(models.Model):
   class Meta:
     abstract = True
 
+  class MetaEx:
+    fields = [
+      'id',
+      'title',
+      'url',
+      'description',
+      'image',
+      'tags',
+      'type',
+      'authors',
+    ]
+
 class Project(IdentifiableModelMixin):
   digital_objects = models.ManyToManyField('DigitalObject', blank=True, related_name='projects')
   
@@ -86,9 +98,11 @@ class Project(IdentifiableModelMixin):
     ordering = ['id']
 
   class MetaEx:
-    children = [
+    fields = IdentifiableModelMixin.MetaEx.fields
+    visual_children = [
       'digital_objects',
     ]
+    form_children = []
 
 class DigitalObject(IdentifiableModelMixin):
   # A digital object's title is optional while its url is mandator, unlike the rest of the identifiables
@@ -103,7 +117,12 @@ class DigitalObject(IdentifiableModelMixin):
     ordering = ['id']
 
   class MetaEx:
-    children = [
+    fields = IdentifiableModelMixin.MetaEx.fields
+    visual_children = [
+      'projects',
+      'rubrics',
+    ]
+    form_children = [
       'projects',
       'rubrics',
     ]
@@ -119,9 +138,15 @@ class Rubric(IdentifiableModelMixin):
     ordering = ['id']
 
   class MetaEx:
-    children = [
+    fields = IdentifiableModelMixin.MetaEx.fields + [
+      'license',
+    ]
+    visual_children = [
       'metrics',
       'digital_objects',
+    ]
+    form_children = [
+      'metrics',
     ]
 
 class Metric(IdentifiableModelMixin):
@@ -149,7 +174,16 @@ class Metric(IdentifiableModelMixin):
     ordering = ['id']
 
   class MetaEx:
-    children = [
+    fields = IdentifiableModelMixin.MetaEx.fields + [
+      'license',
+      'rationale',
+      'principle',
+      'fairmetrics',
+    ]
+    visual_children = [
+      'rubrics',
+    ]
+    form_children = [
       'rubrics',
     ]
 
@@ -237,7 +271,20 @@ class Assessment(models.Model):
     ordering = ['id']
 
   class MetaEx:
-    children = [
+    fields = [
+      'id',
+      'published',
+      'project',
+      'target',
+      'rubric',
+      'methodology',
+      'assessor',
+      'timestamp',
+    ]
+    visual_children = [
+      'answers',
+    ]
+    form_children = [
       'answers',
     ]
 
