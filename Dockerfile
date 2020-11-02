@@ -2,9 +2,11 @@ FROM debian:stable
 
 RUN apt-get update && \
     apt-get -y install \
+        gcc \
         git \
         libmariadb-dev \
         libmariadb-dev-compat \
+        libpq-dev \
         nginx \
         python3 \
         python3-dev \

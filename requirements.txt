@@ -16,11 +16,12 @@ djangorestframework==3.11.0
 drf-yasg==1.17.1
 dynamic-rest==1.9.6
 extruct==0.9.0
-git+https://github.com/u8sand/PySwaggerClient.git@v1.0
 mysqlclient==1.4.6
 numpy==1.19.0
 objectpath==0.6.1
 packaging==20.4
 plotly==4.8.2
+psycopg2==2.8.6
 PyMySQL==0.9.3
+pyswaggerclient @ git+https://github.com/u8sand/PySwaggerClient.git@v1.0
 swagger-spec-validator==2.7.3
