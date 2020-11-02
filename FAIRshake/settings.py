@@ -28,6 +28,7 @@ SECRET_KEY_FILE = os.environ.get(
     '/config/secret.txt' if os.path.isfile('/config/secret.txt') else None
 )
 
+# NOTE: for those who are nervous, this is not the SECRET_KEY used in production
 SECRET_KEY = '^r26!v-me2p&1(qaqr1m@h1n*@$t-57f!4sd9f$d3)xnk&kj9)' if SECRET_KEY_FILE is None else open(SECRET_KEY_FILE, 'r').read()
 
 DEBUG = os.environ.get('DEBUG', False)
