@@ -5,6 +5,6 @@ __pycache__
 *.pyc
 *.sqlite3
 my.cnf
-ssl/
+/config/
 /static/
 venv/

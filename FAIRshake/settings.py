@@ -25,7 +25,7 @@ BASE_URL = ''
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY_FILE = os.environ.get(
     'SECRET_KEY_FILE',
-    '/ssl/secret.txt' if os.path.isfile('/ssl/secret.txt') else None
+    '/config/secret.txt' if os.path.isfile('/config/secret.txt') else None
 )
 
 SECRET_KEY = '^r26!v-me2p&1(qaqr1m@h1n*@$t-57f!4sd9f$d3)xnk&kj9)' if SECRET_KEY_FILE is None else open(SECRET_KEY_FILE, 'r').read()
@@ -36,7 +36,7 @@ ALLOWED_HOSTS = [
     'localhost',
     'fairshake.cloud',
     'www.fairshake.cloud',
-]
+] if not os.environ.get('ALLOWED_HOSTS') else json.loads(os.environ['ALLOWED_HOSTS'])
 
 INTERNAL_IPS = (
     '127.0.0.1',
@@ -202,11 +202,11 @@ AUTH_USER_MODEL = 'FAIRshakeAPI.Author'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASE_CONFIG_JSON = json.load('DATABASE_CONFIG_JSON') if 'DATABASE_CONFIG_JSON' in os.environ else None
+DATABASE_CONFIG_JSON = json.loads(os.environ['DATABASE_CONFIG_JSON']) if os.environ.get('DATABASE_CONFIG_JSON') else None
 
 MYSQL_CONFIG = os.environ.get(
     'MYSQL_CONFIG',
-    '/ssl/my.cnf' if os.path.isfile('/ssl/my.cnf') else None
+    '/config/my.cnf' if os.path.isfile('/config/my.cnf') else None
 )
 
 if DATABASE_CONFIG_JSON is not None:
@@ -324,7 +324,7 @@ ADMINS = [
 
 ASSESSMENT_CONFIG_FILE = os.environ.get(
     'ASSESSMENT_CONFIG_FILE',
-    '/ssl/config.json' if os.path.isfile('/ssl/config.json') else None
+    '/config/config.json' if os.path.isfile('/config/config.json') else None
 )
 
 ASSESSMENT_CONFIG = json.load(

@@ -34,7 +34,7 @@ To render the page properly in development, it's necessary to collect staticfile
 export DEBUG=1
 
 # Specify location of mysql config file for production database
-export MYSQL_CONFIG=$(pwd)/ssl/my.cnf
+export MYSQL_CONFIG=$(pwd)/config/my.cnf
 ```
 
 ### Django Shell
@@ -93,12 +93,12 @@ coverage run --source='.' manage.py test && coverage report
 
 ## Production
 ### Secret values
-For the docker-compose to work properly in production, `/ssl/` should have the following files:
+For the docker-compose to work properly in production, `/config/` should have the following files:
 - `my.cnf`: mysql configuration file with production database credentials
   - This file can be specified with `MYSQL_CONFIG` environment variable
 - `secret.txt`: Secret key for production (random private string of characters)
-- `cert.key`: SSL Private Key
-- `cert.crt`: SSL CA Signed Public Key
+- `cert.key`: SSL Private Key (optional, for https)
+- `cert.crt`: SSL CA Signed Public Key (optional, for https)
 
 ### Email
 Can be configured by the administrator [here](http://localhost:8000/admin/des/dynamicemailconfiguration/). If using gmail, ensure you [allow less secure apps](https://myaccount.google.com/lesssecureapps).

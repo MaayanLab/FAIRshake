@@ -2,10 +2,10 @@ __pycache__/
 .git*
 *.pyc
 *.sqlite3
+/config/
 Dockerfile
 fairshake.sql
 my.cnf
 README.md
 run.py
-ssl/
 venv/

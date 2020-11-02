@@ -3,7 +3,7 @@
 user=r
 
 diskroot=/fairshake
-sslroot=/ssl
+sslroot=/config
 log=$diskroot/error.log
 
 servername=fairshake.cloud
