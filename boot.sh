@@ -57,6 +57,10 @@ http {
     server {
         listen          80;
         server_name     $servername;
+EOF
+
+if [ -f "${sslroot}/cert.crt" -a -f "${sslroot}/cert.key" ]; then
+cat << EOF | tee -a $diskroot/nginx.conf >> $log
         rewrite ^/(.*)  https://\$host/\$1 permanent;
     }
     server {
@@ -70,7 +74,11 @@ http {
         ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_prefer_server_ciphers on;
         ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+EOF
 
+fi
+
+cat << EOF | tee -a $diskroot/nginx.conf >> $log
         include /etc/nginx/mime.types;
         charset utf-8;
         client_max_body_size 20M;
