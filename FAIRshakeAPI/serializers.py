@@ -30,6 +30,7 @@ class DigitalObjectSerializer(IdentifiableModelMixinSerializer):
   projects = serializers.PrimaryKeyRelatedField(
     queryset=models.Project.objects.filter(id__isnull=False),
     many=True,
+    required=False,
   )
 
   class Meta:

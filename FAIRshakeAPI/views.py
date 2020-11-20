@@ -15,7 +15,7 @@ from django.core.cache import cache
 from django.db.models import Q, Avg, Count, Prefetch
 from django.forms import ModelChoiceField
 from django.urls import reverse
-from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions
+from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions, status
 from functools import reduce
 from collections import defaultdict, OrderedDict
 
@@ -36,8 +36,8 @@ def get_or_create(model, **kwargs):
       k: v for k, v in kwargs.items() if v
     })
     obj.save()
-    return obj
-  return objects.last()
+    return obj, False
+  return objects.last(), True
 
 def redirect_with_params(request, *args, **kwargs):
   return shortcuts.redirect(
@@ -120,6 +120,24 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     if form.is_valid():
       instance = form.save()
       return instance
+
+  @swagger_auto_schema(methods=['post'])
+  @decorators.action(
+    detail=False, methods=['post'],
+    renderer_classes=[
+      renderers.JSONRenderer,
+      CustomBrowsableAPIRenderer,
+    ],
+  )
+  def get_or_create(self, request, **kwargs):
+    ''' Probe a digital object for the answers to various assessments
+    '''
+    serializer = self.get_serializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    item, found = get_or_create(self.get_model(), **serializer.validated_data)
+    serialized_item = self.get_serializer(item)
+    headers = self.get_success_headers(serialized_item.data)
+    return response.Response(serialized_item.data, status=status.HTTP_200_OK if found else status.HTTP_201_CREATED, headers=headers)
 
   @swagger_auto_schema(methods=['get'], auto_schema=None)
   @decorators.action(
@@ -391,7 +409,7 @@ class AssessmentViewSet(CustomModelViewSet):
 
     # Get or create the assessment
     if project_id:
-      assessment = get_or_create(models.Assessment,
+      assessment, _ = get_or_create(models.Assessment,
         published=False,
         project=models.Project.objects.get(id=project_id),
         target=models.DigitalObject.objects.get(id=target_id),
@@ -400,7 +418,7 @@ class AssessmentViewSet(CustomModelViewSet):
         methodology='user',
       )
     else:
-      assessment = get_or_create(models.Assessment,
+      assessment, _ = get_or_create(models.Assessment,
         published=False,
         project=None,
         target=models.DigitalObject.objects.get(id=target_id),
@@ -411,7 +429,7 @@ class AssessmentViewSet(CustomModelViewSet):
 
     # Ensure answers are created
     for metric in assessment.rubric.metrics.all():
-      answer = get_or_create(models.Answer,
+      answer, _ = get_or_create(models.Answer,
         assessment=assessment,
         metric=metric,
       )
