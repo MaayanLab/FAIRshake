@@ -6,6 +6,7 @@ from . import serializers, filters, models, forms, search
 from .permissions import ModelDefinedPermissions
 from .assessments import Assessment
 from .util import query_dict
+from drf_yasg.utils import swagger_auto_schema
 from django import shortcuts, forms as django_forms
 from django.http import HttpResponse
 from django.utils.html import escape
@@ -120,16 +121,18 @@ class IdentifiableModelViewSet(CustomModelViewSet):
       instance = form.save()
       return instance
 
+  @swagger_auto_schema(methods=['get'], auto_schema=None)
   @decorators.action(
-    detail=True, methods=['get'],
+    detail=True, methods=['get'], schema=None,
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def assessments(self, request, pk=None, **kwargs):
     self.check_permissions(request)
     return response.Response()
 
+  @swagger_auto_schema(methods=['get', 'post'], auto_schema=None)
   @decorators.action(
-    detail=False, methods=['get', 'post'],
+    detail=False, methods=['get', 'post'], schema=None,
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def add(self, request, pk=None, **kwargs):
@@ -159,9 +162,10 @@ class IdentifiableModelViewSet(CustomModelViewSet):
       )
     return response.Response()
 
+  @swagger_auto_schema(methods=['get', 'post'], auto_schema=None)
   @decorators.action(
     detail=True,
-    methods=['get', 'post'],
+    methods=['get', 'post'], schema=None,
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def modify(self, request, pk=None):
@@ -177,9 +181,10 @@ class IdentifiableModelViewSet(CustomModelViewSet):
       )
     return response.Response()
 
+  @swagger_auto_schema(methods=['get'], auto_schema=None)
   @decorators.action(
     detail=True,
-    methods=['get'],
+    methods=['get'], schema=None,
   )
   def remove(self, request, pk=None):
     item = self.get_object()
@@ -308,9 +313,10 @@ class ProjectViewSet(IdentifiableModelViewSet):
   serializer_class = serializers.ProjectSerializer
   filter_class = filters.ProjectFilterSet
   
+  @swagger_auto_schema(methods=['get'], auto_schema=None)
   @decorators.action(
     detail=True,
-    methods=['get'],
+    methods=['get'], schema=None,
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def stats(self, request, pk=None):
@@ -529,8 +535,9 @@ class AssessmentViewSet(CustomModelViewSet):
       #   answer_form.instance.delete()
     return True
 
+  @swagger_auto_schema(methods=['get'], auto_schema=None)
   @decorators.action(
-    detail=False, methods=['get'],
+    detail=False, methods=['get'], schema=None,
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def prepare(self, request, **kwargs):
@@ -539,8 +546,9 @@ class AssessmentViewSet(CustomModelViewSet):
     self.check_permissions(request)
     return response.Response()
 
+  @swagger_auto_schema(methods=['get', 'post'], auto_schema=None)
   @decorators.action(
-    detail=False, methods=['get', 'post'],
+    detail=False, methods=['get', 'post'], schema=None,
     renderer_classes=[CustomTemplateHTMLRenderer],
   )
   def perform(self, request, **kwargs):
@@ -566,9 +574,10 @@ class AssessmentViewSet(CustomModelViewSet):
         )
     return response.Response()
 
+  @swagger_auto_schema(methods=['get'], auto_schema=None)
   @decorators.action(
     detail=True,
-    methods=['get'],
+    methods=['get'], schema=None,
   )
   def remove(self, request, pk=None):
     item = self.get_object()
@@ -774,8 +783,9 @@ class ScoreViewSet(
   def retrieve(self, request, pk=None):
     return self._retrieve(self.get_object())
 
+  @swagger_auto_schema(methods=['get'], auto_schema=None)
   @decorators.action(
-    detail=False, methods=['get'],
+    detail=False, methods=['get'], schema=None,
   )
   def hist(self, request):
     '''
