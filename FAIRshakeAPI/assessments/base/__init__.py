@@ -74,5 +74,6 @@ class Assessment:
               # TODO: smarter collision detection
               if have.get(output_key) is None and output:
                 have[output_key] = output
-
+    del have['target']
+    del have['rubric']
     return have

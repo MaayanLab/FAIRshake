@@ -301,6 +301,27 @@ class DigitalObjectViewSet(IdentifiableModelViewSet):
   serializer_class = serializers.DigitalObjectSerializer
   filter_class = filters.DigitalObjectFilterSet
 
+  @swagger_auto_schema(methods=['get'])
+  @decorators.action(
+    detail=True, methods=['get'],
+    renderer_classes=[
+      renderers.JSONRenderer,
+      CustomBrowsableAPIRenderer,
+    ],
+  )
+  def probe(self, request, **kwargs):
+    ''' Probe a digital object for the answers to various assessments
+    '''
+    item = self.get_object()
+    self.check_object_permissions(request, item)
+    from FAIRshakeAPI.assessments import Assessment
+    results = {
+      rubric.id: Assessment.perform(item, rubric)
+      for rubric in item.rubrics.all()
+    }
+    print(results)
+    return response.Response(results)
+
 class MetricViewSet(IdentifiableModelViewSet):
   model = models.Metric
   form = forms.MetricForm
