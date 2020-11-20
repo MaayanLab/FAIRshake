@@ -43,6 +43,12 @@ def redirect_with_params(request, *args, **kwargs):
     reverse(*args, **kwargs) + '?' + request.GET.urlencode()
   )
 
+class CustomBrowsableAPIRenderer(renderers.BrowsableAPIRenderer):
+  def get_rendered_html_form(self, response, viewset, method, request, **kwargs):
+    return ''
+  def get_extra_actions(self, *args, **kwargs):
+    return None
+
 class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
   def get_template_context(self, data, renderer_context):
     context = super(CustomTemplateHTMLRenderer, self).get_template_context(data, renderer_context) or {}
@@ -54,7 +60,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
   renderer_classes = [
     renderers.JSONRenderer,
     CustomTemplateHTMLRenderer,
-    renderers.BrowsableAPIRenderer,
+    CustomBrowsableAPIRenderer,
   ]
   permission_classes = [ModelDefinedPermissions,]
 
