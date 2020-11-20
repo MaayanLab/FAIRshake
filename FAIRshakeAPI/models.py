@@ -60,7 +60,7 @@ class IdentifiableModelMixin(models.Model):
   def has_permission(self, user, perm):
     if perm in ['list', 'retrieve', 'stats', 'assessments']:
       return True
-    elif perm in ['create', 'add']:
+    elif perm in ['create', 'add', 'probe']:
       return user.is_authenticated or user.is_staff
     elif perm in ['modify', 'remove', 'delete', 'update', 'partial_update', 'destroy']:
       if self is None:
