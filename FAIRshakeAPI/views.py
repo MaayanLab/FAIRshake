@@ -15,6 +15,7 @@ from django.core.cache import cache
 from django.db.models import Q, Avg, Count, Prefetch
 from django.forms import ModelChoiceField
 from django.urls import reverse
+from django.core.exceptions import MultipleObjectsReturned
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions, status
 from functools import reduce
 from collections import defaultdict, OrderedDict
@@ -31,13 +32,11 @@ def callback_or_redirect(request, *args, **kwargs):
 
 def get_or_create(model, **kwargs):
   objects = model.objects.filter(**kwargs)
-  if not objects.exists():
-    obj = model(**{
-      k: v for k, v in kwargs.items() if v
-    })
-    obj.save()
-    return obj, False
-  return objects.last(), True
+  try:
+    obj, created = objects.get_or_create(**kwargs)
+    return obj, not created
+  except MultipleObjectsReturned:
+    return objects.last(), True
 
 def redirect_with_params(request, *args, **kwargs):
   return shortcuts.redirect(
@@ -409,7 +408,13 @@ class AssessmentViewSet(CustomModelViewSet):
 
     # Get or create the assessment
     if project_id:
-      assessment, _ = get_or_create(models.Assessment,
+      assessment, _ = models.Assessment.objects \
+        .select_related('rubric') \
+        .select_related('target') \
+        .select_related('project') \
+        .prefetch_related('rubric__metrics') \
+        .prefetch_related('answers') \
+        .get_or_create(
         published=False,
         project=models.Project.objects.get(id=project_id),
         target=models.DigitalObject.objects.get(id=target_id),
@@ -418,7 +423,12 @@ class AssessmentViewSet(CustomModelViewSet):
         methodology='user',
       )
     else:
-      assessment, _ = get_or_create(models.Assessment,
+      assessment, _ = models.Assessment.objects \
+        .select_related('rubric') \
+        .select_related('target') \
+        .prefetch_related('rubric__metrics') \
+        .prefetch_related('answers') \
+        .get_or_create(
         published=False,
         project=None,
         target=models.DigitalObject.objects.get(id=target_id),
@@ -428,7 +438,8 @@ class AssessmentViewSet(CustomModelViewSet):
       )
 
     # Ensure answers are created
-    for metric in assessment.rubric.metrics.all():
+    answer_metrics = [metric for metric, in assessment.answers.values_list('metric__id')]
+    for metric in assessment.rubric.metrics.exclude(id__in=answer_metrics):
       answer, _ = get_or_create(models.Answer,
         assessment=assessment,
         metric=metric,
