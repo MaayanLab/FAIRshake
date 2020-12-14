@@ -75,6 +75,11 @@ h1 {
     box-shadow: 0 0 4px 4px white;
 }
 
+.ui-icon {
+  position: relative;
+  z-index: 1;
+}
+
 .tippy-tooltip {
     font-size: 10pt !important;
     text-align: left;
