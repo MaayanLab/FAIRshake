@@ -1,4 +1,5 @@
-from django.db.models import Q
+from django.db.models import Case, When, Value, FloatField
+from django.db.models.functions import Replace, Length
 from FAIRshakeAPI import models
 from functools import reduce
 
@@ -16,23 +17,53 @@ class SearchVector:
     return self.queryset
 
   def query(self, q):
-    return self.get_queryset().filter(
-      reduce(
-        lambda F, f, q=q: (F|f(q)) if F is not None else f(q),
+    return self.get_queryset().annotate(
+      rank=reduce(
+        lambda F, f, q=q: (F+f(q)) if F is not None else f(q),
         self.get_filters(),
         None,
       )
-    ).order_by(*self.get_model()._meta.ordering).distinct()
+    ).filter(rank__gt=0).order_by('-rank', *self.get_model()._meta.ordering).distinct()
+
+
+def icontains_overlap(field, query):
+  return Case(
+    When(**{
+      "{field}__icontains".format(field=field): query
+    }, then=Value(len(query))),
+    default=Value(0),
+    output_field=FloatField(),
+  )
+
+def istartswith_overlap(field, query):
+  return Case(
+    When(**{
+      "{field}__istartswith".format(field=field): query
+    }, then=Value(len(query))),
+    default=Value(0),
+    output_field=FloatField(),
+  )
+
+def url_similarity(field, query):
+  ''' Assign a value to the similarity
+  the length of the url - the length of our query taken out of that url
+  '''
+  norm_field = Replace(
+    Replace(field, Value('http://'), Value('https://')),
+    Value('https://www.'), Value('https://')
+  )
+  norm_query = Value(query.replace('http://', 'https://').replace('https://www.', 'https://'))
+  return Length(norm_field, output_field=FloatField()) - Length(Replace(norm_field, norm_query, Value('')), output_field=FloatField())
 
 class IdentifiableSearchVector(SearchVector):
   filters = [
-    lambda q: Q(title__icontains=q),
-    lambda q: Q(url__url_similar=q),
-    lambda q: Q(description__icontains=q),
-    lambda q: Q(tags__icontains=q),
-    lambda q: Q(authors__first_name__istartswith=q),
-    lambda q: Q(authors__last_name__istartswith=q),
-    lambda q: Q(authors__email__istartswith=q),
+    lambda q: icontains_overlap('title', q) * 5.0,
+    lambda q: url_similarity('url', q) * 10.0,
+    lambda q: icontains_overlap('description', q),
+    lambda q: icontains_overlap('tags', q),
+    lambda q: istartswith_overlap('authors__first_name', q),
+    lambda q: istartswith_overlap('authors__last_name', q),
+    lambda q: istartswith_overlap('authors__email', q),
   ]
 
 class ProjectSearchVector(IdentifiableSearchVector):
