@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 assessments = []
 
@@ -60,7 +61,11 @@ class Assessment:
               for k in assessment.inputs
             }
             # Perform assessment
-            results = assessment.perform(current_have)
+            try:
+              results = assessment.perform(current_have)
+            except:
+              traceback.print_exc()
+              results = {}
             performed.add(assessment)
 
             # Warn if assessment isn't actually working properly
