@@ -94,7 +94,7 @@ class Assessment:
     urls = inputs['target:url']
     for url in urls:
       try:
-        r = requests.get(url)
+        r = requests.get(url, timeout=1)
         base_url = get_base_url(r.text, r.url)
         data = extruct.extract(r.text, base_url=base_url, syntaxes=['json-ld'])['json-ld']
         tree = Tree(data)
