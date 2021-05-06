@@ -5,7 +5,7 @@ django-allauth==0.42.0
 django-analytical==2.6.0
 django-bootstrap-form==3.4
 django-cors-headers==3.4.0
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
 django-des==2.4.1
 django-extensions==3.0.0
 django-filter==2.3.0
