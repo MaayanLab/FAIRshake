@@ -13,8 +13,13 @@ def get_json_ld_attr(tree, attrs):
   def get_json_ld_attr_inner():
     for attr in attrs:
       attr_split = attr.split('.')
+      # this prefix works for the following syntaxes:
+      #  { @context: "http://schema.org", "@type": {attr_type}, {attr_val}: ... }
+      #  { @context: "https://schema.org", "@type": [{attr_type}], {attr_val}: ... }
+      #  { @context: ["https://schema.org"], "@type": {attr_type}, {attr_val}: ... }
+      #  { @context: ["https://schema.org"], "@type": [{attr_type}], {attr_val}: ... }
       for result in tree.execute(
-        '$..*[@.@context is "http://schema.org"]..*[@.@type is {attr_type}].{attr_val}'.format(
+        '$..*["http://schema.org" in @.@context or "https://schema.org" in @.@context]..*[{attr_type} in @.@type].{attr_val}'.format(
           attr_type=attr_split[0],
           attr_val='.'.join(attr_split[1:]),
         )
