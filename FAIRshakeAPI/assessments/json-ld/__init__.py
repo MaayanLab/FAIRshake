@@ -43,7 +43,8 @@ to_schema = {
     'Dataset.description',
   ],
   'metric:21': [
-    'WebSite.identifier', # Thing
+    'DataCatalog.@id',
+    'Dataset.@id',
     'DataCatalog.identifier',
     'Dataset.identifier',
   ],
