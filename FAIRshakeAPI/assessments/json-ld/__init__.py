@@ -54,9 +54,18 @@ to_schema = {
     'Dataset.license',
   ],
   'metric:27': [
-    'WebSite.contact', # CreativeWork
-    'DataCatalog.contact',
-    'Dataset.contact',
+    'ContactPoint.email',
+    'ContactPoint.faxNumber',
+    'ContactPoint.telephone',
+    'ContactPoint.url',
+    'Organization.address',
+    'Organization.email',
+    'Organization.faxNumber',
+    'Organization.telephone',
+    'Person.address',
+    'Person.email',
+    'Person.faxNumber',
+    'Person.telephone',
   ],
   'metric:38': [
     'WebSite.version', # CreativeWork
