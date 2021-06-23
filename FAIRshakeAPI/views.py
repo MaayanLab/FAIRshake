@@ -270,6 +270,9 @@ class IdentifiableModelViewSet(CustomModelViewSet):
       q = Q(rubric__metrics=item)
     else:
       q = Q(**{ model: item })
+    
+    _rubric = request.GET.get('rubric')
+    if _rubric: q = q & Q(rubric=models.Rubric.objects.get(id=_rubric))
 
     assessments = models.Assessment.objects.filter(q) \
       .select_related('rubric') \
