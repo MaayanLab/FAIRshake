@@ -91,7 +91,7 @@
                   {% with answer=answers|return_item:assessment_metric %}
                   {% if answer %}
                     <td style="white-space: nowrap; background-color: {{ answer.color }};">
-                      {{ answer.annotate }} ({{ answer.answer }})
+                      {{ answer.annotate }} ({{ answer.answer|stringformat:"0.2f" }})
                     </td>
                   {% else %}
                     <td style="white-space: nowrap; background-color: rgba(221,221,221,0.25);">
