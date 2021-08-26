@@ -63,7 +63,7 @@ class AnswerSerializer(serializers.ModelSerializer):
     )
 
 class AssessmentSerializer(serializers.ModelSerializer):
-  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.filter(id__isnull=False))
+  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.filter(id__isnull=False), allow_null=True)
   target = serializers.PrimaryKeyRelatedField(queryset=models.DigitalObject.objects.filter(id__isnull=False))
   rubric = serializers.PrimaryKeyRelatedField(queryset=models.Rubric.objects.filter(id__isnull=False))
 
@@ -87,7 +87,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
     )
 
 class AssessmentResponseSerializer(serializers.ModelSerializer):
-  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.filter(id__isnull=False))
+  project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.filter(id__isnull=False), allow_null=True)
   target = serializers.PrimaryKeyRelatedField(queryset=models.DigitalObject.objects.filter(id__isnull=False))
   rubric = serializers.PrimaryKeyRelatedField(queryset=models.Rubric.objects.filter(id__isnull=False))
 
