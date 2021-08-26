@@ -203,16 +203,24 @@ class Assessment(models.Model):
   timestamp = models.DateTimeField(auto_now_add=True)
 
   def has_permission(self, user, perm):
+    if user.is_staff:
+      return True
     if perm in ['list', 'create', 'prepare', 'perform', 'remove', 'delete', 'retrieve', 'update', 'partial_update', 'destroy']:
       if self is None:
-        return user.is_authenticated or user.is_staff
+        return user.is_authenticated
+      elif perm in ['list', 'prepare', 'retrieve']:
+        if self.assessor == user:
+          return True
+        if self.target.authors.filter(id=user.id).exists():
+          return True
+        if self.project.authors.filter(id=user.id).exists():
+          return True
       elif self.published == False:
-        return (self and self.assessor == user) or user.is_staff
-      else:
-        return user.is_staff
+        if self:
+          return self.assessor == user
     else:
       logging.warning('perm %s not handled' % (perm))
-      return user.is_staff
+    return False
 
   def delete(self, *args, **kwargs):
     ret = super(Assessment, self).delete(*args, **kwargs)
