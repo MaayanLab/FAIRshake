@@ -769,8 +769,7 @@ class ScoreViewSet(
       del GET['digital_object']
   
     key = ','.join(map('='.join, GET.items()))
-    # result = cache.get(key)
-    result = None
+    result = cache.get(key)
 
     if result is None:
       scores = {}
