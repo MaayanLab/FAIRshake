@@ -335,13 +335,15 @@ class Answer(models.Model):
   def color(self, alpha=0.25):
     ''' Convert value to nearest human-readable verbose representation
     '''
-    return hex_to_rgba(
-      linear_map_ints(
-        [0, 1],
-        [0xff0000, 0x0000ff],
-      )(self.answer) if self.answer is not None else 0x666666,
-      alpha,
-    )
+    if self.answer is None:
+      return 0x666666
+    # (0, 1) => (0, 255)
+    # 0.0: 256 red, 0 blue
+    # 0.5: 128 red, 128 blue
+    # 1.0: 0 red, 255 blue
+    value = linear_map_ints([0, 1], [0, 0xff])(self.answer)
+    result = ((0xff - value)<<16) + value
+    return hex_to_rgba(result, alpha)
 
   def has_permission(self, user, perm):
     return (self and self.assessment.has_permission(user, perm)) or user.is_staff
