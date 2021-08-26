@@ -7,71 +7,75 @@
     <div class="col-sm-12">
       <hr />
       <h2 class="text-left">{{ model|unslugify }} Assessments ({{ items.paginator.count }})</h2>
-      <div class="table-responsive">
-        <br />
-        <table class="table table-bordered table-hover" style="overflow-x: auto; max-width: 100%;">
-          <tbody>
-            <tr>
-              <th colspan="{% if model == 'metric' %}4{% else %}3{% endif %}">
-                Assessment
-              </th>
-              <th colspan="100%">
-                Metrics
-              </th>
-            </tr>
-            <tr>
+      <br />
+      <table class="table table-bordered table-hover table-sticky-header" style="max-width: 100%;">
+        <thead>
+          <tr>
+            <th colspan="{% if model == 'metric' %}4{% else %}3{% endif %}">
+              Assessment
+            </th>
+            <th colspan="100%">
+              Metrics
+            </th>
+          </tr>
+          <tr>
+            <th colspan="{% if model == 'metric' %}4{% else %}3{% endif %}" class="tbody-thead"><div>
               {% if model != "digital_object" %}
-              <th>
+              <div>
                 Target
-              </th>
+              </div>
               {% endif %}
               {% if model != "rubric" %}
-              <th>
+              <div>
                 Rubric
-              </th>
+              </div>
               {% endif %}
               {% if model != "project" %}
-              <th>
+              <div>
                 Project
-              </th>
+              </div>
               {% endif %}
-              <th>
+              <div>
                 &nbsp;
+              </div>
+            </div></th>
+            {% for metric in metrics %}
+              <th>
+                <a href="{% url 'metric-detail' pk=metric.pk %}">
+                  {{ metric.title }}
+                </a>
               </th>
-              {% for metric in metrics %}
-                <th>
-                  <a href="{% url 'metric-detail' pk=metric.pk %}">
-                    {{ metric.title }}
-                  </a>
-                </th>
-              {% endfor %}
-            </tr>
-            {% for assessment in items %}
-              <tr>
-                {% if model != "digital_object" %}
-                <th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for assessment in items %}
+            <tr>
+              <th class="tbody-thead" colspan="{% if model == 'metric' %}4{% else %}3{% endif %}"><div>
+              {% if model != "digital_object" %}
+                <div>
                   <a href="{% url 'digital_object-detail' pk=assessment.target.pk %}">
                     {{ assessment.target.title }}
                   </a>
-                </th>
-                {% endif %}
-                {% if model != "rubric" %}
-                <th>
+                </div>
+              {% endif %}
+              {% if model != "rubric" %}
+                <div>
                   <a href="{% url 'rubric-detail' pk=assessment.rubric.pk %}">
                     {{ assessment.rubric.title }}
                   </a>
-                </th>
-                {% endif %}
-                {% if model != "project" %}
-                <th>
+                </div>
+              {% endif %}
+              {% if model != "project" %}
+                <div>
                   {% if assessment.project %}
                     <a href="{% url 'project-detail' pk=assessment.project.pk %}">
                       {{ assessment.project.title }}
                     </a>
                   {% endif %}
-                </th>
-                {% endif %}
-                <th>
+                </div>
+              {% endif %}
+                <div>
                   <div
                     class="insignia"
                     style="width: 40px; height: 40px; min-width:40px; min-height: 40px;"
@@ -84,30 +88,30 @@
                       Details
                     </a>
                   {% endif %}
-                </th>
-                {% for metric in metrics %}
-                  {% with assessment_pk=assessment.pk|jsonify metric_pk=metric.pk|jsonify %}
-                  {% with assessment_metric=assessment_pk|add:"-"|add:metric_pk %}
-                  {% with answer=answers|return_item:assessment_metric %}
-                  {% if answer %}
-                    <td style="white-space: nowrap; background-color: {{ answer.color }};">
-                      {{ answer.annotate }} ({{ answer.answer }})
-                    </td>
-                  {% else %}
-                    <td style="white-space: nowrap; background-color: rgba(221,221,221,0.25);">
-                      &nbsp;
-                    </td>
-                  {% endif %}
-                  {% endwith %}
-                  {% endwith %}
-                  {% endwith %}
-                {% endfor %}
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% include "fairshake/generic/page_nav.html" %}
-      </div>
+                </div>
+              </div></th>
+              {% for metric in metrics %}
+                {% with assessment_pk=assessment.pk|jsonify metric_pk=metric.pk|jsonify %}
+                {% with assessment_metric=assessment_pk|add:"-"|add:metric_pk %}
+                {% with answer=answers|return_item:assessment_metric %}
+                {% if answer %}
+                  <td style="white-space: nowrap; background-color: {{ answer.color }};">
+                    {{ answer.annotate }} ({{ answer.answer|stringformat:"0.2f" }})
+                  </td>
+                {% else %}
+                  <td style="white-space: nowrap; background-color: rgba(221,221,221,0.25);">
+                    &nbsp;
+                  </td>
+                {% endif %}
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "fairshake/generic/page_nav.html" %}
     </div>
   </div>
 </div>

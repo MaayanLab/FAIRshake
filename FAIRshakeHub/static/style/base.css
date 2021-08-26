@@ -270,3 +270,88 @@ h1 {
   }
 }
 /* END https://loading.io/css/ */
+
+.table-sticky-header {
+  background-color: white;
+  position: relative;
+  z-index: 0;
+}
+
+.table-sticky-header tr, .table-sticky-header td {
+  z-index: 0;
+}
+
+.table-sticky-header > thead {
+  background-color: white;
+  border: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+.table-sticky-header > thead > tr > th {
+  border-top: 1px solid black;
+  z-index: 4;
+}
+.table-sticky-header > thead > tr > th.tbody-thead {
+  z-index: 4;
+}
+.table-sticky-header th.tbody-thead {
+  background-color: white;
+  border: 1px solid #ddd;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  padding: 0 !important;
+  margin: 0;
+  display: table-cell;
+}
+.table-sticky-header th.tbody-thead > div {
+  display: flex;
+  justify-items: stretch;
+  align-items: stretch;
+}
+.table-sticky-header th.tbody-thead > div > div {
+  flex: 1 1 0;
+  min-width: 0;
+  word-wrap: break-word;
+  border: 1px solid #ddd;
+  padding: 0;
+  margin: 0;
+}
+
+/* 
+.table {
+  position: relative;
+  display: table-column;
+  flex-direction: column;
+  border: 1px solid black;
+}
+.table-thead {
+  flex: 0 0 auto;
+  display: flex;
+}
+.table-tr {
+  display: flex;
+  flex-direction: row;
+}
+.table-thead {
+  position: sticky;
+  top: 0;
+}
+.table-tbody > .table-tr > .table-th {
+  position: sticky;
+  left: 0;
+}
+.table-td, .table-th {}
+.table-tbody {}
+
+table.table-sticky-th thead tr th {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
+table.table-sticky-th tbody tr th {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+} */
