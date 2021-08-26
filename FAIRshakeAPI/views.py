@@ -725,30 +725,33 @@ class ScoreViewSet(
 
   def get_queryset(self):
     if self.request.user.is_anonymous:
-      return models.Assessment.objects.filter(published=True).select_related('answer').select_related('metric')
-    return models.Assessment.objects.filter(
-      Q(target__authors=self.request.user)
-      | Q(project__authors=self.request.user)
-      | Q(assessor=self.request.user)
-      | Q(published=True)
-    ).select_related('answer').select_related('metric')
+      return (
+        models.Assessment.objects.filter(published=True)
+          .select_related('answer')
+          .select_related('metric')
+      )
+    return (
+      models.Assessment.objects.filter(
+        Q(target__authors=self.request.user)
+        | Q(project__authors=self.request.user)
+        | Q(assessor=self.request.user)
+        | Q(published=True)
+      )
+      .select_related('answer')
+      .select_related('metric')
+    )
 
   def _retrieve(self, assessment):
     '''
     Generate scores for a single assessment by id.
     '''
-    result = {
-      'scores': {
-        assessment.rubric_id: {
-          answer.metric_id: answer.answer
-        }
-        for answer in assessment.answers.all()
-      },
-      'metrics': {
-        answer.metric_id: answer.metric.title
-        for answer in assessment.answers.all()
-      },
-    }
+    scores = { assessment.rubric_id: {} }
+    metrics = {}
+    for metric in assessment.rubric.metrics.all():
+      metrics[metric.id] = metric.title
+    for answer in assessment.answers.all():
+      scores[assessment.rubric_id][answer.metric_id] = answer.answer
+    result = dict(scores=scores, metrics=metrics)
     return response.Response(result)
 
   def list(self, request):
@@ -771,7 +774,6 @@ class ScoreViewSet(
 
     if result is None:
       scores = {}
-      metrics = {}
 
       targets = set()
       rubrics = set()
@@ -787,8 +789,8 @@ class ScoreViewSet(
 
       assessments = self.filter_queryset(self.get_queryset())
 
-      metrics_set = set()
-      scores = defaultdict(lambda: {})
+      rubrics_set = set()
+      scores = {}
       for row in assessments.values(
         'rubric', 'answers__metric'
       ).order_by().annotate(
@@ -796,15 +798,24 @@ class ScoreViewSet(
       ):
         rubric = row['rubric']
         metric = row['answers__metric']
-        metrics_set.add(metric)
+        rubrics_set.add(rubric)
         score = row['answers__answer__avg']
+        if rubric not in scores: scores[rubric] = {}
         scores[rubric][metric] = score
 
-      metrics_lookup = dict(models.Metric.objects.filter(id__in=metrics_set).values_list('id', 'title'))
+      metrics = {}
+      for rubric, metric, metric_title in (
+        models.Rubric.objects.filter(id__in=rubrics_set)
+          .select_related('metric')
+          .values_list('id', 'metrics__id', 'metrics__title')
+          .order_by('id')
+      ):
+        if metric not in scores[rubric]: scores[rubric][metric] = None
+        if metric not in metrics: metrics[metric] = metric_title
 
       result = {
         'scores': scores,
-        'metrics': metrics_lookup,
+        'metrics': metrics,
       }
 
       # Only cache if we actually got anything
