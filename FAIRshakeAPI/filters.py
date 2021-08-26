@@ -63,6 +63,7 @@ class AuthorFilterSet(filters.FilterSet):
     fields = '__all__'
 
 class ScoreFilterSet(filters.FilterSet):
+  id = filters.NumberFilter(field_name='id')
   digital_object = filters.ModelChoiceFilter(queryset=models.DigitalObject.objects.filter(id__isnull=False), field_name='target')
   url = filters.CharFilter(field_name='target__url', lookup_expr='url_similar')
   url_strict = filters.CharFilter(field_name='target__url', lookup_expr='url_strict')
