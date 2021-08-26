@@ -102,6 +102,12 @@ h1 {
 .image-link {
     height: 100%;
     width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.image-link > img {
+    align-self: center;
 }
 
 .bookmarklet-btn {
