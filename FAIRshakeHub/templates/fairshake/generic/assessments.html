@@ -90,9 +90,15 @@
                   {% with assessment_metric=assessment_pk|add:"-"|add:metric_pk %}
                   {% with answer=answers|return_item:assessment_metric %}
                   {% if answer %}
-                    <td style="white-space: nowrap; background-color: {{ answer.color }};">
-                      {{ answer.annotate }} ({{ answer.answer|stringformat:"0.2f" }})
+                    {% if answer.answer is not None %}
+                      <td style="white-space: nowrap; background-color: {{ answer.color }};">
+                        {{ answer.annotate }} ({{ answer.answer|stringformat:"0.2f" }})
+                      </td>
+                    {% else %}
+                    <td style="white-space: nowrap; background-color: rgba(64,64,64,0.25);">
+                      &nbsp;
                     </td>
+                    {% endif %}
                   {% else %}
                     <td style="white-space: nowrap; background-color: rgba(221,221,221,0.25);">
                       &nbsp;
