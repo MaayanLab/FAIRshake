@@ -17,6 +17,7 @@ from django.forms import ModelChoiceField
 from django.urls import reverse
 from django.core.exceptions import MultipleObjectsReturned
 from rest_framework import views, viewsets, schemas, response, mixins, decorators, renderers, permissions, status
+from rest_framework_csv.renderers import CSVRenderer
 from functools import reduce
 from collections import defaultdict, OrderedDict
 
@@ -59,6 +60,7 @@ class CustomTemplateHTMLRenderer(renderers.TemplateHTMLRenderer):
 class CustomModelViewSet(viewsets.ModelViewSet):
   renderer_classes = [
     renderers.JSONRenderer,
+    CSVRenderer,
     CustomTemplateHTMLRenderer,
     CustomBrowsableAPIRenderer,
   ]
@@ -138,14 +140,27 @@ class IdentifiableModelViewSet(CustomModelViewSet):
     headers = self.get_success_headers(serialized_item.data)
     return response.Response(serialized_item.data, status=status.HTTP_200_OK if found else status.HTTP_201_CREATED, headers=headers)
 
-  @swagger_auto_schema(methods=['get'], auto_schema=None)
+  @swagger_auto_schema(methods=['get'])
   @decorators.action(
     detail=True, methods=['get'], schema=None,
-    renderer_classes=[CustomTemplateHTMLRenderer],
+    renderer_classes=[
+      renderers.JSONRenderer,
+      CSVRenderer,
+      CustomTemplateHTMLRenderer
+    ],
   )
   def assessments(self, request, pk=None, **kwargs):
     self.check_permissions(request)
-    return response.Response()
+    if isinstance(request.accepted_renderer, CustomTemplateHTMLRenderer):
+      return response.Response()
+    # redirect /object/{pk}/assessments => assessments?object={pk}
+    GET = request.GET.copy()
+    GET[self.get_model_name()] = pk
+    return shortcuts.redirect(
+      reverse('assessment-list')
+      + '?'
+      + GET.urlencode()
+    )
 
   @swagger_auto_schema(methods=['get', 'post'], auto_schema=None)
   @decorators.action(
@@ -326,6 +341,7 @@ class DigitalObjectViewSet(IdentifiableModelViewSet):
     detail=True, methods=['get'],
     renderer_classes=[
       renderers.JSONRenderer,
+      CSVRenderer,
       CustomBrowsableAPIRenderer,
     ],
   )
