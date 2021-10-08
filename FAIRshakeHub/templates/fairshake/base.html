@@ -116,17 +116,33 @@
 <div id="footer">
   {% block footer %}
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-lg-4 col-sm-5">
         <ul class="footer-block text-center">
           <div>
-            <a href="https://nihdatacommons.us/" target="_blank">Team Nitrogen, KC1, DCPPC</a>
-          </div>
-          <div>
-            <a href="{% url 'contributors_and_partners' %}">Contributors and Partners</a>
+            <div class="media">
+              <div class="media-body">
+                <div>
+                  <a href="https://www.nih-cfde.org/" target="_blank">
+                    Common Fund Data Ecosystems Coordination Center (CFDE-CC)
+                  </a>
+                </div>
+                <div>
+                  <a href="{% url 'contributors_and_partners' %}">
+                    Contributors and Partners
+                  </a>
+                </div>
+              </div>
+              <span class="media-right">
+                <a href="https://www.nih-cfde.org/" target="_blank">
+                  <img class="media-object" src="{% static 'image/CFDE_logo-color-web.png' %}" height=40 />
+                </a>
+                &nbsp;
+              </span>
+            </div>
           </div>
         </ul>
       </div>
-      <div class="col-sm-4">
+      <div class="col-lg-4 col-sm-3">
         <ul class="footer-block text-center">
           <div>
             <a href="{% url 'documentation' %}">Documentation</a>
@@ -139,7 +155,7 @@
           </div>
         </ul>
       </div>
-      <div class="col-sm-4">
+      <div class="col-lg-4 col-sm-4">
         <ul class="footer-block text-center">
           <div>
             <a
