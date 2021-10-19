@@ -2,9 +2,9 @@ from . import models
 from collections import Counter
 from collections import defaultdict
 from django.db.models import Count, Avg
-from plotly import tools
 import numpy as np
 import plotly.graph_objs as go
+import plotly.subplots as subplots
 import plotly.offline as opy
 
 from scripts.linear_map import linear_map
@@ -64,12 +64,12 @@ def RubricPieChart(assessments_with_rubric):
   ]
   yield _iplot(fig)
 
-def RubricsInProjectsOverlay(answers_within_project):
-  rubrics = models.Rubric.objects.filter(id__in=[val['rubric'] for val in answers_within_project.values('rubric').order_by().distinct()])
+def RubricsInProjectsOverlay(assessments_within_project):
+  rubrics = models.Rubric.objects.filter(id__in=[val['rubric'] for val in assessments_within_project.values('rubric').order_by().distinct()])
   values = {
     rubric.title: list(zip(*sorted([
       (answer_count['value'], models.Answer.annotate_answer(answer_count['answers__answer'], with_perc=True))
-      for answer_count in answers_within_project.filter(rubric=rubric).values('answers__answer').annotate(value=Count('answers__answer')).order_by()
+      for answer_count in assessments_within_project.filter(rubric=rubric).values('answers__answer').annotate(value=Count('answers__answer')).order_by()
     ], reverse=True)))
     for rubric in rubrics
   }
@@ -90,14 +90,14 @@ def RubricsInProjectsOverlay(answers_within_project):
   })
 
 def _QuestionBarGraphs(metric_count_dict):
-  hist=[go.Bar(x=list([metric_dict[x] for x in metric_count_dict.keys()]),y=list(metric_count_dict.values()))]
+  hist=[go.Bar(x=list([metric_count_dict[x] for x in metric_count_dict.keys()]),y=list(metric_count_dict.values()))]
   layout = go.Layout(xaxis=dict(title="Metric",titlefont=dict(size=16),tickfont=dict(size=12)),yaxis=dict(title='Mean FAIR score',titlefont=dict(size=16)))
   fig = go.Figure(data=hist, layout=layout)
   yield _iplot(fig)
 
 def QuestionBreakdown(query):
-  metric_ids=iter(np.array(query4.values_list('metric',flat=True)))
-  scores=iter(np.array(query4.values_list('answer',flat=True)))
+  metric_ids=iter(np.array(query.values_list('metric',flat=True)))
+  scores=iter(np.array(query.values_list('answer',flat=True)))
   d={}
   for x,y in zip(metric_ids,scores):
     if x in d:
@@ -109,8 +109,8 @@ def QuestionBreakdown(query):
     average_score[key]=value/(len(scores)/9)
   return _QuestionBarGraphs(average_score)
 
-def DigitalObjectBarBreakdown(answers_within_project):
-  if answers_within_project.count() > 10000:
+def DigitalObjectBarBreakdown(assessments_within_project):
+  if assessments_within_project.count() > 10000:
     yield 'Too many objects for this plot'
     return
 
@@ -125,7 +125,7 @@ def DigitalObjectBarBreakdown(answers_within_project):
   )
   values = {}
   targets_set = set()
-  for row in answers_within_project.values('target').order_by().annotate(Avg('answers__answer')):
+  for row in assessments_within_project.values('target').order_by().annotate(Avg('answers__answer')):
     target = row['target']
     targets_set.add(target)
     score = row['answers__answer__avg']
@@ -223,11 +223,11 @@ def TablePlot(project):
   fig = go.Figure(data=data, layout=layout)
   yield _iplot(fig)
 
-def RubricsByMetricsBreakdown(answers_within_project):
+def RubricsByMetricsBreakdown(assessments_within_project):
   values = defaultdict(lambda: {})
   rubrics_set = set()
   metrics_set = set()
-  for row in answers_within_project.values('rubric', 'answers__metric').order_by().annotate(
+  for row in assessments_within_project.values('rubric', 'answers__metric').order_by().annotate(
     Avg('answers__answer'),
   ):
     rubric = row['rubric']
@@ -238,7 +238,7 @@ def RubricsByMetricsBreakdown(answers_within_project):
 
   rubrics_lookup = dict(models.Rubric.objects.filter(id__in=rubrics_set).values_list('id', 'title'))
   metrics_lookup = dict(models.Metric.objects.filter(id__in=metrics_set).values_list('id', 'title'))
-  fig = tools.make_subplots(rows=len(rubrics_set), cols=1, print_grid=False)
+  fig = subplots.make_subplots(rows=len(rubrics_set), cols=1, print_grid=False)
   for ind, (rubric, (metric_scores)) in enumerate(values.items()):
     metrics, scores = zip(*metric_scores.items())
     fig.append_trace(
