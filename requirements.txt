@@ -17,7 +17,7 @@ drf-yasg==1.20.0
 dynamic-rest==2.0.0
 extruct==0.13.0
 mysqlclient==2.0.3
-numpy==1.21.2
+numpy
 objectpath==0.6.1
 packaging==21.0
 plotly==5.3.1

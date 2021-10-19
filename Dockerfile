@@ -4,6 +4,7 @@ RUN apt-get update && \
     apt-get -y install \
         gcc \
         git \
+        libffi-dev \
         libmariadb-dev \
         libmariadb-dev-compat \
         libpq-dev \
