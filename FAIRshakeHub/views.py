@@ -95,6 +95,7 @@ def stats_view(request):
         'RubricsByMetricsBreakdown': lambda item: stats.RubricsByMetricsBreakdown(item.assessments),
         'RubricsInProjectsOverlay': lambda item: stats.RubricsInProjectsOverlay(item.assessments),
         'DigitalObjectBarBreakdown': lambda item: stats.DigitalObjectBarBreakdown(item.assessments),
+        'ScoreByMonth': lambda item: stats.ScoreByMonth(item),
       }.get(request.GET.get('plot'))(models.Project.objects.get(id=request.GET.get('item'))):
         page += res
       return http.HttpResponse(page)

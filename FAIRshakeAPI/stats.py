@@ -12,6 +12,27 @@ from scripts.linear_map import linear_map
 def _iplot(*args, **kwargs):
   return opy.plot(*args, **kwargs, auto_open=False, output_type='div')
 
+def _frame_transpose(d):
+  '''
+  {0: {"a": ., "b": ., ...}, ...]
+  =>
+  {"a": {..}, "b": {..}, ...}, ...}
+  '''
+  row_kind = type(d)
+  d_T = {}
+  for rid, row in (d.items() if row_kind == dict else enumerate(d)):
+    col_kind = type(row)
+    for cid, cell in (row.items() if col_kind == dict else enumerate(row)):
+      if cid not in d_T:
+        d_T[cid] = {} if row_kind == dict else []
+      if row_kind == dict:
+        d_T[cid][rid] = cell
+      else:
+        d_T[cid].append(cell)
+  if col_kind != dict:
+    d_T = [v for _, v in sorted(d_T.items())]
+  return d_T
+
 # Build Bar charts
 def BarGraphs(data):
   data_dict=Counter(data)
@@ -233,4 +254,27 @@ def RubricsByMetricsBreakdown(answers_within_project):
     fig['layout'][xaxis_num].update(showticklabels=False)
   # NOTE: this is supposed to be out of the loop
   fig['layout'][xaxis_num].update(title='Mean FAIR Score by Metric', titlefont=dict(size=16))
+  yield _iplot(fig)
+
+def ScoreByMonth(project):
+  from django.db.models.functions import TruncMonth
+  from django.db.models import Avg, StdDev, Min, Max
+  from FAIRshakeAPI.functions import Q1, Median, Q3
+  avg_over_time = (
+    models.Answer.objects.filter(assessment__project=project)
+      .annotate(x=TruncMonth('assessment__timestamp'))
+      .values('x')
+      .annotate(
+        mean=Avg('answer'),
+        q1=Q1('answer'),
+        median=Median('answer'),
+        q3=Q3('answer'),
+        sd=StdDev('answer'),
+        lowerfence=Min('answer'),
+        upperfence=Max('answer'),
+      )
+      .order_by()
+  )
+  fig = go.Figure()
+  fig.add_trace(go.Box(**_frame_transpose(avg_over_time)))
   yield _iplot(fig)

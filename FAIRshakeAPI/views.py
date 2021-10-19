@@ -374,7 +374,8 @@ class ProjectViewSet(IdentifiableModelViewSet):
         'RubricsInProjectsOverlay',
         'RubricPieChart',
         'DigitalObjectBarBreakdown',
-        'RubricsByMetricsBreakdown'
+        'RubricsByMetricsBreakdown',
+        'ScoreByMonth',
       ]
     )
 
