@@ -19,24 +19,7 @@
       <link rel="stylesheet" href="{% static 'style/base.css' %}" />
     {% endblock %}
 
-    <script type="application/ld+json">
-      { 
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "url": "{{ request.scheme }}://{{ request.META.HTTP_HOST }}",
-        "name": "FAIRshake",
-        "description": "FAIRshake is a system to evaluate the FAIRness of Digital Objects",
-        "author": "Team Nitrogen, KC1, DCPPC",
-        "keywords": "FAIRness,FAIR,FAIR Data,FAIR Assessment,FAIR Digital Object,FAIR Metric,FAIR Rubric,FAIR Insignia",
-        "image": "{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% static 'image/favicon.ico' %}",
-        "thumbnailUrl": "{{ request.scheme }}://{{ request.META.HTTP_HOST }}{% static 'image/favicon.ico' %}",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "{{ request.scheme }}://{{ request.META.HTTP_HOST }}?q={query}",
-          "query-input": "required name=query"
-        }
-      }
-    </script>
+    {% include 'fairshake/jsonld.html' %}
 
     {% google_analytics %}
   {% endblock %}
