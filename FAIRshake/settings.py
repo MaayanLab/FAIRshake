@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     'bootstrapform',
     'corsheaders',
     'ajax_select',
-    'analytical',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -312,9 +311,7 @@ SWAGGER_SETTINGS = {
     },
 }
 
-GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-6277639-33'
-GOOGLE_ANALYTICS_DISPLAY_ADVERTISING = False
-GOOGLE_ANALYTICS_SITE_SPEED = True
+GA_MEASUREMENT_ID = 'G-2J7MMEJX6J'
 
 EMAIL_BACKEND = 'des.backends.ConfiguredEmailBackend'
 

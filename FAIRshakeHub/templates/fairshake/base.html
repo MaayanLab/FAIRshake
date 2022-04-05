@@ -1,4 +1,3 @@
-{% load google_analytics %}
 {% load filters %}
 <!DOCTYPE html>
 <html lang="en">
@@ -20,8 +19,7 @@
     {% endblock %}
 
     {% include 'fairshake/jsonld.html' %}
-
-    {% google_analytics %}
+    {% include 'fairshake/analytics.html' %}
   {% endblock %}
 
   <script src="https://buttons.github.io/buttons.js"></script>
