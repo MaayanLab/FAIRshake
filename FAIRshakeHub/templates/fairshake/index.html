@@ -137,6 +137,7 @@
         {% endwith %}
       </div>
     {% else %}
+      {% if featured %}
       <div class="col-sm-12">
         <h4>Featured Project & Rubric</h4>
         {% for item in featured %}
@@ -147,6 +148,7 @@
           </div>
         {% endfor %}
       </div>
+      {% endif %}
       <div class="col-sm-12">
         <p>&nbsp;</p>
         <p style="font-size: 75%">
