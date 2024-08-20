@@ -15,8 +15,11 @@
               <th colspan="{% if model == 'metric' %}4{% else %}3{% endif %}">
                 Assessment
               </th>
-              <th colspan="100%">
+              <th colspan="{{ metrics|length }}">
                 Metrics
+              </th>
+              <th rowspan="2">
+                Date
               </th>
             </tr>
             <tr>
@@ -108,6 +111,9 @@
                   {% endwith %}
                   {% endwith %}
                 {% endfor %}
+                <td style="white-space: nowrap;">
+                  {{ assessment.timestamp|date:"M j, Y" }}
+                </td>
               </tr>
             {% endfor %}
           </tbody>
