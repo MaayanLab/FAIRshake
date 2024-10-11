@@ -14,7 +14,7 @@ Django==2.2.24
 djangorestframework==3.11.2
 drf-yasg==1.20.0
 dynamic-rest==2.0.0
-extruct==0.13.0
+extruct==0.17.0
 mysqlclient==2.0.3
 numpy
 objectpath==0.6.1
