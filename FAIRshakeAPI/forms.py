@@ -216,7 +216,7 @@ class AnswerForm(forms.ModelForm):
         )),
       ])
     else:
-      raise 'Type is invalid'
+      raise RuntimeError(f"Metric type: {repr(self.instance.metric.type)} for {self.instance.metric.id} is invalid")
   
   def clean(self):
     cleaned_data = super().clean()
