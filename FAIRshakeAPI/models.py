@@ -150,7 +150,7 @@ class Rubric(IdentifiableModelMixin):
     ]
 
 class Metric(IdentifiableModelMixin):
-  type = models.CharField(max_length=16, blank=True, null=False, default='yesnobut', choices=(
+  type = models.CharField(max_length=16, blank=False, null=False, default='yesnobut', choices=(
     ('yesnobut', 'Yes no or but question'),
     ('yesnomaybe', 'Yes no or maybe question'),
     ('text', 'Simple textbox input'),
