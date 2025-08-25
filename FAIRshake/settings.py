@@ -315,7 +315,8 @@ GA_MEASUREMENT_ID = 'G-2J7MMEJX6J'
 
 EMAIL_BACKEND = 'des.backends.ConfiguredEmailBackend'
 
-SERVER_EMAIL = 'danieljbclarkemssm@gmail.com'
+DEFAULT_FROM_EMAIL = 'fairshake@maayanlab.cloud'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 ADMINS = [
   ('Daniel', 'danieljbclarkemssm@gmail.com',),
 ]
