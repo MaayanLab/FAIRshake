@@ -315,7 +315,7 @@ GA_MEASUREMENT_ID = 'G-2J7MMEJX6J'
 
 EMAIL_BACKEND = 'des.backends.ConfiguredEmailBackend'
 
-DEFAULT_FROM_EMAIL = 'fairshake@maayanlab.cloud'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@fairshake.cloud')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 ADMINS = [
   ('Daniel', 'danieljbclarkemssm@gmail.com',),
